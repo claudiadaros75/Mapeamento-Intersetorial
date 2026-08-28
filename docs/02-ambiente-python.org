@@ -1,0 +1,104 @@
+#+TITLE: Ambiente Python para análise geoespacial
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Objetivo
+
+Este documento registra a preparação do ambiente de desenvolvimento usado
+neste projeto: criação de um ambiente virtual Python e instalação das
+bibliotecas necessárias para trabalhar com dados geoespaciais.
+
+* Bibliotecas utilizadas
+
+| Biblioteca  | Papel                                                |
+|-------------+-------------------------------------------------------|
+| geopandas   | Leitura e análise de dados vetoriais (extensão do pandas) |
+| shapely     | Operações com geometrias (pontos, linhas, polígonos)      |
+| pyproj      | Conversão de sistemas de coordenadas e projeções          |
+| pyogrio     | Motor de leitura/escrita de formatos vetoriais (SHP etc.) |
+| matplotlib  | Criação de gráficos e mapas                               |
+| pandas      | Manipulação de tabelas de dados                           |
+
+O geopandas instala automaticamente shapely, pyproj, pyogrio e pandas. O
+matplotlib foi instalado separadamente para visualização.
+
+* Criação do ambiente virtual
+
+O projeto usa um ambiente virtual Python isolado, criado dentro da pasta do
+projeto:
+
+#+begin_src sh
+python3 -m venv .venv
+#+end_src
+
+O ambiente é ativado com:
+
+#+begin_src sh
+source .venv/bin/activate
+#+end_src
+
+* Instalação das bibliotecas
+
+Com o ambiente ativado (ou usando o caminho do interpretador):
+
+#+begin_src sh
+.venv/bin/pip install --upgrade pip
+.venv/bin/pip install geopandas matplotlib
+#+end_src
+
+Versões instaladas na data deste registro:
+
+- geopandas 1.1.4
+- matplotlib 3.11.1
+- pandas 3.0.5
+- shapely 2.1.2
+- pyproj 3.7.2
+- pyogrio 0.13.0
+
+* Verificação do ambiente
+
+Para conferir que tudo foi instalado corretamente:
+
+#+begin_src sh
+.venv/bin/python -c "import geopandas; print(geopandas.__version__)"
+#+end_src
+
+E para ver as versões completas:
+
+#+begin_src sh
+.venv/bin/pip list | grep -i -E "geopandas|matplotlib|pandas|shapely|pyproj|pyogrio"
+#+end_src
+
+* Exercício: conferir os dados carregados
+
+Com o arquivo =data/BR_Municipios_2024.zip= baixado e extraído, é possível
+carregar a malha e responder às primeiras perguntas:
+
+1. Quantos municípios (ou geocódigos) há na malha de 2024?
+2. Quais são as colunas da tabela de atributos?
+3. Qual é o sistema de coordenadas (CRS) declarado no arquivo =prj=?
+4. Qual é a extensão (bounding box) do Brasil na malha?
+
+A leitura é feita com:
+
+#+begin_src python
+import geopandas as gpd
+
+municipios = gpd.read_file("data/BR_Municipios_2024.shp")
+print(municipios.shape)
+print(municipios.columns.tolist())
+print(municipios.crs)
+print(municipios.total_bounds)
+#+end_src
+
+Os resultados obtidos devem ser registrados aqui neste documento à medida
+que os exercícios forem realizados.
+
+* Notas
+
+- O pip moderno pode recusar instalar pacotes para versões muito antigas do
+  Python; o projeto usa Python 3.14, sem problemas.
+- Para projetos maiores, é recomendável manter um arquivo de
+  dependências (=requirements.txt=) com as versões fixadas.

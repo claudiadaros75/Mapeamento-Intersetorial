@@ -1,0 +1,65 @@
+#+TITLE: Georeferenciamento com as Malhas Municipais do IBGE
+#+AUTHOR: Projeto de aprendizagem
+#+EMAIL: 
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Sobre o projeto
+
+Este projeto é um espaço de estudo sobre georeferenciamento e análise
+geoespacial, tendo como material de partida as Malhas Municipais Digitais
+(MMD) do IBGE, na edição de 2024.
+
+O objetivo é aprender na prática conceitos fundamentais de cartografia,
+sistemas de coordenadas, projeções e manipulação de dados geoespaciais,
+documentando todo o aprendizado em arquivos Org (formato *org-mode* do
+Emacs)
+
+* Decisões iniciais
+
+- Ano de referência: MMD 2024
+- Ferramenta principal: Python com geopandas
+- Recorte territorial inicial: todo o Brasil
+
+* Estrutura do projeto
+
+#+begin_src text
+georef-artifacts/
+|-- README.org              ; este arquivo, índice geral do projeto
+|-- docs/                   ; documentação de estudo em formato Org
+|   |-- 01-dados-ibge-malhas-municipais.org
+|   |-- 02-ambiente-python.org
+|   `-- 03-primeira-exploracao.org
+|-- scripts/                ; scripts auxiliares (download, análise)
+|-- data/                   ; dados baixados do IBGE (veja data/README.org)
+`-- .venv/                  ; ambiente virtual Python (não versionado)
+#+end_src
+
+* Roteiro de estudo
+
+O roteiro evolui conforme o projeto avança. Os primeiros passos são:
+
+1. [[./docs/01-dados-ibge-malhas-municipais.org][Entender os dados do IBGE]] - o que é a Malha Municipal Digital, onde
+   baixar, formato e características técnicas.
+2. [[./docs/02-ambiente-python.org][Preparar o ambiente Python]] - instalar e verificar geopandas.
+3. Baixar a MMD 2024 e inspecionar o conteúdo dos arquivos.
+4. Ler a malha com geopandas e fazer as primeiras visualizações
+   (ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]]).
+
+Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
+
+* Referências
+
+- Portal de downloads das Malhas do IBGE:
+  https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas
+- Servidor FTP de geociências do IBGE:
+  https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/
+- Documentação das malhas (informações técnicas e legais):
+  https://biblioteca.ibge.gov.br/index.php/biblioteca-catalogo?view=detalhes&id=2102268
+- API de malhas geográficas simplificadas do IBGE:
+  https://servicodados.ibge.gov.br/api/docs/malhas
+- API de localidades do IBGE:
+  https://servicodados.ibge.gov.br/api/docs/localidades
+- Publicação "Acesso e uso de dados geoespaciais":
+  https://www.ibge.gov.br/geociencias/metodologia-e-trabalho-de-campo/acesso-e-uso-de-dados-geoespaciais.html

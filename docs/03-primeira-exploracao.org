@@ -1,0 +1,116 @@
+#+TITLE: Primeira exploração da MMD 2024
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Objetivo
+
+Registrar os resultados da primeira leitura da Malha Municipal Digital 2024
+com o geopandas. O script de exploração está em
+=scripts/ibge_malha_municipal__explorar_shapefiles.py= e pode ser executado com:
+
+#+begin_src sh
+.venv/bin/python scripts/ibge_malha_municipal__explorar_shapefiles.py
+#+end_src
+
+* O que há dentro do pacote BR_Municipios_2024
+
+O arquivo =BR_Municipios_2024.zip= (208 MB) contém apenas os cinco arquivos
+essenciais de um shapefile, sem metadados extras:
+
+| Arquivo               | Tamanho     |
+|-----------------------+-------------|
+| BR_Municipios_2024.cpg | 5 bytes    |
+| BR_Municipios_2024.dbf | 2.8 MB     |
+| BR_Municipios_2024.prj | 151 bytes  |
+| BR_Municipios_2024.shp | 286 MB     |
+| BR_Municipios_2024.shx | 44 KB      |
+
+O conteúdo de =cpg= confirmou a codificação UTF-8. O conteúdo de =prj=
+confirma o sistema geodésico SIRGAS 2000 em coordenadas geográficas, que o
+geopandas interpreta como EPSG:4674.
+
+* Resultados obtidos
+
+** Estrutura geral
+
+- Feições: 5573
+- Geocódigos únicos (=CD_MUN=): 5573
+- Colunas: 16
+- Tipos de geometria: Polygon e MultiPolygon
+- Sistema de coordenadas: EPSG:4674 (SIRGAS 2000, geográficas)
+- Extensão total: longitude de -73,99 a -28,85; latitude de -33,75 a 5,27
+
+A contagem de 5573 geocódigos confirma o valor anunciado pelo IBGE para a
+edição de 2024.
+
+** Colunas da tabela de atributos
+
+A malha municipal de 2024 traz, além da geometria, uma série de campos
+cada município:
+
+| Coluna      | Descrição aproximada                                  |
+|-------------+------------------------------------------------------|
+| CD_MUN      | Geocódigo do município (7 dígitos)                    |
+| NM_MUN      | Nome do município                                     |
+| CD_RGI      | Código da região geográfica imediata                  |
+| NM_RGI      | Nome da região geográfica imediata                    |
+| CD_RGINT    | Código da região geográfica intermediária             |
+| NM_RGINT    | Nome da região geográfica intermediária               |
+| CD_UF       | Código da unidade da federação                        |
+| NM_UF       | Nome da unidade da federação                          |
+| SIGLA_UF    | Sigla da unidade da federação                         |
+| CD_REGIA    | Código da grande região                               |
+| NM_REGIA    | Nome da grande região                                 |
+| SIGLA_RG    | Sigla da grande região                                |
+| CD_CONCU    | Código da concentração urbana (quando aplicável)      |
+| NM_CONCU    | Nome da concentração urbana (quando aplicável)        |
+| AREA_KM2    | Área do município em quilômetros quadrados            |
+| geometry    | Geometria do município                                |
+
+As regiões geográficas imediatas e intermediárias substituíram, a partir de
+2017, as antigas microrregiões e mesorregiões.
+
+** Concentrações urbanas
+
+Os campos =CD_CONCU= e =NM_CONCU= indicam a concentração urbana à qual o
+município pertence, conforme a classificação de arranjos populacionais e
+concentrações urbanas do IBGE. Na malha de 2024, 660 municípios possuem
+valor preenchido nesse campo (exemplos: "São Paulo/SP", "Americana - Santa
+Bárbara d´Oeste/SP").
+
+** Distribuição por região
+
+| Região        | Municípios |
+|---------------+------------|
+| Nordeste      | 1794       |
+| Sudeste       | 1668       |
+| Sul           | 1193       |
+| Centro-oeste  | 468        |
+| Norte         | 450        |
+
+** Unidades da federação com mais municípios
+
+| UF  | Nome        | Municípios |
+|-----+-------------+------------|
+| MG  | Minas Gerais | 853       |
+| SP  | São Paulo    | 645       |
+| RS  | Rio Grande do Sul | 499  |
+| BA  | Bahia        | 417       |
+| PR  | Paraná       | 399       |
+
+** Áreas
+
+- Área total informada: 8.509.379,6 km2 (o valor oficial do Brasil é de
+  aproximadamente 8,5 milhões de km2).
+- Menor município: Santa Cruz de Minas (MG), com 3,565 km2.
+- Maior município: Altamira (PA), com 159.533,306 km2.
+
+* Observações e próximos passos
+
+- O campo =AREA_KM2= é fornecido pelo IBGE e pode ser comparado com o
+  cálculo feito a partir da geometria (assunto do próximo estudo).
+- Próximo passo sugerido: gerar o primeiro mapa do Brasil com matplotlib e
+  calcular a área dos municípios a partir da geometria, entendendo a
+  diferença entre área planimétrica e área em coordenadas geográficas.

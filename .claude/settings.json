@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls*)",
+      "Bash(tree*)",
+      "Bash(pwd*)",
+      "Bash(echo*)",
+      "Bash(cat*)",
+      "Bash(tee*)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(find*)",
+      "Bash(wc*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(which*)",
+      "Bash(file*)",
+      "Bash(du*)",
+      "Bash(df*)",
+      "Bash(env)",
+      "Bash(date*)",
+      "Bash(whoami)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)"
+    ]
+  }
+}

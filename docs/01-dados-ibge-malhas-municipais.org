@@ -1,0 +1,210 @@
+#+TITLE: Entendendo os dados do IBGE - Malha Municipal Digital
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Objetivo
+
+Este documento descreve os dados da *Malha Municipal Digital* (MMD) do
+IBGE, que são o material de estudo deste projeto. Ao final da leitura é
+esperado que seja possível responder:
+
+- O que é a MMD e o que ela representa?
+- Onde os arquivos são disponibilizados?
+- Qual a estrutura de diretórios do servidor?
+- Em qual formato os dados são publicados?
+- Quais são as características técnicas (sistema de referência, escala,
+  codificação)?
+- O que há dentro de um pacote de shapefile?
+
+* O que é a Malha Municipal Digital
+
+A Malha Municipal Digital é a representação vetorial da Divisão
+Político-Administrativa do Brasil, produzida pelo IBGE. Cada município é
+representado por um polígono, formando o mapa oficial de limites
+territoriais usado como base cartográfica de referência.
+
+A malha é atualizada anualmente e acompanha as alterações da divisão
+territorial (criação de municípios, ajustes de limites, alterações de
+fronteiras).
+
+No ano de 2023, por exemplo, a MMD era composta por 5572 geocódigos, sendo
+5568 municípios, o Distrito Federal (Brasília), o Distrito Estadual de
+Fernando de Noronha (PE) e duas áreas estaduais operacionais (Lagoa dos
+Patos e Lagoa Mirim, no Rio Grande do Sul). A contagem de 2024 será
+confirmada quando carregarmos os dados (ver o capítulo "Exercício: conferir
+os dados carregados" no documento de ambiente Python).
+
+* Onde encontrar os dados
+
+Os dados estão disponíveis em dois canais:
+
+- Página de downloads do portal: a página "Malha Municipal" reúne o
+  histórico de edições, a documentação técnica e os links de acesso.
+  https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas
+- Servidor FTP de geociências: onde ficam fisicamente os arquivos.
+  https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/
+
+No servidor FTP, cada edição fica em uma pasta chamada =municipio_AAAA=,
+por exemplo =municipio_2024=.
+
+* Estrutura de diretórios do servidor FTP
+
+A pasta de uma edição (=municipio_2024=) contém duas subpastas:
+
+- =Brasil/= - arquivos com todo o território nacional em um único pacote.
+- =UFs/= - arquivos organizados por unidade da federação (uma pasta por UF).
+
+Dentro de =Brasil/= estão os seguintes pacotes (edição 2024):
+
+| Arquivo                       | Tamanho | Conteúdo                                        |
+|-------------------------------+---------+-------------------------------------------------|
+| BR_Municipios_2024.zip        | 199 MB  | Malha municipal completa do Brasil              |
+| BR_UF_2024.zip                | 14 MB   | Limites das unidades da federação              |
+| BR_Regioes_2024.zip           | 10 MB   | As cinco grandes regiões (N, NE, SE, S, CO)    |
+| BR_RG_Imediatas_2024.zip      | 69 MB   | Regiões geográficas imediatas                  |
+| BR_RG_Intermediarias_2024.zip | 38 MB   | Regiões geográficas intermediárias             |
+| BR_Pais_2024.zip              | 6.7 MB  | Contorno do país                                |
+
+Já em =UFs/=, a estrutura típica de cada UF contém as malhas municipais
+(=MU=) e o limite estadual (=UF=), além de outros arquivos que podem variar
+entre edições.
+
+* Formato dos arquivos
+
+Os dados são publicados no formato *shapefile* (SHP), um formato vetorial
+amplamente suportado por softwares de geoprocessamento como QGIS, ArcGIS e
+as bibliotecas Python geopandas/fiona.
+
+Um "shapefile" não é um arquivo único: é um conjunto de arquivos que devem
+ser mantidos juntos. Os componentes essenciais são:
+
+| Extensão  | Papel                                                        |
+|-----------+--------------------------------------------------------------|
+| .shp      | As geometrias (pontos, linhas ou polígonos)                  |
+| .shx      | Índice que relaciona geometrias e atributos                  |
+| .dbf      | A tabela de atributos (em formato dBase)                     |
+| .prj      | A descrição do sistema de coordenadas e projeção (WKT)       |
+| .cpg      | A codificação de caracteres da tabela de atributos           |
+
+Além desses, podem existir arquivos auxiliares como =*.sbn= e =*.sbx=
+(índices espaciais) e =*.shp.xml= (metadados).
+
+* Características técnicas da MMD
+
+De acordo com a documentação do IBGE, os dados da MMD têm as seguintes
+características:
+
+- Escala compatível com o trabalho original de 1:250.000, sem supressão de
+  pontos, conforme critérios técnicos do IBGE.
+- Sistema geodésico de referência: SIRGAS 2000.
+- Sistema de coordenadas: geográficas (latitude e longitude em graus).
+- Codificação de texto: UTF-8.
+
+O SIRGAS 2000 é o sistema de referência geocêntrico adotado oficialmente no
+Brasil, alinhado com os marcos do Sistema Geodésico Brasileiro (SGB). É o
+sistema de coordenadas que o QGIS, o geopandas e os dados do IBGE assumem
+por padrão.
+
+* O geocódigo do IBGE
+
+Cada município possui um código único de sete dígitos, o *geocódigo*. A
+estrutura é:
+
+- Os dois primeiros dígitos identificam a unidade da federação.
+- Os cinco dígitos restantes identificam o município dentro da UF.
+
+Por exemplo, o código da cidade de São Paulo é =3550308=: o prefixo =35=
+indica o estado de São Paulo.
+
+Esse código é usado para relacionar a malha com outras bases de dados do
+IBGE, como os Censos e as pesquisas socioeconômicas.
+
+* APIs do IBGE
+
+Além dos downloads, o IBGE oferece APIs REST úteis para exploração:
+
+- *API de Localidades*: consulta de municípios, estados, regiões e seus
+  códigos. https://servicodados.ibge.gov.br/api/docs/localidades
+- *API de Malhas*: fornece malhas em formato SVG, GeoJSON ou TopoJSON,
+  ideais para aplicações web. A simplificação reduz o tamanho dos arquivos
+  em relação à malha original.
+  https://servicodados.ibge.gov.br/api/docs/malhas
+
+** Como obter dados em GeoJSON pela API
+
+A API de Malhas (versão 4) pode retornar a malha em GeoJSON. O formato é
+escolhido pelo parâmetro =formato= da URL (o cabeçalho =Accept= sozinho não
+funciona em todas as chamadas; o parâmetro é mais confiável):
+
+- SVG: =formato=image/svg+xml=
+- GeoJSON: =formato=application/vnd.geo+json=
+- TopoJSON: =formato=application/json=
+
+Exemplos testados neste projeto:
+
+- Malha de um município em GeoJSON (Cotia/SP, código =3513009=) — testada
+  via requisição direta à API (ver =scripts/ibge-malhas-api.http=), sem
+  script dedicado.
+
+- Malha de todos os municípios do Brasil em GeoJSON (malha simplificada de
+  qualidade máxima, cerca de 66 MB) — este é o único recurso baixado pelo
+  script =scripts/baixar_geojson_api.py=, que não recebe argumentos:
+
+#+begin_src sh
+.venv/bin/python scripts/baixar_geojson_api.py
+#+end_src
+
+Um exemplo baixado (Cotia) está salvo em
+=data/malha_municipio_3513009.geojson=. A malha completa do Brasil fica em
+=data/malha_brasil_municipios.geojson=.
+
+Para testar todos os endpoints de malha no Emacs, use o arquivo de testes
+do restclient em =scripts/ibge-malhas-api.http=.
+
+** Diferenças entre a API e o shapefile original
+
+Ao comparar o GeoJSON de todos os municípios com o shapefile da MMD 2024,
+foram observadas duas diferenças importantes:
+
+- A malha simplificada da API tem *5571* feições, enquanto o shapefile tem
+  *5573*. A diferença são as duas Áreas Operacionais do Rio Grande do Sul
+  (Lagoa dos Patos, código =4300002=, e Lagoa Mirim, código =4300001=), que
+  constam na malha original mas não na malha simplificada da API.
+- O GeoJSON da API traz apenas uma coluna de atributo, =codarea=, que
+  corresponde ao geocódigo de sete dígitos. O shapefile original traz todas
+  as demais colunas (nomes, regiões, áreas etc.).
+- O GeoJSON usa o sistema EPSG:4326 (WGS 84), padrão do formato; o
+  shapefile usa EPSG:4674 (SIRGAS 2000). Para o Brasil as diferenças
+  posicionais entre os dois são pequenas, mas é bom saber qual sistema cada
+  arquivo usa.
+
+Para este projeto, a API pode ser usada como alternativa leve às malhas
+originais, mas o foco principal será o shapefile completo, que preserva os
+atributos e as feições oficiais.
+
+* Notas sobre o uso legal
+
+As malhas do IBGE são dados públicos. A documentação oficial ("Malha
+Municipal Digital e Áreas Territoriais: Informações Técnicas e Legais para a
+Utilização dos Dados Publicados") reúne as características técnicas,
+históricas e legais de cada edição e deve ser consultada para uso
+institucional ou publicação de trabalhos.
+
+* Pontos de atenção
+
+- Os arquivos das malhas podem ser pesados (a malha municipal do Brasil tem
+  quase 200 MB comprimida). Por isso, para estudos iniciais, pode ser
+  interessante trabalhar com uma única UF ou com as malhas simplificadas da
+  API.
+- A malha é anual: os limites de uma edição podem diferir da edição
+  anterior, inclusive pela criação de novos municípios.
+
+* Próximos passos
+
+- Preparar o ambiente Python (ver [[./02-ambiente-python.org][ambiente-python]]).
+- Baixar a MMD 2024 para o diretório =data/=.
+- Carregar o shapefile com geopandas e inspecionar colunas, sistema de
+  coordenadas e número de municípios.
+- Fazer os primeiros mapas e cálculos de área.

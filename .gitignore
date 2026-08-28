@@ -1,0 +1,40 @@
+# -------------------------------------------------------------
+# Ambiente Python
+# -------------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+
+# -------------------------------------------------------------
+# Emacs
+# -------------------------------------------------------------
+# Pacotes do straight.el (~235 MB, reconstruidos pelo init.el)
+.emacs-revinfor/
+*~
+\#*\#
+.\#*
+
+# -------------------------------------------------------------
+# Dados do IBGE
+# -------------------------------------------------------------
+# Tudo em data/ e reproduzivel pelos scripts, entao o que for grande
+# demais para o repositorio fica de fora.
+
+# Shapefiles do FTP (~350 MB) - use scripts/download_mmd_2024.py
+data/*.zip
+data/*.part
+# Conteudo extraido dos shapefiles
+data/BR_*_2024/
+
+# Malhas em qualidade maxima (a municipal sozinha tem 64 MB) - use
+# scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py
+data/geojson/*_maxima.geojson
+
+# Versionadas (leves o bastante para o GitHub Pages):
+#   data/geojson/*_minima.geojson
+#   data/geojson/*_intermediaria.geojson
+
+# -------------------------------------------------------------
+# Sistema
+# -------------------------------------------------------------
+.DS_Store

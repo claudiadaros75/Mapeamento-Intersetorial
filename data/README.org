@@ -1,0 +1,110 @@
+#+TITLE: Dados (data/)
+#+LANGUAGE: pt-br
+
+Este diretório guarda os arquivos baixados do IBGE (Malha Municipal Digital
+2024) e os produtos derivados das análises.
+
+Há duas origens para a mesma malha, com finalidades diferentes:
+
+- os *.zip* vêm do FTP de geociências e contêm /shapefiles/ (SIRGAS 2000,
+  EPSG:4674) com a tabela de atributos completa - inclusive =AREA_KM2=. São
+  a fonte de referência para análise em geopandas.
+- os *.geojson* vêm da API de Malhas (v4) e já estão prontos para mapas web
+  (Leaflet, MapLibre, GitHub Pages), sem precisar de conversão.
+
+Estrutura esperada:
+
+#+begin_src text
+data/
+|-- BR_Municipios_2024.zip   ; shapefile, malha municipal completa
+|-- BR_Pais_2024.zip         ; demais recortes em shapefile
+|-- ...
+`-- geojson/                 ; malhas da API, um arquivo por recorte/qualidade
+    |-- BR_pais_2024_minima.geojson
+    |-- BR_uf_2024_maxima.geojson
+    `-- ...
+#+end_src
+
+* Como (re)baixar
+
+Dois scripts irmãos, mesma interface e mesmos nomes de recorte (=pais=,
+=regioes=, =uf=, =intermediarias=, =imediatas=, =municipios=). Sem argumentos,
+baixam todos os seis; =--listar= mostra os recortes disponíveis.
+
+- =scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py= (FTP)
+- =scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py= (API)
+
+#+begin_src sh
+# shapefiles, com extração para data/<pacote>/
+.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py --extrair
+.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py uf --extrair
+
+# geojson, escolhendo a qualidade
+.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py --qualidade minima
+.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py uf municipios
+#+end_src
+
+O script de GeoJSON completa cada feição com nome, sigla e códigos dos
+recortes superiores, consultando a API de Localidades (a API de Malhas
+devolve apenas =codarea=).
+
+O script de shapefile retoma downloads interrompidos, confere o tamanho
+local contra o do servidor antes de pular um arquivo, e com =--extrair=
+descompacta em =data/<pacote>/= - o layout que =scripts/ibge_malha_municipal__explorar_shapefiles.py=
+espera.
+
+** Espaço em disco (shapefiles)
+
+| Pacote                    |     ZIP | Extraído |
+|---------------------------+---------+----------|
+| BR_Pais_2024              |  6,7 MB |   9,2 MB |
+| BR_Regioes_2024           | 10,1 MB |  13,9 MB |
+| BR_UF_2024                | 14,0 MB |  19,1 MB |
+| BR_RG_Intermediarias_2024 | 38,0 MB |  52,3 MB |
+| BR_RG_Imediatas_2024      | 69,5 MB |  96,0 MB |
+| BR_Municipios_2024        | 198,5 MB | 276,3 MB |
+
+* Equivalência entre os pacotes ZIP e a API
+
+| Pacote ZIP                    | Recorte (script) | intrarregiao          | Feições |
+|-------------------------------+------------------+-----------------------+---------|
+| BR_Pais_2024                  | pais             | (nenhum)              |       1 |
+| BR_Regioes_2024               | regioes          | regiao                |       5 |
+| BR_UF_2024                    | uf               | UF                    |      27 |
+| BR_RG_Intermediarias_2024     | intermediarias   | regiao-intermediaria  |     133 |
+| BR_RG_Imediatas_2024          | imediatas        | regiao-imediata       |     510 |
+| BR_Municipios_2024            | municipios       | municipio             |    5571 |
+
+* Qualidade da malha (API)
+
+A API generaliza a geometria em três níveis. Tamanhos medidos para a malha
+municipal do Brasil inteiro:
+
+| qualidade     | tamanho |
+|---------------+---------|
+| minima        |  5,3 MB |
+| intermediaria | 15,1 MB |
+| maxima        | 64,2 MB |
+
+Para publicar no GitHub Pages, prefira =minima= (ou =intermediaria=): 64 MB
+de GeoJSON travam o navegador e o repositório.
+
+* O que vai para o repositório
+
+Todo o conteúdo de =data/= é reproduzível pelos scripts, então o =.gitignore=
+mantém versionado apenas o que é leve o bastante para o GitHub Pages:
+
+| Arquivos                          | Versionado | Como recuperar                          |
+|-----------------------------------+------------+-----------------------------------------|
+| =*.zip= (shapefiles, ~350 MB)     | não        | script de shapefile                     |
+| =geojson/*_maxima.geojson=        | não        | script de GeoJSON, =--qualidade maxima= |
+| =geojson/*_minima.geojson=        | sim        | -                                       |
+| =geojson/*_intermediaria.geojson= | sim        | -                                       |
+
+São cerca de 23 MB versionados, contra ~480 MB no total.
+
+* Fonte dos dados (domínio público do IBGE)
+
+- FTP: https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/Brasil/
+- API de Malhas (v4): https://servicodados.ibge.gov.br/api/docs/malhas?versao=4
+- API de Localidades (v1): https://servicodados.ibge.gov.br/api/docs/localidades
