@@ -9,20 +9,20 @@ NM_REGIA, AREA_KM2, NM_CONCU), que existem no shapefile do IBGE mas nao no
 GeoJSON da API. Apontar para outro recorte (UF, regioes) levanta KeyError.
 
 Depende do ZIP ja extraido:
-    .venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py \
+    .venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py \
         municipios --extrair
 
 Uso:
-    .venv/bin/python scripts/ibge_malha_municipal__explorar_shapefiles.py [caminho_do_shapefile]
+    .venv/bin/python scripts/commands/ibge_malha_municipal__explorar_shapefiles.py [caminho_do_shapefile]
 
-Caminho padrao: data/BR_Municipios_2024/BR_Municipios_2024.shp
+Caminho padrao: data/ibge_malha_municipal/zipfiles/BR_Municipios_2024/BR_Municipios_2024.shp
 """
 
 import sys
 
 import geopandas as gpd
 
-CAMINHO_PADRAO = "data/BR_Municipios_2024/BR_Municipios_2024.shp"
+CAMINHO_PADRAO = "data/ibge_malha_municipal/zipfiles/BR_Municipios_2024/BR_Municipios_2024.shp"
 
 
 def principal():

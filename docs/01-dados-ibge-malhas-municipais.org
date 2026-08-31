@@ -145,23 +145,18 @@ funciona em todas as chamadas; o parâmetro é mais confiável):
 Exemplos testados neste projeto:
 
 - Malha de um município em GeoJSON (Cotia/SP, código =3513009=) — testada
-  via requisição direta à API (ver =scripts/ibge-malhas-api.http=), sem
+  via requisição direta à API (ver =scripts/restclient-ibge-malhas-api.http=), sem
   script dedicado.
 
-- Malha de todos os municípios do Brasil em GeoJSON (malha simplificada de
-  qualidade máxima, cerca de 66 MB) — este é o único recurso baixado pelo
-  script =scripts/baixar_geojson_api.py=, que não recebe argumentos:
+- Malhas territoriais em GeoJSON pela API de Malhas (v4) — baixadas pelo
+  script =scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py=:
 
 #+begin_src sh
-.venv/bin/python scripts/baixar_geojson_api.py
+.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py
 #+end_src
 
-Um exemplo baixado (Cotia) está salvo em
-=data/malha_municipio_3513009.geojson=. A malha completa do Brasil fica em
-=data/malha_brasil_municipios.geojson=.
-
 Para testar todos os endpoints de malha no Emacs, use o arquivo de testes
-do restclient em =scripts/ibge-malhas-api.http=.
+do restclient em =scripts/restclient-ibge-malhas-api.http=.
 
 ** Diferenças entre a API e o shapefile original
 

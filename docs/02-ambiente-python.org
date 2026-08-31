@@ -73,7 +73,7 @@ E para ver as versões completas:
 
 * Exercício: conferir os dados carregados
 
-Com o arquivo =data/BR_Municipios_2024.zip= baixado e extraído, é possível
+Com o arquivo =data/ibge_malha_municipal/zipfiles/BR_Municipios_2024.zip= baixado e extraído, é possível
 carregar a malha e responder às primeiras perguntas:
 
 1. Quantos municípios (ou geocódigos) há na malha de 2024?
@@ -86,7 +86,7 @@ A leitura é feita com:
 #+begin_src python
 import geopandas as gpd
 
-municipios = gpd.read_file("data/BR_Municipios_2024.shp")
+municipios = gpd.read_file("data/ibge_malha_municipal/zipfiles/BR_Municipios_2024/BR_Municipios_2024.shp")
 print(municipios.shape)
 print(municipios.columns.tolist())
 print(municipios.crs)

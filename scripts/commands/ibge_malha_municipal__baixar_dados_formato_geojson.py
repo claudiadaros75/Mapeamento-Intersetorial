@@ -10,7 +10,7 @@ padrao o script complementa cada feicao com nome, sigla e codigos dos
 recortes superiores, consultando a API de Localidades (v1).
 
 Uso:
-    .venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py
+    .venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py
     .venv/bin/python ... uf municipios --qualidade maxima
     .venv/bin/python ... --listar
 """
@@ -26,7 +26,7 @@ API_MALHAS = "https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR"
 API_LOCALIDADES = "https://servicodados.ibge.gov.br/api/v1/localidades"
 GEOJSON = "application/vnd.geo+json"
 
-DESTINO = Path(__file__).resolve().parent.parent / "data" / "geojson"
+DESTINO = Path(__file__).resolve().parent.parent.parent / "data" / "ibge_malha_municipal" / "geojsonfiles"
 
 QUALIDADES = ("minima", "intermediaria", "maxima")
 
@@ -110,7 +110,7 @@ def tabela_nomes(recurso: str) -> dict:
 
 
 def baixar_nivel(nivel: str, qualidade: str, com_nomes: bool) -> Path:
-    """Baixa a malha de um recorte e grava em data/geojson/.
+    """Baixa a malha de um recorte e grava em data/ibge_malha_municipal/geojsonfiles/.
 
     Com com_nomes, cada feicao ganha nome, sigla e codigos dos recortes
     superiores vindos da API de Localidades; sem ele, fica apenas o codarea

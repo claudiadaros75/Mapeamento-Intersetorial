@@ -11,7 +11,7 @@ esta na fonte e na finalidade:
 - GeoJSON (o outro script): geometria generalizada e pronta para mapas web.
 
 Uso:
-    .venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py
+    .venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py
     .venv/bin/python ... uf municipios --extrair
     .venv/bin/python ... --listar
 """
@@ -27,7 +27,7 @@ BASE_URL = (
     "/malhas_municipais/municipio_2024/Brasil"
 )
 
-DESTINO = Path(__file__).resolve().parent.parent / "data"
+DESTINO = Path(__file__).resolve().parent.parent.parent / "data" / "ibge_malha_municipal" / "zipfiles"
 
 BLOCO = 1024 * 1024
 
@@ -122,7 +122,7 @@ def baixar(url: str, destino: Path) -> None:
 
 
 def extrair(arquivo_zip: Path) -> Path:
-    """Extrai o ZIP em data/<nome_do_pacote>/ e devolve a pasta."""
+    """Extrai o ZIP em data/ibge_malha_municipal/zipfiles/<nome_do_pacote>/ e devolve a pasta."""
     pasta = arquivo_zip.parent / arquivo_zip.stem
     with zipfile.ZipFile(arquivo_zip) as pacote:
         pacote.extractall(pasta)
@@ -132,7 +132,7 @@ def extrair(arquivo_zip: Path) -> Path:
 
 
 def baixar_nivel(nivel: str, com_extracao: bool, forcar: bool) -> None:
-    """Garante o ZIP de um recorte em data/, baixando-o se for preciso.
+    """Garante o ZIP de um recorte em data/ibge_malha_municipal/zipfiles/, baixando-o se for preciso.
 
     Um arquivo ja presente e reaproveitado, a menos que o tamanho divirja do
     servidor - sinal de download truncado - ou que forcar seja verdadeiro.
@@ -176,7 +176,7 @@ def principal() -> None:
     analisador.add_argument(
         "--extrair",
         action="store_true",
-        help="descompactar o ZIP em data/<pacote>/ apos o download",
+        help="descompactar o ZIP em data/ibge_malha_municipal/zipfiles/<pacote>/ apos o download",
     )
     analisador.add_argument(
         "--forcar",

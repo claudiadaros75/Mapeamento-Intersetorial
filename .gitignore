@@ -20,19 +20,19 @@ __pycache__/
 # Tudo em data/ e reproduzivel pelos scripts, entao o que for grande
 # demais para o repositorio fica de fora.
 
-# Shapefiles do FTP (~350 MB) - use scripts/download_mmd_2024.py
-data/*.zip
-data/*.part
+# Shapefiles do FTP (~350 MB) - use scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py
+data/ibge_malha_municipal/zipfiles/*.zip
+data/ibge_malha_municipal/zipfiles/*.part
 # Conteudo extraido dos shapefiles
-data/BR_*_2024/
+data/ibge_malha_municipal/zipfiles/BR_*_2024/
 
 # Malhas em qualidade maxima (a municipal sozinha tem 64 MB) - use
-# scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py
-data/geojson/*_maxima.geojson
+# scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py
+data/ibge_malha_municipal/geojsonfiles/*_maxima.geojson
 
 # Versionadas (leves o bastante para o GitHub Pages):
-#   data/geojson/*_minima.geojson
-#   data/geojson/*_intermediaria.geojson
+#   data/ibge_malha_municipal/geojsonfiles/*_minima.geojson
+#   data/ibge_malha_municipal/geojsonfiles/*_intermediaria.geojson
 
 # -------------------------------------------------------------
 # Sistema

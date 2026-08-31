@@ -1,0 +1,520 @@
+/* ==========================================================================
+   Estilos da Aplicação Explorador de Malhas (Leaflet)
+   ========================================================================== */
+
+:root {
+  --primary-color: #1e3a8a;
+  --primary-hover: #1d4ed8;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --sidebar-width: 340px;
+  --header-height: 64px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.app-header {
+  height: var(--header-height);
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-title h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.control-group label {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.header-controls select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: #ffffff;
+  font-size: 0.88rem;
+  color: var(--text-main);
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.header-controls select:focus {
+  border-color: var(--primary-hover);
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+}
+
+.loading {
+  font-size: 0.85rem;
+  color: #d97706;
+  font-weight: 600;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Layout Principal */
+.main-container {
+  flex: 1;
+  display: flex;
+  position: relative;
+  height: calc(100vh - var(--header-height));
+}
+
+/* Barra Lateral */
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  background: #f8fafc;
+  border-right: 1px solid var(--border-color);
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 500;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+.instruction {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.details-content {
+  font-size: 0.88rem;
+}
+
+.empty-state {
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 0.75rem 0;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detail-table td {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-table .label {
+  font-weight: 600;
+  color: var(--text-muted);
+  width: 40%;
+}
+
+.detail-table .value {
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+/* Legenda */
+.legend-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: inline-block;
+}
+
+/* Didática */
+.didactic-card {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.didactic-card h3 {
+  color: #0369a1;
+}
+
+.steps-list {
+  padding-left: 1.2rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #0c4a6e;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.steps-list code {
+  background: #e0f2fe;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+}
+
+/* Informações do Basemap */
+.basemap-description {
+  font-size: 0.84rem;
+  color: var(--text-main);
+  line-height: 1.45;
+  margin-bottom: 0.6rem;
+}
+
+.url-template-box {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.url-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.url-template-box code {
+  font-size: 0.73rem;
+  word-break: break-all;
+  color: #0f172a;
+  background: transparent;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.sample-url {
+  color: #1e3a8a !important;
+  font-weight: 600;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  width: 15px;
+  height: 15px;
+}
+
+/* Inspetor de Zoom */
+.zoom-inspector-card {
+  border-left: 4px solid var(--primary-color);
+  background: #fdfefe;
+}
+
+.zoom-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.zoom-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.zoom-display strong {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  background: #e0e7ff;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+}
+
+#zoom-slider {
+  width: 100%;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.zoom-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn-preset {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.3rem 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.btn-preset:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.btn-preset.active {
+  background: var(--primary-color);
+  color: #ffffff;
+  border-color: var(--primary-color);
+}
+
+/* Caixa de Matemática de Tiles */
+.tile-math-box {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.math-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.math-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.math-value {
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.highlight-coords {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+}
+
+/* Estilo dos Tiles de Debug na Tela */
+.debug-tile-grid {
+  border: 1px dashed rgba(220, 38, 38, 0.55);
+  background-color: rgba(254, 226, 226, 0.06);
+  box-sizing: border-box;
+  width: 256px !important;
+  height: 256px !important;
+  position: relative;
+  pointer-events: none;
+}
+
+.tile-coords-tag {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #f8fafc;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.tile-coords-tag .z-tag {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.tile-coords-tag .xy-tag {
+  color: #fde047;
+}
+
+/* Inspetor de GeoJSON */
+.geojson-inspector-card {
+  border-left: 4px solid #059669;
+  background: #fdfefe;
+}
+
+.auto-lod-toggle {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.auto-lod-toggle strong {
+  color: #065f46;
+}
+
+.lod-hint {
+  font-size: 0.72rem;
+  color: #047857;
+  padding-left: 1.3rem;
+}
+
+.badge-count {
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.api-url {
+  color: #059669 !important;
+  font-size: 0.72rem !important;
+}
+
+/* Container do Mapa */
+.map-container {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  background-color: #e5e7eb;
+}
+
+/* Tooltip customizado do Leaflet */
+.leaflet-tooltip-custom {
+  background-color: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.leaflet-tooltip-custom:before {
+  border-top-color: rgba(15, 23, 42, 0.85);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column-reverse;
+  }
+  .sidebar {
+    width: 100%;
+    height: 45%;
+    border-right: none;
+    border-top: 1px solid var(--border-color);
+  }
+  .map-container {
+    height: 55%;
+  }
+}

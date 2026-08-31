@@ -8,10 +8,10 @@
 
 Registrar os resultados da primeira leitura da Malha Municipal Digital 2024
 com o geopandas. O script de exploração está em
-=scripts/ibge_malha_municipal__explorar_shapefiles.py= e pode ser executado com:
+=scripts/commands/ibge_malha_municipal__explorar_shapefiles.py= e pode ser executado com:
 
 #+begin_src sh
-.venv/bin/python scripts/ibge_malha_municipal__explorar_shapefiles.py
+.venv/bin/python scripts/commands/ibge_malha_municipal__explorar_shapefiles.py
 #+end_src
 
 * O que há dentro do pacote BR_Municipios_2024

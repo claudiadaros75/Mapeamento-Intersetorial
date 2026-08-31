@@ -1,0 +1,270 @@
+#+TITLE: Como funciona o Leaflet: TileLayers, GeoJSON e Mapas Web
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Objetivo
+
+Este documento explica didaticamente como funciona a biblioteca *Leaflet.js*,
+o conceito fundamental de *TileLayer* (mosaicos de mapas), a anatomia das URLs de
+tiles e a renderização de camadas vetoriais em *GeoJSON*.
+
+* O que é o Leaflet.js?
+
+O Leaflet é uma biblioteca JavaScript leve (~40 KB) de código aberto para criação
+de mapas interativos na web. Ela é responsável por:
+
+1. Gerenciar o sistema de coordenadas e a navegação (zoom, arrastar/pan).
+2. Carregar e alinhar os blocos de imagens do mapa base (*TileLayers*).
+3. Desenhar geometrias vetoriais sobre o mapa (pontos, linhas e polígonos GeoJSON).
+4. Gerenciar interações do usuário (eventos de clique, mouse sobre feições, tooltips e popups).
+
+* O que é uma TileLayer (Camada de Mosaicos)?
+
+A Terra é gigantesca. Se um mapa tentasse carregar todo o planeta em alta resolução
+como uma única imagem, o arquivo teria *terabytes* de tamanho e travaria o navegador.
+
+Para resolver esse problema, a cartografia web moderna utiliza a *Pirâmide de Tiles*
+(padrão /Slippy Map/ ou /XYZ/):
+
+#+begin_src text
+Nível de Zoom   Dimensão da Grade       Total de Tiles (256x256 px)   O que representa
+--------------------------------------------------------------------------------------
+Zoom 0          2^0 x 2^0 = 1 bloco     1 imagem                      O planeta inteiro
+Zoom 1          2^1 x 2^1 = 4 blocos    4 imagens                     4 quadrantes
+Zoom 2          2^2 x 2^2 = 16 blocos   16 imagens                    Continentes
+...
+Zoom 4          16 x 16                 256 imagens                   País (ex.: Brasil)
+...
+Zoom 12         4.096 x 4.096           ~16,7 milhões de imagens      Nível de Cidade
+...
+Zoom 18         262.144 x 262.144       ~68,7 bilhões de imagens      Nível de Rua / Lote
+#+end_src
+
+** Como o navegador trabalha com Tiles
+
+1. Ao abrir o mapa, o Leaflet calcula as coordenadas da tela e o nível de zoom atual.
+2. Ele identifica quais são os únicos *15 a 20 pequenos blocos* (tiles) visíveis na tela.
+3. Faz o download assíncrono apenas dessas imagens (~15 KB cada).
+4. Monta os blocos lado a lado como um mosaico perfeito.
+5. Ao arrastar ou aproximar o mapa, ele busca os novos blocos necessários e descarta
+   os que saíram da tela.
+
+* Anatomia do Modelo de URL de Tiles
+
+Veja a URL utilizada no nosso projeto:
+
+#+begin_src text
+https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
+#+end_src
+
+Essa string não é um endereço fixo: é um *template dinâmico* onde o Leaflet
+substitui automaticamente os campos entre chaves ={}= para cada bloco que precisa carregar.
+
+** Significado de cada parâmetro
+
+| Parâmetro   | Nome técnico      | Significado e Função                                                                                      | Exemplo       |
+|-------------+-------------------+-----------------------------------------------------------------------------------------------------------+---------------|
+| ={s}=       | Subdomínio        | Subdomínio para balanceamento de carga (=a=, =b=, =c=, =d=). Permite baixar vários tiles em paralelo.    | =a= ou =b=    |
+| =light_all= | Tema/Estilo       | Identificador do estilo visual no servidor (ex.: =light_all= para fundo claro, =dark_all= para escuro).  | =light_all=   |
+| ={z}=       | Zoom Level        | Nível de aproximação ($0$ = mundo, $4$ = país, $12$ = cidade, $18$ = rua).                               | =4=           |
+| ={x}=       | Coluna (X)        | Posição horizontal do bloco na grade daquele zoom (vai de $0$ no oeste até $2^z - 1$ no leste).           | =6=           |
+| ={y}=       | Linha (Y)         | Posição vertical do bloco na grade daquele zoom (vai de $0$ no norte até $2^z - 1$ no sul).             | =9=           |
+| ={r}=       | Resolução Retina  | Sufixo para telas de alta densidade (substitui por =@2x= em telas 4K/Retina ou fica vazio).                | =""= ou =@2x= |
+| =.png=      | Extensão          | Formato de imagem dos blocos (PNG com transparência, JPEG ou WebP).                                      | =.png=        |
+
+** Exemplo Prático de Resolução de URL
+
+Quando o Leaflet precisa desenhar o bloco cobrindo a região central do Brasil no **Zoom 4**:
+
+- Subdomínio ={s}= $\rightarrow$ =a=
+- Zoom ={z}= $\rightarrow$ =4=
+- Coluna ={x}= $\rightarrow$ =6=
+- Linha ={y}= $\rightarrow$ =9=
+- Retina ={r}= $\rightarrow$ =""=
+
+A URL final calculada pelo Leaflet fica:
+
+#+begin_src text
+https://a.basemaps.cartocdn.com/light_all/4/6/9.png
+#+end_src
+
+O navegador faz uma requisição =HTTP GET= para esse endereço e recebe uma imagem
+PNG de 256x256 pixels com o desenho do mapa base.
+
+* Comparativo de Provedores de Tiles (Basemaps)
+
+Diferentes servidores oferecem estilos visuais apropriados para cada tipo de análise:
+
+1. **CartoDB Positron (Claro / Padrão do Projeto):**
+   - URL: =https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png=
+   - Visual limpo, em tons de cinza claro. Ideal para mapas temáticos, pois dá
+     destaque total às cores dos polígonos do IBGE.
+
+2. **CartoDB Dark Matter (Modo Escuro):**
+   - URL: =https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png=
+   - Fundo escuro de alto contraste. Excelente para visualizações noturnas ou
+     destacar feições com cores fluorescentes.
+
+3. **OpenStreetMap Padrão (Detalhado):**
+   - URL: =https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png=
+   - Mapa clássico com nomes de cidades, rios, estradas e pontos de referência.
+
+4. **Esri World Imagery (Satélite / Ortofoto):**
+   - URL: =https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}=
+   - Fotografias reais de satélite de alta resolução. Útil para inspecionar
+     relevo real, vegetação e uso do solo.
+
+5. **OpenTopoMap (Topográfico):**
+   - URL: =https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png=
+   - Representação clássica com relevo sombreado e curvas de nível.
+
+* Como o GeoJSON é desenhado sobre os Tiles
+
+Enquanto o *TileLayer* é composto por imagens estáticas de fundo (/raster/), o
+*GeoJSON* contém os limites territoriais do IBGE como vetores matemáticos:
+
+#+begin_src text
+[ Camada 2: Vetores GeoJSON ]  -> Polígonos de UFs e Municípios (com cores e cliques)
+               |
+[ Camada 1: TileLayer Base  ]  -> Mosaico de imagens (estradas, relevo, oceanos)
+               |
+[ Container DOM (#map)      ]  -> Elemento HTML gerenciado pelo Leaflet
+#+end_src
+
+1. O navegador baixa o arquivo =.geojson= com =fetch()=.
+2. O Leaflet converte os pares =[longitude, latitude]= em coordenadas de pixels na tela.
+3. Aplica estilos visuais (cor de preenchimento, espessura da borda, opacidade).
+4. Associa eventos DOM (=mouseover=, =click=) a cada feição para exibir dados no painel lateral.
+
+* Depuração e Inspeção Visual de Tiles (Z, X, Y)
+
+Para tornar a pirâmide de tiles 100% visível e didática, a aplicação inclui um
+recurso de depuração (*L.GridLayer*):
+
+1. **Grade Vermelha Tracejada:** desenha exatamente a borda de cada bloco de
+   $256 \times 256$ pixels carregado pelo navegador.
+2. **Etiqueta =(Z, X, Y)= no canto de cada tile:** mostra o nível de zoom $Z$ e
+   a posição exata $(X, Y)$ daquele bloco no planeta.
+
+** Como converter Latitude e Longitude em Coordenadas de Tile (X, Y)
+
+A projeção padrão da web (Web Mercator / EPSG:3857) utiliza a seguinte fórmula
+matemática para encontrar em qual bloco $(X, Y)$ um ponto $(\text{lat}, \text{lng})$ se encontra no zoom $Z$:
+
+#+begin_src javascript
+function latLngToTileCoords(lat, lng, zoom) {
+  const n = Math.pow(2, zoom);
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latRad = (lat * Math.PI) / 180;
+  const y = Math.floor(
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n
+  );
+  return { x, y };
+}
+#+end_src
+
+No nível de zoom $Z$:
+- O mundo tem $2^Z \times 2^Z$ blocos (ou $4^Z$ no total).
+- $X$ varia de $0$ (antimeridiano -180°) até $2^Z - 1$ (+180°).
+- $Y$ varia de $0$ (polo norte ~85,05°) até $2^Z - 1$ (polo sul ~-85,05°).
+
+* Estratégia de Nível de Detalhe por Zoom (LOD - Level of Detail)
+
+A visualização geoespacial eficiente exige que a resolução dos dados acompanhe
+a escala de visualização do usuário. Carregar todas as feições municipais em
+escala global é inviável e prejudicial à experiência.
+
+** Por que todos os 4 arquivos GeoJSON são indispensáveis?
+
+Cada arquivo GeoJSON baixado do IBGE atende a uma escala cartográfica específica:
+
+| Faixa de Zoom | Recorte Territorial | Arquivo GeoJSON Carregado        | Feições | Payload | Escala Cartográfica e Finalidade                             |
+|---------------+---------------------+----------------------------------+---------+---------+--------------------------------------------------------------|
+| $Z \le 3$     | País                | =BR_pais_2024_minima.geojson=     | 1       | ~15 KB  | Escala Continental: contorno nacional limpo e ultra-leve.    |
+| $Z = 4$       | Grandes Regiões     | =BR_regioes_2024_minima.geojson=  | 5       | ~33 KB  | Escala Macro-Regional: visão das 5 regiões (N, NE, CO, SE, S)|
+| $Z = 5..7$    | Unidades Federação  | =BR_uf_2024_minima.geojson=       | 27      | ~117 KB | Escala Estadual: permite comparar estados e capitais.        |
+| $Z \ge 8$     | Municípios          | =BR_municipios_2024_minima.geojson= | 5.571   | ~5,3 MB | Escala Urbana/Local: malha municipal completa e detalhada.   |
+
+** O que acontece se utilizarmos o arquivo errado na escala errada?
+
+1. *Se carregássemos apenas Municípios no Zoom 0 a 3:*
+   - Os 5.571 polígonos municipais ocupariam poucos pixels na tela.
+   - As linhas de contorno (bordas) se sobreporiam, formando uma "massa escura"
+     ilegível sobre o mapa do Brasil.
+   - O navegador consumiria processamento e memória desnecessários desenhando
+     milhares de vértices microscópicos.
+
+2. *Se carregássemos apenas UFs no Zoom 8 a 18:*
+   - Ao aproximar o zoom no nível de uma cidade (ex.: São Paulo, Curitiba ou Manaus),
+     o usuário veria apenas uma grande área vazia cercada pela borda distante do estado,
+     sem conseguir clicar ou inspecionar nenhum município específico.
+
+** Cache em Memória Local (~0 ms de latência nas trocas de Zoom)
+
+Para que a transição entre recortes seja imperceptível e sem travamentos, a aplicação
+armazena os GeoJSONs já baixados em um objeto de cache em memória JavaScript:
+
+#+begin_src javascript
+const geoJsonCache = {};
+
+// Na 1ª vez: baixa o arquivo pela rede (~10 a 50 ms)
+const response = await fetch(meta.filePath);
+const geojsonData = await response.json();
+geoJsonCache[layerKey] = { data: geojsonData, size: payloadSizeBytes };
+
+// Nas próximas vezes: recupera instantaneamente da memória RAM (0 ms)!
+const cachedData = geoJsonCache[layerKey].data;
+#+end_src
+
+** Modos de Operação: Auto-LOD vs. Controle Manual
+
+1. **Modo Automático (Auto-LOD, padrão ativo):**
+   - O ouvinte de evento =map.on('zoomend')= monitora o nível de zoom $Z$ e
+     atualiza a camada GeoJSON para a escala recomendada em tempo real.
+2. **Modo Manual:**
+   - Se o usuário selecionar manualmente um recorte no menu suspenso (ex.: forçar
+     exibição de municípios mesmo no zoom afastado), o modo Auto-LOD é desmarcado,
+     respeitando a escolha explícita do usuário.
+
+** Relação entre a Bounding Box da Tela e os Tiles Visíveis
+
+Para determinar quais tiles interceptam a tela do usuário:
+1. Obtemos os limites da tela com =map.getBounds()= (canto Noroeste e Sudeste).
+2. Convertemos essas latitudes e longitudes em índices $(X_{\min}, X_{\max})$ e $(Y_{\min}, Y_{\max})$.
+3. A janela visível é o produto $(X_{\max} - X_{\min} + 1) \times (Y_{\max} - Y_{\min} + 1)$ tiles.
+
+* Como Executar e Fazer Deploy da Aplicação
+
+A pasta =web/= foi concebida para ser 100% estática e auto-suficiente:
+
+#+begin_src text
+web/
+|-- index.html    ; Estrutura DOM, controles de basemap, zoom e inspeção
+|-- css/
+|   `-- style.css ; Estilização responsiva, painel lateral e tags de debug
+|-- js/
+|   `-- app.js    ; Código Leaflet completo (L.map, GridLayer, LOD e GeoJSON)
+`-- data/         ; GeoJSONs leves do IBGE prontos para publicação web
+#+end_src
+
+** Execução Local
+
+No terminal, execute o servidor embutido do Python:
+
+#+begin_src sh
+python3 -m http.server 8000 --directory web
+#+end_src
+
+Acesse no navegador: =http://localhost:8000=
+
+** Deploy Estático (GitHub Pages)
+
+Para publicar no GitHub Pages:
+1. Configure as opções do repositório em *Settings > Pages*.
+2. Aponte o diretório de publicação para a pasta =/web= ou use uma GitHub Action para deploy automático.
+3. Não é necessário nenhum servidor de backend ou banco de dados.
+
+
+

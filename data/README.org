@@ -16,13 +16,15 @@ Estrutura esperada:
 
 #+begin_src text
 data/
-|-- BR_Municipios_2024.zip   ; shapefile, malha municipal completa
-|-- BR_Pais_2024.zip         ; demais recortes em shapefile
-|-- ...
-`-- geojson/                 ; malhas da API, um arquivo por recorte/qualidade
-    |-- BR_pais_2024_minima.geojson
-    |-- BR_uf_2024_maxima.geojson
-    `-- ...
+`-- ibge_malha_municipal/
+    |-- zipfiles/                ; shapefiles (ZIPs e pastas extraídas)
+    |   |-- BR_Municipios_2024.zip
+    |   |-- BR_Municipios_2024/
+    |   `-- ...
+    `-- geojsonfiles/            ; malhas da API em GeoJSON
+        |-- BR_pais_2024_minima.geojson
+        |-- BR_uf_2024_maxima.geojson
+        `-- ...
 #+end_src
 
 * Como (re)baixar
@@ -31,17 +33,17 @@ Dois scripts irmãos, mesma interface e mesmos nomes de recorte (=pais=,
 =regioes=, =uf=, =intermediarias=, =imediatas=, =municipios=). Sem argumentos,
 baixam todos os seis; =--listar= mostra os recortes disponíveis.
 
-- =scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py= (FTP)
-- =scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py= (API)
+- =scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py= (FTP)
+- =scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py= (API)
 
 #+begin_src sh
-# shapefiles, com extração para data/<pacote>/
-.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py --extrair
-.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_shapefile.py uf --extrair
+# shapefiles, com extração para data/ibge_malha_municipal/zipfiles/<pacote>/
+.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py --extrair
+.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_shapefile.py uf --extrair
 
 # geojson, escolhendo a qualidade
-.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py --qualidade minima
-.venv/bin/python scripts/ibge_malha_municipal__baixar_dados_formato_geojson.py uf municipios
+.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py --qualidade minima
+.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py uf municipios
 #+end_src
 
 O script de GeoJSON completa cada feição com nome, sigla e códigos dos
@@ -50,7 +52,7 @@ devolve apenas =codarea=).
 
 O script de shapefile retoma downloads interrompidos, confere o tamanho
 local contra o do servidor antes de pular um arquivo, e com =--extrair=
-descompacta em =data/<pacote>/= - o layout que =scripts/ibge_malha_municipal__explorar_shapefiles.py=
+descompacta em =data/ibge_malha_municipal/zipfiles/<pacote>/= - o layout que =scripts/commands/ibge_malha_municipal__explorar_shapefiles.py=
 espera.
 
 ** Espaço em disco (shapefiles)
@@ -94,12 +96,12 @@ de GeoJSON travam o navegador e o repositório.
 Todo o conteúdo de =data/= é reproduzível pelos scripts, então o =.gitignore=
 mantém versionado apenas o que é leve o bastante para o GitHub Pages:
 
-| Arquivos                          | Versionado | Como recuperar                          |
-|-----------------------------------+------------+-----------------------------------------|
-| =*.zip= (shapefiles, ~350 MB)     | não        | script de shapefile                     |
-| =geojson/*_maxima.geojson=        | não        | script de GeoJSON, =--qualidade maxima= |
-| =geojson/*_minima.geojson=        | sim        | -                                       |
-| =geojson/*_intermediaria.geojson= | sim        | -                                       |
+| Arquivos                                                     | Versionado | Como recuperar                          |
+|--------------------------------------------------------------+------------+-----------------------------------------|
+| =ibge_malha_municipal/zipfiles/*.zip= (shapefiles, ~350 MB)  | não        | script de shapefile                     |
+| =ibge_malha_municipal/geojsonfiles/*_maxima.geojson=         | não        | script de GeoJSON, =--qualidade maxima= |
+| =ibge_malha_municipal/geojsonfiles/*_minima.geojson=         | sim        | -                                       |
+| =ibge_malha_municipal/geojsonfiles/*_intermediaria.geojson=  | sim        | -                                       |
 
 São cerca de 23 MB versionados, contra ~480 MB no total.
 

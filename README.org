@@ -30,9 +30,11 @@ georef-artifacts/
 |-- docs/                   ; documentação de estudo em formato Org
 |   |-- 01-dados-ibge-malhas-municipais.org
 |   |-- 02-ambiente-python.org
-|   `-- 03-primeira-exploracao.org
+|   |-- 03-primeira-exploracao.org
+|   `-- 04-leaflet-explicado.org
 |-- scripts/                ; scripts auxiliares (download, análise)
 |-- data/                   ; dados baixados do IBGE (veja data/README.org)
+|-- web/                    ; aplicação web estática (Leaflet + GeoJSON)
 `-- .venv/                  ; ambiente virtual Python (não versionado)
 #+end_src
 
@@ -46,6 +48,8 @@ O roteiro evolui conforme o projeto avança. Os primeiros passos são:
 3. Baixar a MMD 2024 e inspecionar o conteúdo dos arquivos.
 4. Ler a malha com geopandas e fazer as primeiras visualizações
    (ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]]).
+5. [[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e
+   renderização de GeoJSON no navegador.
 
 Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
 
