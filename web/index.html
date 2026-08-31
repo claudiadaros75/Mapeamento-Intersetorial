@@ -3,215 +3,343 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explorador de Malhas Territoriais do IBGE - Leaflet</title>
-
-  <!-- ========================================================= -->
-  <!-- PASSO 1: Importar CSS do Leaflet (CDN)                   -->
-  <!-- ========================================================= -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-
-  <!-- Folha de estilos da nossa aplicação -->
+  <title>Georreferenciamento & Mapas Interativos - IBGE 2024</title>
   <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+  <style>
+    /* Estilos específicos para a Página Inicial (Hub de Mapas) */
+    .portal-body {
+      overflow-y: auto !important;
+      height: auto !important;
+      min-height: 100vh;
+      background-color: #f8fafc;
+    }
 
-  <!-- Barra de cabeçalho -->
+    .portal-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem 1.5rem;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero-section h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-section p {
+      font-size: 1.1rem;
+      color: #475569;
+      max-width: 720px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .map-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+    }
+
+    .map-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.08);
+      border-color: #cbd5e1;
+    }
+
+    .map-card.featured {
+      border: 2px solid #3b82f6;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      margin-bottom: 0.75rem;
+      align-self: flex-start;
+    }
+
+    .badge-active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-upcoming {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .map-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+
+    .map-card p {
+      font-size: 0.92rem;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .tech-tag {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-open-map {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: #1e3a8a;
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: 8px;
+      transition: background 0.2s ease, transform 0.1s ease;
+      text-align: center;
+    }
+
+    .btn-open-map:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-open-map.disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Documentação */
+    .docs-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .doc-item {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .doc-item:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .doc-item strong {
+      color: #1e3a8a;
+      font-size: 0.95rem;
+    }
+
+    .doc-item span {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .footer a {
+      color: #1e3a8a;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="portal-body">
+
+  <!-- Barra de Cabeçalho do Portal -->
   <header class="app-header">
     <div class="header-title">
-      <h1>🗺️ Explorador de Malhas do IBGE (2024)</h1>
-      <span class="badge">Leaflet + GeoJSON</span>
+      <h1>🗺️ Georreferenciamento & Mapas</h1>
+      <span class="badge">IBGE 2024</span>
     </div>
     <div class="header-controls">
-      <!-- Seletor de Mapa Base (TileLayer) -->
-      <div class="control-group">
-        <label for="basemap-select">🗺️ Mapa Base:</label>
-        <select id="basemap-select">
-          <option value="carto-light" selected>CartoDB Positron (Claro)</option>
-          <option value="carto-dark">CartoDB Dark Matter (Escuro)</option>
-          <option value="osm">OpenStreetMap (Padrão)</option>
-          <option value="esri-satellite">Esri World Imagery (Satélite)</option>
-          <option value="opentopo">OpenTopoMap (Topográfico)</option>
-        </select>
-      </div>
-
-      <!-- Seletor de camada territorial (GeoJSON) -->
-      <div class="control-group">
-        <label for="layer-select">📐 Recorte:</label>
-        <select id="layer-select">
-          <option value="uf" selected>Unidades da Federação (27 UFs)</option>
-          <option value="regioes">Grandes Regiões (5 Regiões)</option>
-          <option value="pais">Contorno do País (Brasil)</option>
-          <option value="municipios">Municípios do Brasil (5.571)</option>
-        </select>
-      </div>
-
-      <!-- Alternador da Grade de Tiles (Debug) -->
-      <div class="control-group">
-        <label for="toggle-grid" class="checkbox-label">
-          <input type="checkbox" id="toggle-grid" checked>
-          🔍 Grade de Tiles (Z/X/Y)
-        </label>
-      </div>
-
-      <!-- Indicador de carregamento -->
-      <span id="loading-indicator" class="loading hidden">Carregando malha...</span>
+      <a href="ibge_malhas.html" class="btn-open-map" style="padding: 0.35rem 0.8rem; font-size: 0.82rem;">
+        Abrir Mapa Interativo ↗
+      </a>
     </div>
   </header>
 
-  <!-- Container principal do layout -->
-  <div class="main-container">
+  <!-- Conteúdo Principal do Portal -->
+  <div class="portal-container">
     
-    <!-- Painel Lateral de Informações -->
-    <aside class="sidebar">
+    <!-- Hero / Apresentação -->
+    <div class="hero-section">
+      <h1>Portal de Mapas & Artefatos Geoespaciais</h1>
+      <p>
+        Laboratório de aprendizagem e exploração prática de georreferenciamento,
+        sistemas de coordenadas e cartografia digital com base na Malha Municipal Digital 2024 do IBGE.
+      </p>
+    </div>
 
-      <!-- Inspetor de Zoom e Pirâmide de Tiles -->
-      <div class="card zoom-inspector-card">
-        <h2>🔍 Inspetor de Zoom (Pirâmide de Tiles)</h2>
-        <p class="instruction">Altere o zoom inteiro para ver a grade de tiles se subdividir.</p>
-        
-        <div class="zoom-slider-container">
-          <div class="zoom-display">
-            <span>Nível de Zoom (Z):</span>
-            <strong id="zoom-display-value">4</strong>
-          </div>
-          <input type="range" id="zoom-slider" min="0" max="18" value="4" step="1">
-        </div>
-
-        <div class="zoom-presets">
-          <button class="btn-preset" data-zoom="0">Mundo (0)</button>
-          <button class="btn-preset" data-zoom="3">América (3)</button>
-          <button class="btn-preset active" data-zoom="4">Brasil (4)</button>
-          <button class="btn-preset" data-zoom="7">Estado (7)</button>
-          <button class="btn-preset" data-zoom="11">Cidade (11)</button>
-          <button class="btn-preset" data-zoom="15">Rua (15)</button>
-        </div>
-
-        <div class="tile-math-box">
-          <div class="math-row">
-            <span class="math-label">Dimensão da grade:</span>
-            <span class="math-value" id="math-grid-dim">16 × 16</span>
-          </div>
-          <div class="math-row">
-            <span class="math-label">Total de tiles no planeta:</span>
-            <span class="math-value" id="math-total-tiles">256 tiles</span>
-          </div>
-          <div class="math-row">
-            <span class="math-label">Tile central visível:</span>
-            <span class="math-value highlight-coords" id="math-center-tile">Z: 4 | X: 6 | Y: 9</span>
+    <!-- Catálogo de Mapas -->
+    <h2 class="section-title">🧭 Mapas Interativos Disponíveis</h2>
+    <div class="cards-grid">
+      
+      <!-- Card 1: Explorador de Malhas IBGE (Ativo) -->
+      <div class="map-card featured">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora</span>
+          <h3>Explorador de Malhas do IBGE (2024)</h3>
+          <p>
+            Mapa interativo completo com Leaflet.js exibindo contornos de País, Grandes Regiões, UFs e Municípios.
+            Inclui 5 provedores de mapa base (CartoDB, OSM, Satélite Esri, OpenTopo), depuração visual da pirâmide de tiles (Z, X, Y) e auto-recorte por nível de zoom (LOD).
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">GeoJSON</span>
+            <span class="tech-tag">Tile Pyramid (XYZ)</span>
+            <span class="tech-tag">Auto-LOD</span>
+            <span class="tech-tag">IBGE API v4</span>
           </div>
         </div>
+        <a href="ibge_malhas.html" class="btn-open-map">
+          Explorar Mapa Interativo →
+        </a>
       </div>
 
-      <!-- Informações da Feição GeoJSON -->
-      <div class="card">
-        <h2>ℹ️ Detalhes da Feição</h2>
-        <p class="instruction">Passe o mouse ou clique em uma área do mapa para ver seus dados.</p>
-        
-        <div id="feature-details" class="details-content">
-          <div class="empty-state">Nenhuma área selecionada</div>
+      <!-- Card 2: Mapa Coroplético de Áreas (Em breve) -->
+      <div class="map-card">
+        <div>
+          <span class="card-badge badge-upcoming">Em Desenvolvimento</span>
+          <h3>Análise Coroplética de Áreas Municipais</h3>
+          <p>
+            Visualização temática em escala de cores contínua baseada no cálculo de área em quilômetros quadrados (coluna <code>AREA_KM2</code>) extraída dos shapefiles em SIRGAS 2000.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Choropleth</span>
+            <span class="tech-tag">GeoPandas</span>
+            <span class="tech-tag">SIRGAS 2000</span>
+            <span class="tech-tag">Shapefiles</span>
+          </div>
         </div>
+        <span class="btn-open-map disabled">
+          Em breve
+        </span>
       </div>
 
-      <!-- Legenda de Regiões -->
-      <div class="card" id="legend-card">
-        <h3>🎨 Regiões do Brasil</h3>
-        <ul class="legend-list">
-          <li><span class="legend-color" style="background: #2b83ba;"></span> Norte (N)</li>
-          <li><span class="legend-color" style="background: #abdda4;"></span> Nordeste (NE)</li>
-          <li><span class="legend-color" style="background: #ffffbf;"></span> Centro-Oeste (CO)</li>
-          <li><span class="legend-color" style="background: #fdae61;"></span> Sudeste (SE)</li>
-          <li><span class="legend-color" style="background: #d7191c;"></span> Sul (S)</li>
-        </ul>
-      </div>
-
-      <!-- Inspetor de Requisição GeoJSON (IBGE) -->
-      <div class="card geojson-inspector-card">
-        <h2>📦 Inspetor GeoJSON do IBGE</h2>
-        <p class="instruction">Detalhes do arquivo vetorial carregado e relação com o zoom/tiles.</p>
-
-        <!-- Alternador de Nível Automático por Zoom -->
-        <div class="auto-lod-toggle">
-          <label class="checkbox-label" for="toggle-auto-lod">
-            <input type="checkbox" id="toggle-auto-lod" checked>
-            🎯 <strong>Auto-Recorte por Zoom (LOD)</strong>
-          </label>
-          <span class="lod-hint">Alterna País (Z≤3) → Regiões (Z=4) → UFs (Z=5..7) → Municípios (Z≥8).</span>
+      <!-- Card 3: Concentrações Urbanas (Em breve) -->
+      <div class="map-card">
+        <div>
+          <span class="card-badge badge-upcoming">Em Desenvolvimento</span>
+          <h3>Concentrações Urbanas e Arranjos Populacionais</h3>
+          <p>
+            Mapeamento dos 660 municípios brasileiros que compõem arranjos populacionais e concentrações urbanas do IBGE (atributo <code>NM_CONCU</code>).
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Arranjos Populacionais</span>
+            <span class="tech-tag">Censo IBGE</span>
+            <span class="tech-tag">Filtro Temático</span>
+          </div>
         </div>
-
-        <table class="detail-table mt-2">
-          <tr>
-            <td class="label">Arquivo Local:</td>
-            <td class="value"><code id="info-geojson-file">BR_uf_2024_minima.geojson</code></td>
-          </tr>
-          <tr>
-            <td class="label">Feições no Mapa:</td>
-            <td class="value"><span class="badge-count" id="info-geojson-features">27 feições</span></td>
-          </tr>
-          <tr>
-            <td class="label">Tamanho / Payload:</td>
-            <td class="value" id="info-geojson-size">~117 KB</td>
-          </tr>
-          <tr>
-            <td class="label">Tempo de Download:</td>
-            <td class="value" id="info-geojson-time">-</td>
-          </tr>
-          <tr>
-            <td class="label">Tiles na Tela (Viewport):</td>
-            <td class="value highlight-coords" id="info-visible-tiles">Calculando...</td>
-          </tr>
-        </table>
-
-        <div class="url-template-box mt-2">
-          <span class="url-label">Endpoint na API de Malhas (IBGE):</span>
-          <code id="info-ibge-api-url" class="api-url">https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=UF</code>
-        </div>
+        <span class="btn-open-map disabled">
+          Em breve
+        </span>
       </div>
 
-      <!-- Informações do TileLayer Ativo -->
-      <div class="card" id="basemap-info-card">
-        <h3>🌐 TileLayer Ativo</h3>
-        <p id="basemap-desc" class="basemap-description">
-          <strong>CartoDB Positron:</strong> Fundo claro e minimalista, ideal para destacar mapas temáticos e polígonos.
-        </p>
-        <div class="url-template-box">
-          <span class="url-label">Template URL:</span>
-          <code id="basemap-url">https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png</code>
-        </div>
-        <div class="url-template-box mt-2">
-          <span class="url-label">URL do Tile Central:</span>
-          <code id="basemap-sample-url" class="sample-url">https://a.basemaps.cartocdn.com/light_all/4/6/9.png</code>
-        </div>
-      </div>
+    </div>
 
-      <!-- Resumo didático -->
-      <div class="card didactic-card">
-        <h3>💡 Como a Pirâmide de Tiles funciona</h3>
-        <ol class="steps-list">
-          <li><strong>Zoom Z:</strong> O mundo é dividido em <code>2^Z × 2^Z</code> blocos quadrados.</li>
-          <li><strong>Cada Bloco:</strong> Tem exatamente <code>256 × 256 pixels</code>.</li>
-          <li><strong>Coordenadas X/Y:</strong> Numeradas de <code>0</code> a <code>2^Z - 1</code>.</li>
-          <li><strong>Economia:</strong> O navegador baixa apenas os ~15 blocos visíveis na tela!</li>
-        </ol>
+    <!-- Seção de Documentação -->
+    <h2 class="section-title">📚 Documentação do Estudo (.org)</h2>
+    <div class="docs-list">
+      <div class="doc-item">
+        <strong>01. Entendendo os Dados do IBGE</strong>
+        <span>Estrutura da Malha Municipal Digital (MMD), shapefiles, SIRGAS 2000 e APIs REST de Malhas e Localidades.</span>
       </div>
-    </aside>
+      <div class="doc-item">
+        <strong>02. Ambiente Python & GeoPandas</strong>
+        <span>Configuração do ambiente virtual, instalação de geopandas, shapely, pyproj e verificação de bibliotecas.</span>
+      </div>
+      <div class="doc-item">
+        <strong>03. Primeira Exploração da MMD 2024</strong>
+        <span>Resultados da leitura da malha municipal com GeoPandas (5.573 geocódigos, colunas de atributos e estatísticas).</span>
+      </div>
+      <div class="doc-item">
+        <strong>04. Leaflet Explicado</strong>
+        <span>Guia completo sobre Leaflet.js, pirâmide de tiles do Slippy Map, fórmulas matemáticas (Z, X, Y) e estratégia LOD.</span>
+      </div>
+    </div>
 
-    <!-- ========================================================= -->
-    <!-- PASSO 2: Container DOM onde o Leaflet irá desenhar o mapa -->
-    <!-- ========================================================= -->
-    <main id="map" class="map-container"></main>
+    <!-- Rodapé -->
+    <footer class="footer">
+      <p>
+        Projeto de Georreferenciamento & Análise Geoespacial &bull; Dados Públicos: <a href="https://www.ibge.gov.br" target="_blank" rel="noopener">IBGE (2024)</a> &bull; Biblioteca: <a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet.js</a>
+      </p>
+    </footer>
 
   </div>
 
-  <!-- ========================================================= -->
-  <!-- PASSO 3: Importar JavaScript do Leaflet (CDN)             -->
-  <!-- ========================================================= -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossorigin=""></script>
-
-  <!-- Script principal da nossa aplicação -->
-  <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorador de Malhas Territoriais do IBGE - Leaflet</title>
+
+  <!-- ========================================================= -->
+  <!-- PASSO 1: Importar CSS do Leaflet (CDN)                   -->
+  <!-- ========================================================= -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <!-- Folha de estilos da nossa aplicação -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Barra de cabeçalho -->
+  <header class="app-header">
+    <div class="header-title">
+      <a href="index.html" class="btn-home-link" title="Voltar à Página Inicial de Mapas">🏠 Início</a>
+      <h1>🗺️ Explorador de Malhas do IBGE (2024)</h1>
+      <span class="badge">Leaflet + GeoJSON</span>
+    </div>
+    <div class="header-controls">
+      <!-- Seletor de Mapa Base (TileLayer) -->
+      <div class="control-group">
+        <label for="basemap-select">🗺️ Mapa Base:</label>
+        <select id="basemap-select">
+          <option value="carto-light" selected>CartoDB Positron (Claro)</option>
+          <option value="carto-dark">CartoDB Dark Matter (Escuro)</option>
+          <option value="osm">OpenStreetMap (Padrão)</option>
+          <option value="esri-satellite">Esri World Imagery (Satélite)</option>
+          <option value="opentopo">OpenTopoMap (Topográfico)</option>
+        </select>
+      </div>
+
+      <!-- Seletor de camada territorial (GeoJSON) -->
+      <div class="control-group">
+        <label for="layer-select">📐 Recorte:</label>
+        <select id="layer-select">
+          <option value="uf" selected>Unidades da Federação (27 UFs)</option>
+          <option value="regioes">Grandes Regiões (5 Regiões)</option>
+          <option value="pais">Contorno do País (Brasil)</option>
+          <option value="municipios">Municípios do Brasil (5.571)</option>
+        </select>
+      </div>
+
+      <!-- Alternador da Grade de Tiles (Debug) -->
+      <div class="control-group">
+        <label for="toggle-grid" class="checkbox-label">
+          <input type="checkbox" id="toggle-grid" checked>
+          🔍 Grade de Tiles (Z/X/Y)
+        </label>
+      </div>
+
+      <!-- Indicador de carregamento -->
+      <span id="loading-indicator" class="loading hidden">Carregando malha...</span>
+    </div>
+  </header>
+
+  <!-- Container principal do layout -->
+  <div class="main-container">
+    
+    <!-- Painel Lateral de Informações -->
+    <aside class="sidebar">
+
+      <!-- Inspetor de Zoom e Pirâmide de Tiles -->
+      <div class="card zoom-inspector-card">
+        <h2>🔍 Inspetor de Zoom (Pirâmide de Tiles)</h2>
+        <p class="instruction">Altere o zoom inteiro para ver a grade de tiles se subdividir.</p>
+        
+        <div class="zoom-slider-container">
+          <div class="zoom-display">
+            <span>Nível de Zoom (Z):</span>
+            <strong id="zoom-display-value">4</strong>
+          </div>
+          <input type="range" id="zoom-slider" min="0" max="18" value="4" step="1">
+        </div>
+
+        <div class="zoom-presets">
+          <button class="btn-preset" data-zoom="0">Mundo (0)</button>
+          <button class="btn-preset" data-zoom="3">América (3)</button>
+          <button class="btn-preset active" data-zoom="4">Brasil (4)</button>
+          <button class="btn-preset" data-zoom="7">Estado (7)</button>
+          <button class="btn-preset" data-zoom="11">Cidade (11)</button>
+          <button class="btn-preset" data-zoom="15">Rua (15)</button>
+        </div>
+
+        <div class="tile-math-box">
+          <div class="math-row">
+            <span class="math-label">Dimensão da grade:</span>
+            <span class="math-value" id="math-grid-dim">16 × 16</span>
+          </div>
+          <div class="math-row">
+            <span class="math-label">Total de tiles no planeta:</span>
+            <span class="math-value" id="math-total-tiles">256 tiles</span>
+          </div>
+          <div class="math-row">
+            <span class="math-label">Tile central visível:</span>
+            <span class="math-value highlight-coords" id="math-center-tile">Z: 4 | X: 6 | Y: 9</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informações da Feição GeoJSON -->
+      <div class="card">
+        <h2>ℹ️ Detalhes da Feição</h2>
+        <p class="instruction">Passe o mouse ou clique em uma área do mapa para ver seus dados.</p>
+        
+        <div id="feature-details" class="details-content">
+          <div class="empty-state">Nenhuma área selecionada</div>
+        </div>
+      </div>
+
+      <!-- Legenda de Regiões -->
+      <div class="card" id="legend-card">
+        <h3>🎨 Regiões do Brasil</h3>
+        <ul class="legend-list">
+          <li><span class="legend-color" style="background: #2b83ba;"></span> Norte (N)</li>
+          <li><span class="legend-color" style="background: #abdda4;"></span> Nordeste (NE)</li>
+          <li><span class="legend-color" style="background: #ffffbf;"></span> Centro-Oeste (CO)</li>
+          <li><span class="legend-color" style="background: #fdae61;"></span> Sudeste (SE)</li>
+          <li><span class="legend-color" style="background: #d7191c;"></span> Sul (S)</li>
+        </ul>
+      </div>
+
+      <!-- Inspetor de Requisição GeoJSON (IBGE) -->
+      <div class="card geojson-inspector-card">
+        <h2>📦 Inspetor GeoJSON do IBGE</h2>
+        <p class="instruction">Detalhes do arquivo vetorial carregado e relação com o zoom/tiles.</p>
+
+        <!-- Alternador de Nível Automático por Zoom -->
+        <div class="auto-lod-toggle">
+          <label class="checkbox-label" for="toggle-auto-lod">
+            <input type="checkbox" id="toggle-auto-lod" checked>
+            🎯 <strong>Auto-Recorte por Zoom (LOD)</strong>
+          </label>
+          <span class="lod-hint">Alterna País (Z≤3) → Regiões (Z=4) → UFs (Z=5..7) → Municípios (Z≥8).</span>
+        </div>
+
+        <table class="detail-table mt-2">
+          <tr>
+            <td class="label">Arquivo Local:</td>
+            <td class="value"><code id="info-geojson-file">BR_uf_2024_minima.geojson</code></td>
+          </tr>
+          <tr>
+            <td class="label">Feições no Mapa:</td>
+            <td class="value"><span class="badge-count" id="info-geojson-features">27 feições</span></td>
+          </tr>
+          <tr>
+            <td class="label">Tamanho / Payload:</td>
+            <td class="value" id="info-geojson-size">~117 KB</td>
+          </tr>
+          <tr>
+            <td class="label">Tempo de Download:</td>
+            <td class="value" id="info-geojson-time">-</td>
+          </tr>
+          <tr>
+            <td class="label">Tiles na Tela (Viewport):</td>
+            <td class="value highlight-coords" id="info-visible-tiles">Calculando...</td>
+          </tr>
+        </table>
+
+        <div class="url-template-box mt-2">
+          <span class="url-label">Endpoint na API de Malhas (IBGE):</span>
+          <code id="info-ibge-api-url" class="api-url">https://servicodados.ibge.gov.br/api/v4/malhas/paises/BR?qualidade=minima&formato=application/vnd.geo+json&intrarregiao=UF</code>
+        </div>
+      </div>
+
+      <!-- Informações do TileLayer Ativo -->
+      <div class="card" id="basemap-info-card">
+        <h3>🌐 TileLayer Ativo</h3>
+        <p id="basemap-desc" class="basemap-description">
+          <strong>CartoDB Positron:</strong> Fundo claro e minimalista, ideal para destacar mapas temáticos e polígonos.
+        </p>
+        <div class="url-template-box">
+          <span class="url-label">Template URL:</span>
+          <code id="basemap-url">https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png</code>
+        </div>
+        <div class="url-template-box mt-2">
+          <span class="url-label">URL do Tile Central:</span>
+          <code id="basemap-sample-url" class="sample-url">https://a.basemaps.cartocdn.com/light_all/4/6/9.png</code>
+        </div>
+      </div>
+
+      <!-- Resumo didático -->
+      <div class="card didactic-card">
+        <h3>💡 Como a Pirâmide de Tiles funciona</h3>
+        <ol class="steps-list">
+          <li><strong>Zoom Z:</strong> O mundo é dividido em <code>2^Z × 2^Z</code> blocos quadrados.</li>
+          <li><strong>Cada Bloco:</strong> Tem exatamente <code>256 × 256 pixels</code>.</li>
+          <li><strong>Coordenadas X/Y:</strong> Numeradas de <code>0</code> a <code>2^Z - 1</code>.</li>
+          <li><strong>Economia:</strong> O navegador baixa apenas os ~15 blocos visíveis na tela!</li>
+        </ol>
+      </div>
+    </aside>
+
+    <!-- ========================================================= -->
+    <!-- PASSO 2: Container DOM onde o Leaflet irá desenhar o mapa -->
+    <!-- ========================================================= -->
+    <main id="map" class="map-container"></main>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PASSO 3: Importar JavaScript do Leaflet (CDN)             -->
+  <!-- ========================================================= -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- Script principal da nossa aplicação -->
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -241,12 +241,13 @@ A pasta =web/= foi concebida para ser 100% estática e auto-suficiente:
 
 #+begin_src text
 web/
-|-- index.html    ; Estrutura DOM, controles de basemap, zoom e inspeção
+|-- index.html        ; Portal inicial com catálogo de mapas interativos
+|-- ibge_malhas.html  ; Mapa explorador de malhas do IBGE (Leaflet + GeoJSON)
 |-- css/
-|   `-- style.css ; Estilização responsiva, painel lateral e tags de debug
+|   `-- style.css     ; Estilização responsiva, painel lateral e tags de debug
 |-- js/
-|   `-- app.js    ; Código Leaflet completo (L.map, GridLayer, LOD e GeoJSON)
-`-- data/         ; GeoJSONs leves do IBGE prontos para publicação web
+|   `-- app.js        ; Código Leaflet completo (L.map, GridLayer, LOD e GeoJSON)
+`-- data/             ; GeoJSONs leves do IBGE prontos para publicação web
 #+end_src
 
 ** Execução Local
