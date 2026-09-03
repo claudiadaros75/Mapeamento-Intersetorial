@@ -397,12 +397,18 @@ function getFeatureColor(properties, layerKey) {
   }
 }
 
+// Cor e espessura do contorno da UF — mais grossa e escura para que o "perfil" dos
+// estados continue perceptível mesmo quando os Municípios são combinados por cima.
+const UF_BORDER_COLOR = "#1e293b";
+const UF_BORDER_WEIGHT = 2.2;
+
 function getStyle(feature, layerKey) {
+  const isUf = layerKey === "uf";
   return {
     fillColor: getFeatureColor(feature.properties, layerKey),
-    weight: 1.2,
+    weight: isUf ? UF_BORDER_WEIGHT : 1.2,
     opacity: 1,
-    color: "#ffffff",
+    color: isUf ? UF_BORDER_COLOR : "#ffffff",
     dashArray: "",
     fillOpacity: 0.7,
   };
@@ -551,6 +557,40 @@ function reorderActiveLayers() {
     }
     entry.leafletLayer.bringToFront();
   });
+
+  syncUfBoundaryOverlay();
+}
+
+// Camada exclusiva de contorno das UFs (sem preenchimento), sempre mantida acima das
+// demais — inclusive dos Municípios — para que o "perfil" estadual nunca se perca.
+let ufBoundaryLayer = null;
+
+function syncUfBoundaryOverlay() {
+  const shouldShow = Boolean(activeLayers.uf) && Boolean(geoJsonCache.uf);
+
+  if (!shouldShow) {
+    if (ufBoundaryLayer && map.hasLayer(ufBoundaryLayer)) {
+      map.removeLayer(ufBoundaryLayer);
+    }
+    return;
+  }
+
+  if (!ufBoundaryLayer) {
+    ufBoundaryLayer = L.geoJSON(geoJsonCache.uf.data, {
+      interactive: false, // deixa hover/clique passarem para a camada de baixo (ex.: Municípios)
+      style: () => ({
+        fillOpacity: 0,
+        weight: UF_BORDER_WEIGHT,
+        color: UF_BORDER_COLOR,
+        opacity: 0.9,
+      }),
+    });
+  }
+
+  if (!map.hasLayer(ufBoundaryLayer)) {
+    ufBoundaryLayer.addTo(map);
+  }
+  ufBoundaryLayer.bringToFront();
 }
 
 async function addLayerToMap(layerKey, shouldFitBounds = false) {
@@ -626,6 +666,7 @@ function removeLayerFromMap(layerKey) {
 
   map.removeLayer(entry.leafletLayer);
   delete activeLayers[layerKey];
+  syncUfBoundaryOverlay();
   renderActiveLayersPanel();
 }
 
