@@ -50,6 +50,10 @@ O roteiro evolui conforme o projeto avança. Os primeiros passos são:
    (ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]]).
 5. [[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e
    renderização de GeoJSON no navegador.
+6. Exportar a documentação Org para HTML estático em =web/docs/=:
+   #+begin_src sh
+   ./scripts/commands/exportar_docs_org_para_html.sh
+   #+end_src
 
 Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
 

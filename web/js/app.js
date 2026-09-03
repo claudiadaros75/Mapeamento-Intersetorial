@@ -275,33 +275,131 @@ const REGION_COLORS = {
   "1": "#2b83ba", // Norte
   "Norte": "#2b83ba",
   "N": "#2b83ba",
-  
+
   "2": "#abdda4", // Nordeste
   "Nordeste": "#abdda4",
   "NE": "#abdda4",
-  
+
   "5": "#ffffbf", // Centro-Oeste
   "Centro-Oeste": "#ffffbf",
   "CO": "#ffffbf",
-  
+
   "3": "#fdae61", // Sudeste
   "Sudeste": "#fdae61",
   "SE": "#fdae61",
-  
+
   "4": "#d7191c", // Sul
   "Sul": "#d7191c",
   "S": "#d7191c",
 };
 
-function getFeatureColor(properties) {
-  if (!properties) return "#3b82f6";
+// Cor neutra única para o Contorno do País (não pertence a nenhuma região)
+const PAIS_COLOR = "#64748b";
+
+// Paleta categórica (sem relação com as cores de região) usada para diferenciar
+// Municípios adjacentes e destacá-los sobre a camada de UF combinada por baixo
+const MUNICIPIO_PALETTE = [
+  "#f97316", "#a855f7", "#14b8a6", "#eab308",
+  "#ec4899", "#22c55e", "#0ea5e9", "#f43f5e",
+  "#84cc16", "#8b5cf6", "#06b6d4", "#d946ef",
+];
+
+// Variações de luminosidade aplicadas sobre a cor-base da região para diferenciar as UFs
+// mantendo a identidade visual da região (tons do mesmo matiz)
+const UF_LIGHTNESS_STEPS = [0, -16, 14, -28, 26, -8, 8, 20, -20];
+
+/** Hash determinístico (djb2) — mesma feição sempre recebe a mesma cor/tom entre recargas. */
+function hashString(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i);
+  }
+  return Math.abs(hash);
+}
+
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  let h = 0;
+  let s = 0;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      default: h = (r - g) / d + 4;
+    }
+    h /= 6;
+  }
+
+  return { h: h * 360, s: s * 100, l: l * 100 };
+}
+
+function hslToHex(h, s, l) {
+  s /= 100;
+  l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const toHex = (x) => Math.round(255 * x).toString(16).padStart(2, "0");
+  return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+}
+
+function getRegionBaseColor(properties) {
   const regId = properties.cd_regiao || properties.sigla_regiao || properties.sigla || properties.nome;
   return REGION_COLORS[regId] || "#60a5fa";
 }
 
-function getStyle(feature) {
+/** UF: tom derivado da cor da própria região, variando a luminosidade por estado. */
+function getUfColor(properties) {
+  const baseColor = getRegionBaseColor(properties);
+  const hsl = hexToHsl(baseColor);
+  const ufKey = properties.sigla || properties.codarea || properties.nome || "";
+  const stepIndex = hashString(String(ufKey)) % UF_LIGHTNESS_STEPS.length;
+  const lightness = Math.min(80, Math.max(22, hsl.l + UF_LIGHTNESS_STEPS[stepIndex]));
+  return hslToHex(hsl.h, hsl.s, lightness);
+}
+
+/** Municípios: paleta categórica independente da região, para contrastar com a UF por baixo. */
+function getMunicipioColor(properties) {
+  const key = properties.codarea || properties.nome || "";
+  const index = hashString(String(key)) % MUNICIPIO_PALETTE.length;
+  return MUNICIPIO_PALETTE[index];
+}
+
+/**
+ * Escolhe a cor de preenchimento de acordo com a malha (layerKey), para que
+ * camadas combinadas (ex.: UF + Municípios) permaneçam visualmente distinguíveis:
+ *  - País: cor única neutra (sem noção de região)
+ *  - Regiões: cor fixa por região
+ *  - UF: tom da cor da região, variando por estado
+ *  - Municípios: paleta categórica própria, sem relação com a região
+ */
+function getFeatureColor(properties, layerKey) {
+  if (!properties) return "#3b82f6";
+
+  switch (layerKey) {
+    case "pais":
+      return PAIS_COLOR;
+    case "uf":
+      return getUfColor(properties);
+    case "municipios":
+      return getMunicipioColor(properties);
+    case "regioes":
+    default:
+      return getRegionBaseColor(properties);
+  }
+}
+
+function getStyle(feature, layerKey) {
   return {
-    fillColor: getFeatureColor(feature.properties),
+    fillColor: getFeatureColor(feature.properties, layerKey),
     weight: 1.2,
     opacity: 1,
     color: "#ffffff",
@@ -320,16 +418,22 @@ const highlightStyle = {
 // ============================================================================
 // PASSO 7: Interatividade (Hover, Clique, Painel de Detalhes)
 // ============================================================================
-let currentGeoJsonLayer = null;
-let currentLayerKey = "uf";
+const LAYER_ORDER = ["pais", "regioes", "uf", "municipios"];
+
+// Camadas GeoJSON atualmente combinadas no mapa (chave -> { leafletLayer, ...métricas })
+const activeLayers = {};
 
 const detailsContainer = document.getElementById("feature-details");
 const loadingIndicator = document.getElementById("loading-indicator");
-const layerSelect = document.getElementById("layer-select");
 const basemapSelect = document.getElementById("basemap-select");
 const zoomSlider = document.getElementById("zoom-slider");
 const toggleGrid = document.getElementById("toggle-grid");
 const toggleAutoLod = document.getElementById("toggle-auto-lod");
+
+const layerCheckboxes = {};
+LAYER_ORDER.forEach((key) => {
+  layerCheckboxes[key] = document.getElementById(`chk-layer-${key}`);
+});
 
 function updateDetailsPanel(props) {
   if (!props) {
@@ -365,7 +469,7 @@ function updateDetailsPanel(props) {
   detailsContainer.innerHTML = html;
 }
 
-function onEachFeature(feature, layer) {
+function onEachFeature(feature, layer, layerKey) {
   const props = feature.properties || {};
   const label = props.nome || props.codarea || "Brasil";
 
@@ -383,9 +487,7 @@ function onEachFeature(feature, layer) {
       updateDetailsPanel(props);
     },
     mouseout: function (e) {
-      if (currentGeoJsonLayer) {
-        currentGeoJsonLayer.resetStyle(e.target);
-      }
+      e.target.setStyle(getStyle(feature, layerKey));
     },
     click: function (e) {
       map.fitBounds(e.target.getBounds(), { padding: [20, 20] });
@@ -395,42 +497,65 @@ function onEachFeature(feature, layer) {
 }
 
 // ============================================================================
-// PASSO 8: Carregamento de Dados GeoJSON e Atualização do Inspetor
+// PASSO 8: Carregamento de Dados GeoJSON e Combinação de Camadas Ativas
 // ============================================================================
 // Cache em memória para os dados GeoJSON (evita requisições repetidas na rede)
 const geoJsonCache = {};
 
-function updateGeoJsonInspector(layerKey, featuresCount, downloadDurationMs, payloadSizeBytes, fromCache = false) {
-  const meta = GEOJSON_METADATA[layerKey];
-  if (!meta) return;
+function renderActiveLayersPanel() {
+  const panel = document.getElementById("active-layers-panel");
+  if (!panel) return;
 
-  const fileEl = document.getElementById("info-geojson-file");
-  const featuresEl = document.getElementById("info-geojson-features");
-  const sizeEl = document.getElementById("info-geojson-size");
-  const timeEl = document.getElementById("info-geojson-time");
-  const apiEl = document.getElementById("info-ibge-api-url");
+  const activeKeys = LAYER_ORDER.filter((key) => activeLayers[key]);
 
-  if (fileEl) fileEl.textContent = meta.fileName;
-  if (featuresEl) featuresEl.textContent = `${featuresCount || meta.featuresExpected} feições`;
-  if (sizeEl) {
-    sizeEl.textContent = payloadSizeBytes
-      ? `${(payloadSizeBytes / 1024).toFixed(1)} KB`
-      : meta.sizeEstimate;
+  if (activeKeys.length === 0) {
+    panel.innerHTML = '<div class="empty-state">Nenhuma malha selecionada</div>';
+    return;
   }
-  if (timeEl) {
-    timeEl.textContent = fromCache
-      ? "Cache local (0 ms)"
-      : (downloadDurationMs ? `${downloadDurationMs.toFixed(0)} ms` : "-");
-  }
-  if (apiEl) apiEl.textContent = meta.ibgeApiUrl;
+
+  panel.innerHTML = activeKeys
+    .map((key) => {
+      const meta = GEOJSON_METADATA[key];
+      const entry = activeLayers[key];
+      const sizeText = entry.payloadSizeBytes
+        ? `${(entry.payloadSizeBytes / 1024).toFixed(1)} KB`
+        : meta.sizeEstimate;
+      const timeText = entry.fromCache
+        ? "cache local"
+        : (entry.downloadDurationMs ? `${entry.downloadDurationMs.toFixed(0)} ms` : "-");
+
+      return `
+        <div class="active-layer-chip">
+          <div class="active-layer-chip-header">
+            <span class="active-layer-name">${meta.description}</span>
+            <span class="badge-count">${entry.featuresCount} feições</span>
+          </div>
+          <div class="active-layer-meta">
+            <code>${meta.fileName}</code> · ${sizeText} · ${timeText}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
-async function loadLayer(layerKey, shouldFitBounds = false) {
-  const meta = GEOJSON_METADATA[layerKey];
-  if (!meta) return;
+/**
+ * Garante a ordem visual das camadas combinadas: País (base) → Regiões → UF → Municípios (topo).
+ */
+function reorderActiveLayers() {
+  LAYER_ORDER.forEach((key) => {
+    const entry = activeLayers[key];
+    if (!entry) return;
+    if (!map.hasLayer(entry.leafletLayer)) {
+      entry.leafletLayer.addTo(map);
+    }
+    entry.leafletLayer.bringToFront();
+  });
+}
 
-  currentLayerKey = layerKey;
-  if (layerSelect) layerSelect.value = layerKey;
+async function addLayerToMap(layerKey, shouldFitBounds = false) {
+  const meta = GEOJSON_METADATA[layerKey];
+  if (!meta || activeLayers[layerKey]) return;
 
   loadingIndicator.classList.remove("hidden");
   const startTime = performance.now();
@@ -464,41 +589,70 @@ async function loadLayer(layerKey, shouldFitBounds = false) {
 
     const downloadDurationMs = performance.now() - startTime;
 
-    if (currentGeoJsonLayer) {
-      map.removeLayer(currentGeoJsonLayer);
-    }
-
-    currentGeoJsonLayer = L.geoJSON(geojsonData, {
-      style: getStyle,
-      onEachFeature: onEachFeature,
+    const leafletLayer = L.geoJSON(geojsonData, {
+      style: (feature) => getStyle(feature, layerKey),
+      onEachFeature: (feature, layer) => onEachFeature(feature, layer, layerKey),
     });
 
-    currentGeoJsonLayer.addTo(map);
-
-    if (shouldFitBounds) {
-      map.fitBounds(currentGeoJsonLayer.getBounds(), { padding: [10, 10] });
-    }
-
-    updateGeoJsonInspector(
-      layerKey,
-      geojsonData.features ? geojsonData.features.length : meta.featuresExpected,
+    activeLayers[layerKey] = {
+      leafletLayer,
+      featuresCount: geojsonData.features ? geojsonData.features.length : meta.featuresExpected,
       downloadDurationMs,
       payloadSizeBytes,
-      fromCache
-    );
-    updateTilePyramidStats();
+      fromCache,
+    };
 
+    reorderActiveLayers();
+
+    if (shouldFitBounds) {
+      map.fitBounds(leafletLayer.getBounds(), { padding: [10, 10] });
+    }
+
+    renderActiveLayersPanel();
+    updateTilePyramidStats();
   } catch (error) {
     console.error("Falha ao carregar a malha:", error);
     alert(`Não foi possível carregar os dados: ${error.message}`);
+    const checkbox = layerCheckboxes[layerKey];
+    if (checkbox) checkbox.checked = false;
   } finally {
     loadingIndicator.classList.add("hidden");
   }
 }
 
+function removeLayerFromMap(layerKey) {
+  const entry = activeLayers[layerKey];
+  if (!entry) return;
+
+  map.removeLayer(entry.leafletLayer);
+  delete activeLayers[layerKey];
+  renderActiveLayersPanel();
+}
+
+/**
+ * Ativa exclusivamente a malha indicada (usado pelo Auto-Recorte por Zoom),
+ * desmarcando/removendo as demais e sincronizando os checkboxes da barra lateral.
+ */
+function setExclusiveLayer(targetLayerKey) {
+  LAYER_ORDER.forEach((key) => {
+    const checkbox = layerCheckboxes[key];
+    const shouldBeOn = key === targetLayerKey;
+
+    if (checkbox) checkbox.checked = shouldBeOn;
+
+    if (shouldBeOn && !activeLayers[key]) {
+      addLayerToMap(key);
+    } else if (!shouldBeOn && activeLayers[key]) {
+      removeLayerFromMap(key);
+    }
+  });
+}
+
 // ============================================================================
 // PASSO 9: Auto-Recorte por Zoom (Level of Detail - LOD)
 // ============================================================================
+let autoLodCurrentKey = null;
+
 function handleAutoLodByZoom() {
   if (!toggleAutoLod || !toggleAutoLod.checked) return;
 
@@ -516,9 +670,9 @@ function handleAutoLodByZoom() {
     targetLayerKey = "municipios";  // Z 8+: 5.571 Municípios
   }
 
-  if (targetLayerKey !== currentLayerKey) {
-    // Carrega a camada correspondente mantendo o ponto de vista atual do usuário
-    loadLayer(targetLayerKey, false);
+  if (targetLayerKey !== autoLodCurrentKey) {
+    autoLodCurrentKey = targetLayerKey;
+    setExclusiveLayer(targetLayerKey);
   }
 }
 
@@ -560,6 +714,7 @@ if (toggleGrid) {
 if (toggleAutoLod) {
   toggleAutoLod.addEventListener("change", (e) => {
     if (e.target.checked) {
+      autoLodCurrentKey = null; // força a resincronização com o zoom atual
       handleAutoLodByZoom();
     }
   });
@@ -571,13 +726,22 @@ if (basemapSelect) {
   });
 }
 
-// Se o usuário escolher um recorte manualmente, desativa temporariamente o auto-LOD
-if (layerSelect) {
-  layerSelect.addEventListener("change", (e) => {
+// Se o usuário marcar/desmarcar uma malha manualmente, desativa o auto-LOD
+LAYER_ORDER.forEach((key) => {
+  const checkbox = layerCheckboxes[key];
+  if (!checkbox) return;
+
+  checkbox.addEventListener("change", (e) => {
     if (toggleAutoLod) toggleAutoLod.checked = false;
-    loadLayer(e.target.value, false);
+    autoLodCurrentKey = null;
+
+    if (e.target.checked) {
+      addLayerToMap(key);
+    } else {
+      removeLayerFromMap(key);
+    }
   });
-}
+});
 
 // Inicializações da Aplicação
 setBasemap("carto-light");
