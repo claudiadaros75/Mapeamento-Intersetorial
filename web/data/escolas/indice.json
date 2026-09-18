@@ -1,0 +1,18 @@
+{
+  "ano_censo_escolar": "2024",
+  "ufs": {
+    "SP": {
+      "arquivo": "data/escolas/escolas_SP_2024.json",
+      "tamanho_bytes": 5238515,
+      "total_escolas": 33863,
+      "no_mapa": 27324,
+      "por_status": {
+        "baixa": 5522,
+        "ambiguo": 6201,
+        "media": 6565,
+        "sem_correspondencia": 338,
+        "alta": 15237
+      }
+    }
+  }
+}
