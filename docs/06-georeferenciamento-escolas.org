@@ -1,0 +1,590 @@
+#+TITLE: Georreferenciamento de Escolas Brasileiras com Dados Oficiais
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+#+TODO: A-FAZER(t) EM-ANDAMENTO(a) BLOQUEADO(b) | FEITO(d)
+
+* Objetivo
+
+Este documento cataloga as fontes *oficiais* do governo brasileiro que
+poderiam fornecer latitude/longitude de escolas, registra o que cada uma
+realmente entrega (testado, não só documentado), e explica a fonte que
+escolhemos para georreferenciar escolas neste projeto: o *CNEFE* do IBGE.
+
+É complementar ao plano de marcadores de escolas
+([[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]), que trata da v1 do recurso
+(agregação por município, usando o Censo Escolar do INEP). Este documento
+foca especificamente no problema de *geolocalização exata por escola*, que
+o plano registra como pendente na Fase 7.
+
+* Resumo executivo
+
+- O *Censo Escolar do INEP* (fonte primária de dados sobre escolas) *não
+  publica* latitude/longitude por escola nos microdados abertos, nem no
+  Catálogo de Escolas. O INEP coleta essa geolocalização desde 2018, mas
+  mantém o dado fechado - ver seção abaixo.
+- O *CNEFE* (Cadastro Nacional de Endereços para Fins Estatísticos), do
+  IBGE, publica coordenadas geográficas por endereço desde o Censo
+  Demográfico 2022 (divulgado em fev/2024), classificando cada endereço por
+  tipo - incluindo *estabelecimento de ensino*. Testamos e confirmamos:
+  tem coordenada real, por prédio, de graça, sem cadastro.
+- Nenhuma outra fonte oficial pesquisada (MEC, e-MEC, FNDE, dados.gov.br)
+  tem um dataset público e baixável em massa com coordenadas de escolas -
+  ver panorama completo abaixo.
+
+* Panorama das fontes oficiais pesquisadas
+
+** dados.gov.br (Portal Brasileiro de Dados Abertos)
+
+Catálogo central do governo federal - não é uma fonte própria, é um índice
+que aponta para conjuntos publicados por INEP, MEC, FNDE etc. Pesquisamos
+por "Censo Escolar" e "escolas"; tudo que encontramos remete às mesmas
+fontes primárias já listadas aqui, nenhum dataset exclusivo com
+coordenadas. Acesso: https://dados.gov.br
+
+** INEP - Censo Escolar / Catálogo de Escolas
+
+*Sem latitude/longitude pública.* Confirmado de duas formas nesta sessão:
+
+- Lendo o cabeçalho real dos microdados do Censo Escolar 2024 (426 colunas)
+  e 2025 (290 colunas) - nenhuma é =LATITUDE=/=LONGITUDE=; 2024 tem só
+  endereço textual (=DS_ENDERECO=, =CO_CEP= etc.), e 2025 nem isso (ver
+  detalhes técnicos em
+  [[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]).
+- O Catálogo de Escolas (portal de BI em =anonymousdata.inep.gov.br=) expõe
+  endereço e informações gerais por escola, mas é um painel interativo, sem
+  exportação em massa de coordenadas.
+
+Por que o dado não é público, se existe? Ver seção dedicada abaixo.
+
+Acesso: https://www.gov.br/inep
+
+** MEC (Ministério da Educação)
+
+Agrega políticas e aponta para os sistemas abaixo (INEP, e-MEC, FNDE); não
+publica um dataset de coordenadas próprio. Acesso: https://www.gov.br/mec
+
+** e-MEC (cadastro do ensino superior)
+
+Cobre *faculdades e universidades*, não escolas de educação básica (o
+escopo deste projeto, que usa o Censo Escolar). Fora do escopo por
+definição, independente de ter ou não coordenadas. Acesso:
+https://emec.mec.gov.br
+
+** FNDE (Fundo Nacional de Desenvolvimento da Educação)
+
+Encontramos referências (tutoriais de terceiros, projetos de análise) a um
+sistema interno do FNDE com geolocalização de escolas e "estrelas" de
+precisão de geocodificação, usado para gestão de programas (merenda,
+transporte, obras). *Não localizamos um dataset público e baixável em
+massa* - parece ser um sistema de uso administrativo interno, não dado
+aberto. Fica como pendência caso quisermos investigar mais a fundo (ver
+"Próximos passos").
+
+Acesso: https://www.gov.br/fnde
+
+** IBGE - CNEFE ✅ fonte principal
+
+Não é a fonte do Censo Escolar, mas é a fonte com *melhor cobertura
+nacional* confirmada de latitude/longitude de escolas, através do Cadastro
+Nacional de Endereços para Fins Estatísticos. Detalhada na próxima seção.
+
+** OpenStreetMap ✅ fonte complementar de alta confiança (adicionada depois)
+
+Pesquisa de sessão posterior, motivada por uma tabela de fontes trazida
+pelo usuário. O OSM tem uma tag oficial =ref:INEP= que carrega o *código
+exato do INEP* (=CO_ENTIDADE=) diretamente no nó da escola - ao contrário
+do CNEFE, aqui não há ambiguidade nenhuma quando a tag existe, porque é
+junção por identificador, não por semelhança de endereço/nome.
+
+Confirmado consultando a Overpass API (https://overpass-api.de/api/interpreter,
+gratuita, sem cadastro) nesta sessão:
+
+- *17.438* elementos no Brasil inteiro com =ref:INEP= preenchido (nós,
+  ways e relations somados), de um total de 74.389 elementos marcados como
+  escola/creche/faculdade (=amenity=school/kindergarten/college=) - cerca
+  de *9,7%* das ~180 mil escolas do Censo Escolar.
+- *Cobertura muito desigual geograficamente*: em SP (nosso piloto), só
+  *437* elementos (≈1,3% das 33.863 escolas) - bem menos que a cobertura
+  do CNEFE ali. A amostra nacional trouxe várias escolas do Maranhão bem
+  mapeadas, sugerindo mutirões de mapeamento comunitário pontuais, não uma
+  cobertura uniforme pelo Brasil.
+- Exemplo real de nó retornado (=ref:INEP= já bate com o formato de
+  =CO_ENTIDADE= do INEP - 8 dígitos numéricos):
+  #+begin_src json
+  {"amenity": "school", "name": "Colégio Adventista da Cohab",
+   "ref:INEP": "21261121", "lat": -2.5428817, "lon": -44.2186206}
+  #+end_src
+- Licença ODbL (dados abertos, exige atribuição e compartilhamento sob a
+  mesma licença de qualquer derivado que use os dados brutos do OSM).
+
+*Conclusão*: cobertura baixa e desigual demais para ser fonte principal,
+mas ótimo *complemento de altíssima confiança* - para as escolas com
+=ref:INEP=, dá pra casar direto pelo código, pulando toda a lógica de
+endereço/nome do CNEFE. Recomendação: no ETL, tentar o casamento por
+=ref:INEP= do OSM *antes* das camadas do CNEFE (camada "exata", acima até
+da "alta" atual) - ver pendências.
+
+** Outras fontes de uma tabela trazida pelo usuário (pesquisadas, baixa prioridade)
+
+- *CEM/USP* (Centro de Estudos da Metrópole): mantém a "Base Cartográfica
+  Digital Georreferenciada das Escolas da RMSP" (edições 2013/2016/2019/2022,
+  ~12.599 escolas na mais recente). Tem lat/long real, mas cobre *só a
+  Região Metropolitana de São Paulo* (39 municípios) - fora do escopo
+  nacional deste projeto. A página de download testada exigiu acesso
+  restrito ("você não tem acesso para baixar este arquivo"). Acesso:
+  https://centrodametropole.fflch.usp.br
+- *Prefeituras/Estados*: fragmentado por natureza - mais de 5.570
+  municípios, cada um com seu próprio portal (ou nenhum). Inviável de
+  investigar em bloco; só vale a pena para tapar buracos pontuais depois
+  (ex.: a capital de SP tem um "Mapa da Educação SP" próprio).
+- *Geocodificação própria*: não é uma fonte, é um método - rodar as
+  escolas sem coordenada em um geocodificador. Opções gratuitas testadas
+  nesta sessão (pesquisa motivada pela pergunta "existe recurso gratuito
+  de geocodificação?"):
+  - *O próprio CNEFE já baixado* - a opção mais barata: para uma escola
+    sem candidato de ensino no endereço dela, ampliar a busca pra
+    *qualquer* endereço do CNEFE na mesma rua (mesmo que seja um
+    domicílio comum) usando a coordenada mais próxima como aproximação.
+    Zero chamada externa, mas custoso (ver "ideias descartadas" nas
+    pendências - o CNEFE de SP sozinho tem 23 milhões de linhas).
+  - *AwesomeAPI CEP* (=https://cep.awesomeapi.com.br/json/<CEP>=): testado
+    e funcionando de verdade, sem cadastro nem chave, devolve lat/lng *e*
+    o código IBGE do município (bate com =CO_MUNICIPIO=). Exemplo real:
+    ~{"cep":"01310200","lat":"-23.5632188","lng":"-46.6542596","city_ibge":"3550308"}~.
+    Ressalvas: projeto comunitário sem limite de taxa documentado nem SLA,
+    e a coordenada é do *CEP* (nível de rua/quadra), não do prédio - mesmo
+    problema de precisão do CEP genérico já visto no ETL. Implementado
+    como fallback opcional no ETL (=--geocodificar-cep-fallback=).
+  - *CEP Aberto* (=cepaberto.com=): parecido com a AwesomeAPI, mas exige
+    cadastro/token gratuito - não testado diretamente.
+  - *Nominatim* (OpenStreetMap): testado e funcionando para endereço
+    completo (rua+número), não só CEP - devolve coordenada mais precisa
+    quando acerta. Mas a política de uso pública é rígida: *máximo 1
+    requisição/segundo*, exige =User-Agent= identificando a aplicação,
+    resultados precisam ser cacheados, e não é para uso "pesado"/em massa
+    sem hospedar a própria instância (é software livre). Pra dezenas de
+    milhares de escolas de uma vez, só viável self-hosted. Ainda não
+    implementado no ETL - fica como último recurso caso a AwesomeAPI não
+    seja suficiente.
+
+* Por que o INEP não publica latitude/longitude por escola
+
+O Censo Escolar passou a coletar a localização geográfica das escolas a
+partir de 2018, através de um aplicativo que permite posicionar a escola no
+mapa (fonte: Agência Brasil, ver Referências). Ou seja, *o INEP tem esse
+dado internamente* desde então.
+
+Apesar disso, o dado não aparece nos microdados abertos nem no Catálogo de
+Escolas. A justificativa encontrada é que o georreferenciamento *não é
+liberado, nem para divulgação restrita*, até que seja possível garantir
+metodologia de coleta homogênea, melhor precisão e informação sobre a
+margem de erro estimada das medições de posição reportadas no Censo Escolar
+- ou seja, uma barreira de qualidade/padronização (citada em relação aos
+padrões da INDE, a Infraestrutura Nacional de Dados Espaciais), não uma
+questão de sigilo dos dados em si.
+
+Na prática, para este projeto, isso significa: não há como obter
+coordenada por escola *diretamente do INEP* hoje. É preciso outra fonte, ou
+aceitar uma aproximação (agregação por município - a estratégia v1 do
+plano) até que o INEP libere o dado ou até que outra fonte compense a
+lacuna - que é o que o CNEFE faz.
+
+* CNEFE - Cadastro Nacional de Endereços para Fins Estatísticos (IBGE)
+
+** O que é
+
+O CNEFE é o cadastro de endereços que o IBGE constrói durante o Censo
+Demográfico, associando cada endereço visitado pelo recenseador a um tipo
+de uso (domicílio particular ou coletivo, estabelecimento agropecuário, de
+saúde, de ensino, religioso etc.). A partir do Censo Demográfico 2022, pela
+primeira vez o IBGE divulgou publicamente as *coordenadas geográficas* de
+cada endereço do cadastro (divulgação de fevereiro de 2024).
+
+** Estrutura dos dados (confirmado nesta sessão, baixando uma amostra real)
+
+Testamos baixando o pacote de um município pequeno (São Pedro do
+Turvo/SP, código IBGE 3550506) do FTP público do IBGE, sem autenticação:
+
+#+begin_src text
+https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/
+    Censo_Demografico_2022/Arquivos_CNEFE/CSV/
+    |-- Dicionario_CNEFE_Censo_2022.xls   ; dicionario de dados (formato .xls antigo)
+    |-- UF/                                ; um ZIP por UF (arquivos maiores)
+    `-- Municipio/<UF>/<COD>_<NOME>.zip    ; um ZIP por municipio (recomendado p/ testes)
+#+end_src
+
+Colunas do CSV (delimitador =;=, codificação latin-1), na ordem em que
+aparecem:
+
+| Coluna(s)                                                          | O que é                                             |
+|----------------------------------------------------------------------+------------------------------------------------------|
+| =COD_UNICO_ENDERECO=, =COD_UF=, =COD_MUNICIPIO=, =COD_DISTRITO=,     | Identificação e hierarquia territorial do endereço  |
+| =COD_SUBDISTRITO=, =COD_SETOR=, =NUM_QUADRA=, =NUM_FACE=              |                                                      |
+| =CEP=, =NOM_TIPO_SEGLOGR=, =NOM_SEGLOGR=, =NUM_ENDERECO=, ...         | Endereço postal completo                            |
+| *=LATITUDE=, =LONGITUDE=*                                             | Coordenada geográfica do endereço                   |
+| =NV_GEO_COORD=                                                       | Nível de precisão da coordenada (significado exato ainda não confirmado no dicionário - ver pendências) |
+| =COD_ESPECIE=                                                        | Código do tipo de endereço (domicílio, estabelecimento de ensino, saúde etc.) |
+| =DSC_ESTABELECIMENTO=                                                | Nome/descrição do estabelecimento, texto livre digitado pelo recenseador |
+| =COD_INDICADOR_ESTAB_ENDERECO=, =COD_TIPO_ESPECI=, ...                | Indicadores e subtipos adicionais                   |
+
+=COD_ESPECIE = 4= identifica estabelecimentos de ensino (inferido
+empiricamente pelos valores de =DSC_ESTABELECIMENTO=, já que o dicionário
+oficial em =.xls= ainda não foi lido - ver pendências). Exemplos reais
+extraídos da amostra:
+
+#+begin_src text
+COD_ESPECIE  DSC_ESTABELECIMENTO                          LATITUDE    LONGITUDE    NV_GEO_COORD
+4            ESCOLA ESTADUAL PROFESSOR HOMERO CALVOSO      -22.748002  -49.740528   1
+4            ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL         -22.750101  -49.738891   1
+4            ESCOLA DE EDUCACAO INFANTIL                    -22.832920  -49.818972   1
+4            CRECHE ESCOLA                                  -22.743786  -49.741516   1
+4            PREDIO ANTIGA ESCOLA                            -22.796614  -49.834006   1
+#+end_src
+
+Na amostra testada (8 endereços com =COD_ESPECIE = 4=), *todos* tinham
+=LATITUDE=/=LONGITUDE= preenchidos e =NV_GEO_COORD = 1=. Nacionalmente, o
+IBGE reporta *264,4 mil estabelecimentos de ensino* com coordenada
+registrada no Censo 2022.
+
+** Limitações conhecidas
+
+- *Sem chave direta para o Censo Escolar do INEP*: =DSC_ESTABELECIMENTO= é
+  texto livre do recenseador (ex.: "ESCOLA ESTADUAL PROFESSOR HOMERO
+  CALVOSO"), não o código =CO_ENTIDADE= usado pelo INEP. Testamos e
+  validamos uma chave indireta melhor que nome - CEP + número do endereço,
+  disponível nos dois lados - ver "Estratégia do ETL de cruzamento"
+  abaixo.
+- *Ruído de nomenclatura*: nem todo =COD_ESPECIE = 4= é uma escola em
+  funcionamento - a amostra já trouxe "PREDIO ANTIGA ESCOLA" e "AUTO ESCOLA
+  FONTANA" (autoescola de trânsito, não escola de educação básica).
+  Vai precisar de filtro/curadoria por palavras-chave, e mesmo assim restam
+  ambiguidades.
+- *Volume não testado em município grande*: só testamos uma cidade pequena
+  (São Pedro do Turvo, ~10 mil habitantes). Capitais como São Paulo devem
+  gerar arquivos ordens de magnitude maiores - tamanho e desempenho de
+  processamento ainda não avaliados.
+- *Dicionário oficial não lido*: =Dicionario_CNEFE_Censo_2022.xls= está no
+  formato antigo do Excel (BIFF/OLE2), e não há biblioteca disponível no
+  ambiente atual (=openpyxl=/=xlrd=) para abri-lo. Os significados de
+  =COD_ESPECIE=, =COD_TIPO_ESPECI= e =NV_GEO_COORD= usados aqui foram
+  *inferidos* a partir dos valores observados em =DSC_ESTABELECIMENTO=, não
+  confirmados na fonte oficial.
+
+* Decisão desta sessão (revista)
+
+Mudamos a estratégia: em vez de agregar escolas por município (limitação
+que existia por falta de coordenadas), vamos montar uma base com
+*latitude/longitude por escola*, cruzando o Censo Escolar do INEP com o
+CNEFE do IBGE. O motivo: ter o ponto exato abre várias formas possíveis de
+agregação/visualização no mapa (marcador individual, cluster, heatmap,
+contagem por município calculada a partir dos pontos etc.) - e decidimos
+*adiar a escolha entre essas formas* para depois que soubermos quantas
+escolas de fato conseguimos geolocalizar (a decisão anterior, de agregação
+por município, fica registrada como histórico em
+[[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]).
+
+Para isso, o trabalho se divide em duas partes deliberadamente separadas:
+
+- *Download* (genérico, reaproveitável, sem lógica de negócio): um script
+  por fonte, baixando os dados brutos sem transformá-los -
+  =scripts/commands/inep_censo_escolar__baixar_dados.py= (já existia) e
+  =scripts/commands/ibge_cnefe__baixar_dados.py= (novo, por UF).
+- *ETL* (específico deste recurso, com a lógica de cruzamento): um script
+  separado que lê os dados já baixados de ambas as fontes e produz
+  =escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv= - ainda não escrito, ver pendências abaixo.
+
+Começamos baixando só *SP* como piloto (maior estado, ~1 GB compactado),
+para validar a estratégia de casamento de nomes antes de baixar o Brasil
+inteiro (~27 UFs, vários GB).
+
+* Estratégia do ETL de cruzamento (INEP x CNEFE)
+
+Esta seção explica, antes de escrever o código, como o ETL vai decidir
+qual coordenada do CNEFE pertence a qual escola do Censo Escolar - e, mais
+importante, o que acontece dos dois lados quando *não* há uma
+correspondência confiável. Nenhum dos dois catálogos tem uma chave em
+comum (o INEP usa =CO_ENTIDADE=; o CNEFE não conhece esse código), então a
+correspondência é por *semelhança*, não por identidade - por definição, vai
+ter casos incertos, e a regra abaixo existe para tratá-los de forma
+transparente em vez de escondê-los.
+
+** Quem é a lista mestra
+
+O *Censo Escolar do INEP é a lista mestra de escolas*. O =escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=
+final tem exatamente uma linha para cada escola que existe no Censo Escolar
+- nem uma a mais, nem a menos. O CNEFE entra só como fonte de coordenada
+para enriquecer essa lista; ele nunca adiciona escola nova ao resultado.
+
+** Nome de escola sozinho não é chave suficiente
+
+A primeira versão desta estratégia (registrada só para histórico) usava
+casamento de nome (=NO_ENTIDADE= x =DSC_ESTABELECIMENTO=) dentro do mesmo
+município como único critério. O problema, levantado nesta sessão: nenhum
+dos dois catálogos tem um identificador de escola em comum, e nome de
+escola é texto livre digitado por pessoas diferentes em cada base - sem uma
+chave melhor, toda correspondência ficaria vulnerável a coincidência de
+nome (duas escolas com nomes parecidos no mesmo município) e a nomes
+truncados/genéricos que o CNEFE usa (ex.: recenseador registrou só "ETEC"
+em vez do nome completo da escola).
+
+** Endereço (CEP + número) é uma chave bem mais forte - testado com dados reais
+
+Só o Censo Escolar 2024 tem endereço completo (=CO_CEP=, =DS_ENDERECO=,
+=NU_ENDERECO= - removido em 2025, ver achados na Fase 1 do plano), e o
+CNEFE também tem =CEP= e =NUM_ENDERECO= por endereço. Testamos cruzando os
+dois usando as 30.746 escolas em atividade do INEP em SP contra os 40.746
+estabelecimentos de ensino do CNEFE em SP (dados já baixados nesta
+sessão):
+
+| Estratégia de casamento                                    | Cobertura sobre as escolas de SP |
+|--------------------------------------------------------------+------------------------------------|
+| Endereço exato: município + CEP + número                    | 46,7% (14.352 de 30.746)          |
+| … dos quais já é candidato *único* (sem precisar do nome)    | 96,7% desses matches (13.877)     |
+| … dos quais colide com outro candidato no mesmo endereço      | 3,3% desses matches (475, até 41 candidatos) |
+| Município + CEP (sem exigir o número)                        | 76,6% (23.552 de 30.746)          |
+| Sem nenhum candidato só com CEP                              | 23,4% (7.194)                     |
+
+Achado importante: *quando o endereço bate, a correspondência costuma
+estar certa mesmo com nomes muito diferentes*. Exemplo real da amostra: o
+INEP tem =ETEC ARNALDO PEREIRA CHEREGATTI=, e o CNEFE, no mesmo endereço,
+só registrou =ETEC= - nome muito diferente (~22% de similaridade), mas
+claramente a mesma escola. Se o nome fosse exigido como confirmação, esse
+tipo de match correto seria descartado.
+
+** Como o casamento é feito (estratégia em camadas por confiança)
+
+Em vez de nome como critério principal, o endereço vira o sinal
+predominante, e o nome só entra para desempatar quando o endereço sozinho
+não decide:
+
+1. *Alta confiança*: casa por =CO_MUNICIPIO=+=CO_CEP=+=NU_ENDERECO= (INEP)
+   com =COD_MUNICIPIO=+=CEP=+=NUM_ENDERECO= (CNEFE). Único candidato ->
+   aceita direto, sem olhar o nome. Mais de um candidato no mesmo endereço
+   (colisão, ~3% dos casos) -> desempata pelo candidato com nome mais
+   parecido (normalizado: caixa alta, sem acento/pontuação, comparado por
+   conjunto de palavras para tolerar ordem diferente).
+2. *Confiança média*: quando não bate o número (ausente ou divergente),
+   casa só por =CO_MUNICIPIO=+=CO_CEP=. Único candidato -> aceita com
+   confiança média. Mais de um -> desempata por nome, como acima.
+3. *Confiança baixa (fallback)*: escolas sem nenhum candidato por CEP (o
+   caso mais comum é a escola ter um CEP genérico da cidade, tipo
+   "17800000", que não bate com o CEP real de rua do CNEFE). Cai para
+   comparação de nome dentro do mesmo município - a estratégia original,
+   mantida só como último recurso.
+4. *Exigir uma nota mínima de confiança* nos desempates por nome e no
+   fallback por nome. Abaixo do limiar, fica como "sem correspondência" -
+   preferimos um mapa incompleto a um mapa que mente.
+5. *Nunca decidir sozinho um empate real*: se o desempate por nome também
+   ficar embolado (dois candidatos com nota parecida), marcar como
+   "ambíguo" em vez de escolher arbitrariamente.
+
+Cada escola geolocalizada carrega o nível da camada que a resolveu
+(=alta=, =media= ou =baixa=) na coluna =status_geolocalizacao=, para quem
+for usar o CSV decidir se aceita ou não a confiança baixa.
+
+** O que acontece com quem não bate dos dois lados
+
+- *Escola do INEP sem candidato bom o bastante no CNEFE* (não bate CEP nem
+  número, e o fallback por nome também não passa do limiar de confiança):
+  a escola *continua* no =escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=, com todas as colunas do
+  Censo Escolar preenchidas normalmente - só =LATITUDE= e =LONGITUDE=
+  ficam vazias, e =status_geolocalizacao= registra o motivo
+  (=sem_correspondencia= ou =ambiguo=, em vez de =alta=/=media=/=baixa=).
+  Isso é o esperado para escolas com CEP genérico da cidade (não do
+  logradouro), prédios muito novos ainda sem endereço preciso no CNEFE, ou
+  casos onde nem endereço nem nome batem entre as duas bases - a escola
+  não desaparece do mapa por causa disso, só fica sem ponto até uma
+  correspondência melhor aparecer (manualmente ou em uma versão futura do
+  ETL).
+- *Estabelecimento do CNEFE sem escola correspondente no INEP* (ex.:
+  "FACULDADE QUALITAS" - ensino superior, fora do Censo Escolar; "AUTO
+  ESCOLA FONTANA" - autoescola de trânsito; "PREDIO ANTIGA ESCOLA" - prédio
+  que não é mais escola; escola que fechou e saiu do Censo Escolar): é
+  *descartado silenciosamente do resultado final*, sem virar linha nova no
+  CSV. Isso é intencional e decorre direto de "o INEP é a lista mestra" -
+  o CNEFE não tem informação confiável sobre se um endereço é uma escola de
+  educação básica *em funcionamento*, então cabe ao Censo Escolar decidir
+  isso, nunca ao CNEFE.
+
+** Transparência do resultado
+
+Ao final do ETL, imprimir um resumo com: total de escolas do Censo Escolar,
+quantas ficaram em cada =status_geolocalizacao= (=alta=, =media=, =baixa=,
+=ambiguo=, =sem_correspondencia=). Esse resumo (não só o CSV) é o que
+decide se a cobertura do CNEFE é boa o bastante para basear a visualização
+nele, ou se a v1 por município continua sendo necessária como reforço.
+
+* Próximos passos / pendências
+
+- [X] Escrever o script de download do CNEFE em =scripts/commands/=,
+  seguindo o padrão dos demais (por UF - =ibge_cnefe__baixar_dados.py=).
+- [X] Baixar o CNEFE de SP (piloto) - concluído; 40.746 endereços com
+  =COD_ESPECIE = 4= em SP (inclui ruído: faculdades, autoescolas etc., a
+  filtrar no ETL).
+- [X] Validar a chave de casamento por endereço (CEP+número) com dados
+  reais de SP, antes de escrever o ETL de verdade - ver tabela de
+  cobertura acima (46,7% em alta confiança, 76,6% com pelo menos um
+  candidato por CEP).
+- [X] Escrever o script de ETL (separado do download) -
+  =scripts/commands/escolas_dados__cruzar_inep_cnefe.py=, implementando a
+  estratégia em camadas descrita acima e gravando =data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=.
+- [X] Rodar o ETL completo em SP (piloto) - resultado real (33.863
+  escolas do Censo Escolar 2024 em SP, contra 40.746 estabelecimentos de
+  ensino do CNEFE):
+
+  | Status                  |  Qtde | % das escolas |
+  |----------------------------+-------+-----------------|
+  | alta (endereço exato)      | 15098 |          44,6% |
+  | media (só CEP)              |  8595 |          25,4% |
+  | baixa (fallback por nome)   |  3775 |          11,1% |
+  | *geolocalizadas (soma)*     | 27468 |        *81,1%* |
+  | ambiguo                     |  6263 |          18,5% |
+  | sem_correspondencia         |   132 |           0,4% |
+
+  Cobertura de 81,1% - acima dos 76,6% estimados só com CEP na validação
+  anterior, como esperado (o fallback por nome recupera mais alguns
+  casos). Mas apareceram dois problemas reais que não tínhamos previsto:
+
+  1. *Ambiguidade bem mais alta que o esperado (18,5%, não ~3% como na
+     validação por colisão de endereço exato)*. Causa confirmada:
+     municípios onde muitas escolas do INEP compartilham um *CEP
+     genérico* (ex.: =17800000=, terminando em zeros - não é o CEP real do
+     logradouro, é um CEP-base do município). Nesses casos, a camada
+     "média" vira uma cesta grande e pouco discriminativa, e como os
+     nomes das escolas compartilham vocabulário comum ("EMEI", "PROF",
+     "CICLO I/II"), vários candidatos empatam por semelhança sem nenhum
+     ser claramente o certo - o script está sendo honesto sobre a
+     incerteza (preferimos ambiguo a chutar), mas a camada "média"
+     precisa aprender a desconfiar de CEP genérico em vez de tratá-lo como
+     sinal forte.
+  2. *Desempenho inviável para o Brasil inteiro*: rodar só SP levou quase
+     28 minutos (a maior parte lendo e comparando nomes dentro do CNEFE de
+     3,8 GB). Nos moldes atuais, os 27 estados provavelmente levariam
+     várias horas. Precisa de otimização antes de rodar nacionalmente -
+     ver pendências.
+
+** Segunda rodada (fim desta sessão) - correções implementadas, resultado pendente de conferência
+
+*Isto é o ponto exato para retomar na próxima sessão.* Depois do resultado
+acima (81,1%, com os dois problemas descritos), implementamos três
+correções em =scripts/commands/escolas_dados__cruzar_inep_cnefe.py= *nesta
+mesma sessão*, mas o ETL foi rodado de novo pela última vez ainda em
+andamento quando a sessão foi pausada - *o resultado dessa rodada final
+ainda não foi conferido*. Primeira ação da próxima sessão: rodar de novo
+(ou checar se a rodada em andamento chegou a terminar) e atualizar a
+tabela de resultado acima com os números reais.
+
+Correções feitas:
+
+1. *Camada "alta" nunca mais fica "ambígua"*: quando o endereço bate exato
+   (=CO_MUNICIPIO=+=CO_CEP=+=NU_ENDERECO=) e há mais de um candidato do
+   CNEFE nesse mesmo endereço, a posição já está certa de qualquer jeito -
+   só o nome exato da escola é incerto. Antes isso virava "ambíguo"
+   (jogando fora uma coordenada boa); agora aceita o candidato mais
+   parecido por nome e mantém status "alta".
+2. *CEP genérico só é desconfiado quando gera ambiguidade de verdade*:
+   a primeira versão desta correção (para o problema do CEP terminado em
+   =000= compartilhado por várias escolas) desconfiava do CEP genérico
+   mesmo quando havia só *um* candidato no CNEFE - isso jogou escolas boas
+   da camada "média" (rápida, confiável) para a camada "baixa" (mais cara,
+   mais ambígua), e o primeiro teste dessa versão saiu *pior* que o
+   resultado original (menos escolas geolocalizadas, ETL mais lento: 34min
+   contra 28min). Corrigido para só desconfiar do CEP genérico quando há
+   *mais de um* candidato (a ambiguidade real) - candidato único é aceito
+   normalmente, igual antes.
+3. *Fallback opcional por API de CEP* (flag =--geocodificar-cep-fallback=):
+   para quem sobrar sem nenhuma correspondência no CNEFE, consulta a
+   AwesomeAPI de CEP (gratuita, sem chave, testada e funcionando - ver
+   achados de geocodificação abaixo) para uma coordenada aproximada do
+   CEP. Ainda não testado de ponta a ponta.
+
+Ideias consideradas e *descartadas por enquanto* (documentar o motivo para
+não redescobrir depois):
+
+- *Ampliar a busca no CNEFE para qualquer tipo de endereço* (não só
+  =COD_ESPECIE=4=) quando não há candidato de ensino: descartada por
+  custo - o CNEFE de SP sozinho tem *23 milhões de linhas* (contra 40.746
+  filtradas como ensino); indexar tudo isso em memória pioraria ainda mais
+  o problema de desempenho já existente. Só vale reconsiderar se as
+  otimizações de desempenho abaixo derem folga de sobra.
+
+- [ ] *Conferir o resultado da segunda rodada* (item mais urgente - ver
+  acima) e atualizar a tabela de cobertura com os números reais.
+- [ ] Testar o fallback =--geocodificar-cep-fallback= de ponta a ponta em
+  SP e conferir quantas escolas ele recupera.
+- [ ] Acrescentar uma camada *antes* das do CNEFE: casar por =ref:INEP= do
+  OpenStreetMap (Overpass API) contra =CO_ENTIDADE= do Censo Escolar -
+  junção exata por identificador, sem ambiguidade nenhuma quando a tag
+  existe (ver seção "OpenStreetMap" acima; cobertura nacional ~9,7%, mas
+  bem distribuída de forma desigual - vale testar antes do CNEFE mesmo
+  assim, já que zera a ambiguidade para quem tem a tag). *Ainda não
+  implementado.*
+- [ ] Otimizar o desempenho do ETL antes de rodar o Brasil inteiro: a
+  camada "baixa" (fallback por nome dentro do município inteiro) é a mais
+  cara - candidatas incluem cachear a normalização de nome do CNEFE (hoje
+  é recalculada a cada comparação), podar candidatos por primeira palavra
+  antes de rodar =difflib=, e/ou usar leitura em bloco do CNEFE em vez de
+  =csv.reader= linha a linha.
+- [ ] Ler o dicionário oficial do CNEFE (=Dicionario_CNEFE_Censo_2022.xls=)
+  para confirmar os códigos de =COD_ESPECIE=, =COD_TIPO_ESPECI= e
+  =NV_GEO_COORD= (precisa de =xlrd= ou converter o arquivo antes).
+- [ ] Baixar o CNEFE das demais 26 UFs, só depois de resolver ambiguidade,
+  desempenho e conferir a segunda rodada.
+- [ ] Só depois de validar a cobertura nacional: decidir a forma final de
+  visualização (marcador por escola, cluster, heatmap, ou manter contagem
+  por município como opção adicional) - decisão explicitamente adiada.
+
+* Execucao do Script
+(venv) wgn@fedora:~/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts$ python3 scripts/commands/escolas_dados__cruzar_inep_cnefe.py 
+Censo Escolar: /home/wgn/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts/data/inep_censo_escolar/zipfiles/microdados_censo_escolar_2024/microdados_censo_escolar_2024_defeso/dados/microdados_ed_basica_2024.csv
+[sp] 33863 escolas no Censo Escolar 2024
+    lendo CNEFE de SP...
+    40746 estabelecimentos de ensino no CNEFE
+    alta                  15237  (45.0%)
+    media                  6565  (19.4%)
+    baixa                  5522  (16.3%)
+    aproximado_cep            0  (0.0%)
+    ambiguo                6201  (18.3%)
+    sem_correspondencia     338  (1.0%)
+
+Resumo geral (1 UF(s), 33863 escolas): /home/wgn/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts/data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv
+  alta                  15237  (45.0%)
+  media                  6565  (19.4%)
+  baixa                  5522  (16.3%)
+  aproximado_cep            0  (0.0%)
+  ambiguo                6201  (18.3%)
+  sem_correspondencia     338  (1.0%)
+(venv) wgn@fedora:~/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts$ 
+
+* Referências
+
+- CNEFE, página oficial do IBGE:
+  https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html
+- OpenStreetMap, tag =ref:INEP= (identificação de escolas brasileiras):
+  https://wiki.openstreetmap.org/wiki/Key:ref:INEP
+- Overpass API (consulta usada para medir a cobertura do =ref:INEP=):
+  https://overpass-api.de/api/interpreter
+- CEM/USP, Base Cartográfica Digital Georreferenciada das Escolas da RMSP:
+  https://centrodametropole.fflch.usp.br
+- AwesomeAPI CEP (geocodificação gratuita por CEP, usada no fallback do ETL):
+  https://cep.awesomeapi.com.br
+- CEP Aberto (alternativa à AwesomeAPI, exige cadastro):
+  https://www.cepaberto.com
+- Nominatim Usage Policy (regras de uso da API pública de geocodificação):
+  https://operations.osmfoundation.org/policies/nominatim/
+- Anúncio da primeira divulgação de coordenadas geográficas de endereços
+  (fev/2024):
+  https://agenciagov.ebc.com.br/noticias/202402/ibge-divulga-pela-primeira-vez-as-coordenadas-geograficas-dos-enderecos-do-pais
+- FTP de download do CNEFE 2022 (CSV por UF/Município):
+  https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/
+- Dicionário de dados do CNEFE 2022 (.xls, ainda não lido):
+  https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/Dicionario_CNEFE_Censo_2022.xls
+- Catálogo de Escolas do INEP (não publica lat/long em massa):
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
+- Notícia sobre a coleta de geolocalização pelo Censo Escolar desde 2018
+  (dado interno, não público):
+  https://agenciabrasil.ebc.com.br/educacao/noticia/2018-06/censo-coleta-pela-primeira-vez-dados-sobre-localizacao-de-escolas
+- Plano de marcadores de escolas do projeto (contexto e decisões da v1):
+  [[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]

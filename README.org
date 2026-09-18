@@ -31,7 +31,8 @@ georef-artifacts/
 |   |-- 01-dados-ibge-malhas-municipais.org
 |   |-- 02-ambiente-python.org
 |   |-- 03-primeira-exploracao.org
-|   `-- 04-leaflet-explicado.org
+|   |-- 04-leaflet-explicado.org
+|   `-- 05-plano-marcadores-escolas-inep.org
 |-- scripts/                ; scripts auxiliares (download, análise)
 |-- data/                   ; dados baixados do IBGE (veja data/README.org)
 |-- web/                    ; aplicação web estática (Leaflet + GeoJSON)
@@ -54,6 +55,9 @@ O roteiro evolui conforme o projeto avança. Os primeiros passos são:
    #+begin_src sh
    ./scripts/commands/exportar_docs_org_para_html.sh
    #+end_src
+7. [[./docs/05-plano-marcadores-escolas-inep.org][Marcadores de escolas do Censo Escolar (INEP) no mapa]] - plano vivo,
+   atualizado entre sessões, para adicionar uma camada de escolas
+   filtrável por checkbox ao explorador de malhas.
 
 Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
 

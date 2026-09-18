@@ -1,0 +1,324 @@
+#+TITLE: Plano - Marcadores de Escolas do Censo Escolar (INEP) no Mapa
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+#+TODO: A-FAZER(t) EM-ANDAMENTO(a) BLOQUEADO(b) | FEITO(d)
+
+* Objetivo
+
+Adicionar ao explorador de malhas (=web/ibge_malhas.html=) uma camada de
+*marcadores de escolas brasileiras*, usando os microdados do Censo Escolar
+do INEP, filtráveis por checkbox na barra lateral (mesmo padrão de
+acordeão já usado para as malhas do IBGE).
+
+Fonte oficial dos dados:
+https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar
+
+* Como usar este documento
+
+Este é um documento *vivo*, mantido entre sessões de trabalho:
+
+- A seção "Estado atual" resume onde paramos, para retomar rapidamente em
+  uma nova sessão.
+- Cada fase é um item Org com estado (=A-FAZER= / =EM-ANDAMENTO= /
+  =BLOQUEADO= / =FEITO=) e uma lista de tarefas com checkbox (=[ ]=/=[X]=).
+- Decisões importantes (com a justificativa) ficam registradas em
+  "Decisões tomadas", para não precisarmos re-discutir o mesmo ponto depois.
+- Ao final de cada sessão de trabalho, atualizamos os checkboxes, o estado
+  das fases e, se necessário, acrescentamos novas tarefas descobertas.
+
+* Estado atual (resumo rápido)
+
+- Fase em andamento: *Fase 1 - Obtenção de Dados* (Censo Escolar e CNEFE).
+- Já decidido: ano de referência =2024= para os microdados do Censo
+  Escolar; geolocalização passa a ser *ponto exato por escola via CNEFE*
+  (não mais agregação por município - decisão revista nesta sessão, ver
+  "Decisões tomadas" abaixo).
+- Feito: script de download
+  =scripts/commands/inep_censo_escolar__baixar_dados.py= (Censo Escolar,
+  todos os anos 1995-2025, com conferência de MD5 e extração) e
+  =scripts/commands/ibge_cnefe__baixar_dados.py= (CNEFE, por UF).
+- Feito: ETL =scripts/commands/escolas_dados__cruzar_inep_cnefe.py=
+  rodado com sucesso no piloto de SP - *81,1%* das 33.863 escolas do Censo
+  Escolar 2024 em SP ganharam coordenada (=data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=).
+  Achados e pendências (ambiguidade por CEP genérico, desempenho a
+  otimizar antes do Brasil inteiro) em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+  Relatório completo desta etapa em
+  [[file:07-relatorio-etl-escolas-piloto-sp.org][07-relatorio-etl-escolas-piloto-sp.org]].
+- Feito: pesquisa de recursos gratuitos de geocodificação (CNEFE ampliado,
+  AwesomeAPI CEP, CEP Aberto, Nominatim) e implementação de 3 correções no
+  ETL (camada "alta" nunca mais fica ambígua; CEP genérico só é
+  desconfiado com múltiplos candidatos - uma primeira tentativa mais
+  agressiva piorou o resultado, foi corrigida; fallback opcional
+  =--geocodificar-cep-fallback= via AwesomeAPI). Detalhes em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+- Feito (2026-09-18): mapa web de escolas =web/escolas_mapa.html= (cópia do
+  explorador de malhas, que ficou intocado, com script próprio
+  =web/js/escolas_mapa.js= e CSS próprio =web/css/escolas_mapa.css=).
+  Dados leves por UF gerados por
+  =scripts/commands/escolas_mapa__gerar_dados_web.py= em
+  =web/data/escolas/= (SP: 27.324 escolas com coordenada, 5,2 MB). Decisões:
+  clusters com *Supercluster* + escolas individuais em *canvas* (a partir de
+  Z=14), para escalar até as ~180 mil escolas do Brasil; filtro padrão só
+  "Em atividade"; cores por rede de ensino ou por confiança; as 6.539
+  escolas sem coordenada (ambiguo/sem_correspondencia) aparecem como
+  contagem na barra lateral. Pendências: acrescentar ao ETL o endereço do
+  CNEFE (hoje o popup só mostra o nome do estabelecimento no CNEFE) e
+  conferir no dicionário oficial o significado de =NV_GEO_COORD= usado no
+  popup.
+- *PAUSADO AQUI - próxima ação ao retomar*: a última rodada do ETL em SP
+  (com as 3 correções acima) estava rodando em segundo plano quando a
+  sessão foi pausada, sem o resultado conferido ainda. Primeiro passo da
+  próxima sessão: rodar (ou conferir o resultado, se ainda estiver
+  disponível) =scripts/commands/escolas_dados__cruzar_inep_cnefe.py sp= e
+  atualizar a tabela de cobertura em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]]
+  (seção "Segunda rodada"). Só depois disso: testar o fallback de CEP,
+  implementar a camada de =ref:INEP= do OpenStreetMap, otimizar
+  desempenho, e então baixar o CNEFE das outras 26 UFs.
+
+* Decisões tomadas
+
+** Ano de referência do Censo Escolar: 2024
+
+O pacote de 2024 (=microdados_censo_escolar_2024.zip=, ~32 MB) traz uma
+única tabela consolidada por escola (=microdados_ed_basica_2024.csv=,
+~218 MB descomprimido), incluindo endereço completo. É mais leve e mais
+simples de processar para uma primeira versão do que o pacote de 2025
+(~512 MB, dividido em várias tabelas - ver achados abaixo). Podemos migrar
+para 2025 (ou anos futuros) depois que o pipeline estiver funcionando.
+
+** SUPERSEDIDA - Estratégia de geolocalização (v1): agregação por município
+
+*Substituída pela decisão seguinte.* Registrada aqui só como histórico:
+quando isto foi decidido, nem a tabela de 2024 nem a de 2025 do Censo
+Escolar traziam latitude/longitude por escola, e não tínhamos uma fonte
+alternativa de coordenadas verificada. Para não bloquear o progresso, a
+ideia era agregar (contar) escolas por município e plotar um marcador
+(círculo proporcional) no centróide de cada município, reaproveitando a
+malha =BR_municipios_2024_minima.geojson=. Essa limitação deixou de existir
+com a descoberta do CNEFE (ver decisão abaixo).
+
+** Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)
+
+Encontramos e verificamos uma fonte com latitude/longitude real por
+endereço, incluindo estabelecimentos de ensino: o *CNEFE* do IBGE (Censo
+Demográfico 2022). Detalhes completos, estrutura dos dados e limitações
+conhecidas em
+[[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+
+Com isso, a estratégia muda:
+
+- Em vez de agregar por município, o objetivo agora é montar uma base
+  =escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv= com *uma linha por escola* do Censo Escolar (INEP),
+  enriquecida com =LATITUDE=/=LONGITUDE= vindas do CNEFE. Nome de escola
+  sozinho não é chave confiável entre as duas bases (nenhuma tem um ID em
+  comum); testamos com dados reais de SP e endereço (CEP + número) é uma
+  chave bem mais forte - nome só entra para desempatar quando o endereço
+  não decide sozinho. Estratégia completa, com números da validação, em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+- Ter o ponto exato por escola abre várias formas de agregação/visualização
+  no mapa (marcador individual, cluster, heatmap, contagem por município
+  calculada em tempo real a partir dos pontos etc.). *Decidimos adiar a
+  escolha entre essas formas para depois que o ETL de geolocalização
+  estiver pronto* - não faz sentido comprometer com uma visualização antes
+  de saber quantas escolas de fato conseguimos geolocalizar.
+- Download do CNEFE e o ETL de cruzamento são scripts separados (o download
+  é genérico e reaproveitável; o ETL é específico deste recurso):
+  =scripts/commands/ibge_cnefe__baixar_dados.py= (por UF) e um script de
+  ETL ainda a escrever (ver pendências em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]]).
+
+* Roteiro geral (fases)
+
+** EM-ANDAMENTO Fase 1 - Obtenção de Dados (Aquisição)
+
+Ver seção detalhada "Fase 1 (detalhada)" abaixo.
+
+** A-FAZER Fase 2 - Preparação e Modelagem dos Dados
+
+- Escolher biblioteca de leitura (pandas, já presente no =requirements.txt=
+  do projeto? conferir).
+- Selecionar apenas as colunas relevantes do CSV (a lista final depende do
+  dicionário de dados - ver Fase 1).
+- Tratar tipos (códigos =IN_*= são indicadores 0/1, =TP_*= são categorias
+  codificadas, =QT_*= são contagens).
+- Agregar por município (=CO_MUNICIPIO=) cruzando com combinações de
+  filtro relevantes.
+- Decidir formato de saída intermediário (CSV/Parquet local em =data/=
+  antes de virar o artefato final para a web).
+
+** A-FAZER Fase 3 - Definição das Variáveis de Filtro
+
+Candidatas iniciais a partir do cabeçalho do CSV de 2024 (confirmar após
+ler o dicionário de dados completo):
+
+- =TP_DEPENDENCIA= (Federal/Estadual/Municipal/Privada).
+- =TP_LOCALIZACAO= (Urbana/Rural).
+- =TP_SITUACAO_FUNCIONAMENTO= (Em atividade/Paralisada/Extinta) - decidir
+  se mostramos apenas escolas em atividade.
+- Etapas de ensino oferecidas: =IN_INF=, =IN_FUND=, =IN_MED=, =IN_PROF=,
+  =IN_EJA=, =IN_ESP= (e as subdivisões =_AI=/=_AF=/=_CRE=/=_PRE= etc.).
+- Infraestrutura: =IN_BIBLIOTECA=, =IN_INTERNET=, =IN_LABORATORIO_INFORMATICA=,
+  =IN_LABORATORIO_CIENCIAS=, =IN_ACESSIBILIDADE_*=, =IN_AGUA_POTAVEL=,
+  =IN_ENERGIA_REDE_PUBLICA=.
+- Porte: derivar de =QT_MAT_BAS= (total de matrículas) em faixas.
+
+** A-FAZER Fase 4 - Preparação dos Dados para Visualização Web
+
+- Formato de saída final: provavelmente um JSON/GeoJSON por município com
+  contagens pré-agregadas por combinação de filtro (para não recalcular no
+  navegador), ou um JSON "flat" que o próprio =app.js= agrega em tempo real
+  (decidir conforme o tamanho do payload gerado na Fase 2).
+- Avaliar tamanho final do arquivo e se cabe carregar tudo de uma vez
+  (como já fazemos com as malhas do IBGE) ou se precisa paginar/carregar
+  por UF.
+
+** A-FAZER Fase 5 - UI de Filtros (checkboxes) na Barra Lateral
+
+- Novo item de acordeão "🏫 Escolas (Censo INEP)", seguindo o padrão visual
+  já criado para "Camadas do Mapa (IBGE)".
+- Grupos de checkboxes por variável (dependência, localização, etapa de
+  ensino, infraestrutura), com contagem de escolas correspondente.
+- Decidir a lógica de combinação dos filtros (todos os grupos em AND,
+  opções dentro do mesmo grupo em OR - a confirmar quando os dados
+  estiverem prontos).
+
+** A-FAZER Fase 6 - Renderização dos Marcadores no Mapa
+
+- Nova camada Leaflet (círculos proporcionais por município), adicionada
+  ao mesmo mecanismo de camadas combináveis (=activeLayers=/=LAYER_ORDER=)
+  já existente em =web/js/app.js=.
+- Popup/tooltip com o nome do município e a contagem filtrada de escolas.
+- Reaproveitar a lógica de cores já criada, ou definir uma paleta própria
+  para não confundir com as camadas de malha.
+
+** A-FAZER Fase 7 - Performance e Evolução (v2)
+
+- Reavaliar a geolocalização exata por escola (ponto no mapa em vez de
+  agregado por município). *Atualização de sessão posterior:* encontramos e
+  verificamos uma fonte real - o *CNEFE* do IBGE (Censo Demográfico 2022)
+  publica latitude/longitude por endereço, incluindo estabelecimentos de
+  ensino. Detalhes completos, limitações conhecidas e pendências em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+  Isso muda o panorama desta fase: o bloqueio deixou de ser "não existe
+  fonte" e passou a ser "falta investigar cobertura/qualidade do CNEFE e
+  como cruzá-lo com o Censo Escolar" (ver pendências no documento citado).
+  - Investigar se o "Catálogo de Escolas" do INEP
+    (https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas)
+    expõe alguma exportação em massa (hoje é um portal de BI/Analytics,
+    sem link direto de download confirmado) - de baixa prioridade agora
+    que o CNEFE é uma alternativa mais concreta.
+  - Investigar o espelho "Catálogo de Escolas" no Base dos Dados
+    (https://basedosdados.org/dataset/c320e0ad-7551-4c01-8bbd-39a59b1c4914).
+- Se migrarmos para marcador por escola: avaliar necessidade de
+  clustering (Leaflet.markercluster ou similar) dado o volume (~180 mil
+  escolas ativas).
+- Considerar atualização anual (trocar de ano de referência do Censo).
+
+* Fase 1 (detalhada) - Obtenção de Dados
+
+** Achados confirmados nesta sessão
+
+Estrutura de download: todos os anos seguem o padrão
+=https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_<ANO>.zip=,
+de 1995 a 2025 (o arquivo de 2025 é uma exceção, com =_= antes de =.zip=).
+
+| Ano  | URL do ZIP                                                            |  Tamanho | Estrutura interna                                                  |
+|------+------------------------------------------------------------------------+----------+---------------------------------------------------------------------|
+| 2024 | .../microdados_censo_escolar_2024.zip                                 |   ~32 MB | 1 CSV único =microdados_ed_basica_2024.csv= (~218 MB), com endereço |
+| 2025 | .../microdados_censo_escolar_2025_.zip (nome com =_= antes do =.zip=) |  ~512 MB | Várias tabelas: Escola, Matrícula, Turma, Docente, Gestor, Curso Técnico |
+
+Ambos os pacotes trazem, dentro de =Anexos/ANEXO I - Dicionário de Dados/=,
+o arquivo =dicionário_dados_educação_básica.xlsx=, e em =leia-me/= um PDF
+explicativo. Também incluem um =.txt= com o hash MD5 do CSV principal, útil
+para conferir a integridade do download.
+
+*Nenhuma das duas tabelas de escola contém latitude/longitude* - apenas
+código e nome do município, região, distrito e (só em 2024) o endereço
+completo (rua, CEP, bairro). O pacote de 2025 inclusive *removeu* os
+campos de endereço que existiam em 2024.
+
+*Confirmação direta (nova sessão):* lido o cabeçalho real dos dois CSVs de
+escola via HTTP Range request (sem baixar o arquivo inteiro), decodificando
+o cabeçalho ZIP local e descomprimindo só o início do stream (=deflate= em
+2024, sem compressão/=stored= em 2025). Nenhum campo =LATITUDE=/=LONGITUDE=/
+=COORDENADA= existe em nenhum dos dois. Os campos de endereço encontrados em
+2024 (=microdados_ed_basica_2024.csv=, 426 colunas) são:
+
+- =DS_ENDERECO=, =NU_ENDERECO=, =DS_COMPLEMENTO=, =NO_BAIRRO=, =CO_CEP=,
+  =NU_DDD=, =NU_TELEFONE= (logo após =TP_LOCALIZACAO_DIFERENCIADA=).
+
+Em 2025 (=Tabela_Escola_2025_V2.csv=, 290 colunas), nenhum desses campos de
+endereço aparece mais - confirma a remoção mencionada acima.
+
+** Nota técnica: TLS de download.inep.gov.br
+
+=download.inep.gov.br= não envia a CA intermediária no handshake (confirmado
+com =openssl s_client -showcerts=: só a folha, sem a "RNP ICPEdu GR46 OV TLS
+CA 2025"), então clientes que verificam a cadeia estritamente (Python
+=urllib=, =curl= sem =-k=) falham com "unable to get local issuer
+certificate", mesmo o certificado sendo válido - não é um bloqueio de rede
+nem problema local. O script de download contorna isso baixando essa CA
+intermediária (URL fixa do campo Authority Information Access do
+certificado da folha) e acrescentando-a às CAs confiáveis, sem desabilitar
+a verificação.
+
+A geolocalização de escolas é um produto separado do INEP, o "Catálogo de
+Escolas" (lançado em 2019, atualizado a cada Censo). Na pesquisa desta
+sessão, ele aparece apenas como um portal de BI interativo
+(=anonymousdata.inep.gov.br/analytics/...=), sem link de download em massa
+confirmado a partir da página oficial. Existe também um espelho no Base
+dos Dados (basedosdados.org), ainda não testado.
+
+** Tarefas
+
+- [X] Confirmar a página oficial de download (link enviado pelo usuário).
+- [X] Mapear as URLs de download por ano (1995-2025) e conferir tamanhos
+  reais dos arquivos.
+- [X] Inspecionar o conteúdo do ZIP de 2024 (baixado por completo, ~32 MB).
+- [X] Inspecionar o conteúdo do ZIP de 2025 sem baixá-lo por completo
+  (leitura do índice central via requisições HTTP Range).
+- [X] Confirmar a ausência de latitude/longitude nas tabelas de escola
+  (2024 e 2025) - inicialmente via dicionário de dados e estrutura do
+  pacote, depois reconfirmado lendo o cabeçalho real dos CSVs (ver achados
+  acima).
+- [X] Localizar a fonte oficial de geolocalização (Catálogo de Escolas) e
+  registrar o que se sabe sobre ela.
+- [X] Decidir o ano de referência (→ 2024).
+- [X] Decidir a estratégia de geolocalização inicial (→ agregação por
+  município).
+- [X] Escrever o script de download
+  =scripts/commands/inep_censo_escolar__baixar_dados.py= (baixa o ZIP de um
+  ou mais anos, confere o MD5 publicado dentro do pacote e extrai para
+  =data/inep_censo_escolar/zipfiles/<ano>/=). Mesmo padrao de interface dos
+  scripts de malha do IBGE (download retomavel, =--extrair=, =--forcar=,
+  =--listar=). Ao contrario do decidido acima (so 2024 para a v1), o script
+  baixa *todos* os anos de 1995 a 2025 por padrao - decisao tomada nesta
+  sessao para deixar o historico completo em disco desde ja; a v1 do
+  recurso de marcadores continua usando so 2024.
+- [ ] Criar =data/inep_censo_escolar/README.org= descrevendo a origem e a
+  estrutura dos dados baixados (mesmo padrão de =data/README.org=).
+- [ ] Ler o dicionário de dados (=dicionário_dados_educação_básica.xlsx=)
+  por completo e confirmar a lista final de colunas candidatas a filtro
+  (ver Fase 3).
+- [ ] Adicionar a nova pasta/roteiro a este documento e ao =README.org= do
+  projeto quando o script de download existir.
+
+* Referências
+
+- Página oficial de microdados do Censo Escolar:
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar
+- Catálogo de Escolas (INEP Data, portal de BI):
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
+- Espelho "Catálogo de Escolas" no Base dos Dados:
+  https://basedosdados.org/dataset/c320e0ad-7551-4c01-8bbd-39a59b1c4914
+- ZIP dos microdados 2024 (fonte de dados escolhida para a v1):
+  https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_2024.zip
+- ZIP dos microdados 2025 (referência futura):
+  https://download.inep.gov.br/dados_abertos/microdados_censo_escolar_2025_.zip
+- Fontes de geolocalização exata por escola (CNEFE do IBGE e panorama
+  completo de fontes oficiais pesquisadas):
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]]
