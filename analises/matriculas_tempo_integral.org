@@ -1,0 +1,46 @@
+#+Title: Análise Matrículas Tempo Integral
+EDUCAÇÃO EM TEMPO INTEGRAL NO BRASIL: ANÁLISES
+
+* MICRODADOS 2025 Censo Escolxoar
+Baixei no computador: https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/resultados
+
+QT_MAT_BAS_INT >= 1.
+
+
+Ou seja, todas as escolas que apresentarem pelo menos uma matrícula contabilizada na variável QT_MAT_BAS_INT possuem oferta de educação em tempo integral.
+
+
+As principais variáveis relacionadas à educação em tempo integral disponibilizadas nos Microdados de 2025 são:
+
+
+QT_MAT_BAS_INT: Número de Matrículas da Educação Básica - Tempo Integral
+QT_MAT_INF_INT: Número de Matrículas da Educação Infantil - Tempo Integral
+QT_MAT_INF_CRE_INT: Número de Matrículas da Educação Infantil - Creche - Tempo Integral
+QT_MAT_INF_PRE_INT: Número de Matrículas da Educação Infantil - Pré-Escola - Tempo Integral
+QT_MAT_FUND_INT: Número de Matrículas do Ensino Fundamental - Tempo Integral
+QT_MAT_FUND_AI_INT: Número de Matrículas do Ensino Fundamental - Anos Iniciais - Tempo Integral
+QT_MAT_FUND_AF_INT: Número de Matrículas do Ensino Fundamental - Anos Finais - Tempo Integral
+QT_MAT_MED_INT: Número de Matrículas do Ensino Médio - Tempo Integral
+QT_MAT_PROF_INT: Número de Matrículas da Educação Profissional - Tempo Integral
+QT_MAT_PROF_TEC_INT: Número de Matrículas da Educação Profissional Técnica - Tempo Integral
+QT_MAT_EJA_INT: Número de Matrículas da Educação de Jovens e Adultos (EJA) - Tempo Integral
+QT_MAT_EJA_FUND_INT: Número de Matrículas da Educação de Jovens e Adultos (EJA) - Ensino Fundamental - Tempo Integral
+QT_MAT_EJA_MED_INT: Número de Matrículas da Educação de Jovens e Adultos (EJA) - Ensino Médio - Tempo Integral
+QT_MAT_ESP_INT: Número de Matrículas da Educação Especial - Tempo Integral
+QT_MAT_ESP_CC_INT: Número de Matrículas da Educação Especial em Classes Comuns - Tempo Integral
+QT_MAT_ESP_CE_INT: Número de Matrículas da Educação Especial em Classes Exclusivas - Tempo Integral
+
+
+Em relação ao seu questionamento sobre o conceito de tempo integral, cabe destacar que o Censo Escolar considera como matrícula em tempo integral aquelas em que o tempo de permanência semanal do estudante em turma de escolarização presencial seja igual ou superior a 35 horas semanais. Também são consideradas matrículas em tempo integral aquelas em que a carga horária da turma de escolarização presencial é inferior a 35 horas semanais, mas que, quando somada ao tempo de permanência em turmas de atividade complementar, de atendimento educacional especializado (AEE) e/ou de itinerário formativo, independentemente de ocorrerem na mesma rede ou em outra rede de ensino, atinge 35 horas semanais ou mais.
+
+
+Portanto, as variáveis de matrículas em tempo integral disponibilizadas nos Microdados já contemplam esse conceito oficial adotado pelo Censo Escolar, incluindo os casos em que a condição de tempo integral decorre da combinação entre a escolarização e outras atividades educacionais associadas.
+
+
+Assim, para identificar escolas com oferta de educação em tempo integral, não é necessário realizar cálculos adicionais nem vinculações entre turmas de escolarização e turmas de atividade complementar, bastando utilizar as variáveis consolidadas de tempo integral disponíveis na base de escolas dos Microdados.
+
+
+Os Microdados do Censo Escolar estão disponíveis para download no portal do Inep: https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar. 
+
+
+Nesse mesmo ambiente é possível acessar, além das bases de dados, a documentação técnica associada, incluindo o Dicionário de Dados, os leiautes dos arquivos e demais documentos metodológicos que auxiliam na correta utilização e interpretação das informações.
