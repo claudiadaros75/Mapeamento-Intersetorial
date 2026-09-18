@@ -34,6 +34,12 @@ data/ibge_malha_municipal/geojsonfiles/*_maxima.geojson
 #   data/ibge_malha_municipal/geojsonfiles/*_minima.geojson
 #   data/ibge_malha_municipal/geojsonfiles/*_intermediaria.geojson
 
+# Downloads brutos do Censo Escolar (INEP, ~1,7 GB) e do CNEFE (IBGE, ~1 GB
+# compactado por UF grande) - use scripts/commands/inep_censo_escolar__baixar_dados.py
+# e scripts/commands/ibge_cnefe__baixar_dados.py
+data/inep_censo_escolar/
+data/ibge_cnefe/
+
 # -------------------------------------------------------------
 # Sistema
 # -------------------------------------------------------------
