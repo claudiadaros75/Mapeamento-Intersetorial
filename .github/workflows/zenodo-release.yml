@@ -1,0 +1,161 @@
+# Arquiva cada release no Zenodo, com DOI proprio, junto com a trilha de
+# auditoria do processo colaborativo: issues, pull requests, comentarios,
+# revisoes, milestones e historico de commits, exportados em Markdown (e em
+# JSON bruto, com SHA256SUMS).  Ver README.org, "Registro e divulgacao do
+# processo colaborativo".
+#
+# Pre-requisitos (uma vez so, por quem administra o repositorio):
+#   1. Criar um token pessoal no Zenodo (Account > Applications > Personal
+#      access tokens, escopos deposit:write e deposit:actions) e guardar em
+#      Settings > Secrets and variables > Actions > Secrets:
+#        ZENODO_SANDBOX_TOKEN  token do sandbox.zenodo.org (testes)
+#        ZENODO_TOKEN          token do zenodo.org (DOI real)
+#   2. Enquanto a variavel ZENODO_SANDBOX nao for "false" (Settings >
+#      Secrets and variables > Actions > Variables), as releases vao para o
+#      sandbox, com DOI ficticio.  Depois de testar, defina ZENODO_SANDBOX=false.
+#   3. Depois da primeira publicacao, crie a variavel ZENODO_CONCEPT_RECID
+#      (ou ZENODO_SANDBOX_CONCEPT_RECID) com o id mostrado no resumo do job,
+#      para as releases seguintes virarem novas versoes do mesmo registro.
+#   4. Nao ativar a integracao GitHub do proprio Zenodo: ela criaria um
+#      segundo deposito, sem a trilha de auditoria.
+name: Release no Zenodo (DOI + auditoria)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de uma release já publicada (ex.: v0.1.0)"
+        required: true
+      sandbox:
+        description: "Publicar no sandbox do Zenodo (teste, DOI fictício)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write        # anexar o zip da auditoria e o DOI a release
+  issues: read
+  pull-requests: read
+
+# Uma publicacao por vez, para nao criar versoes concorrentes no Zenodo.
+concurrency:
+  group: zenodo
+  cancel-in-progress: false
+
+jobs:
+  zenodo:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          fetch-depth: 0     # historico completo, para o historico-commits.md
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Escolher o destino (sandbox ou Zenodo real)
+        id: alvo
+        env:
+          EVENTO: ${{ github.event_name }}
+          SANDBOX_INPUT: ${{ inputs.sandbox }}
+          SANDBOX_VAR: ${{ vars.ZENODO_SANDBOX }}
+        run: |
+          if [ "$EVENTO" = workflow_dispatch ]; then
+            sandbox="$SANDBOX_INPUT"
+          elif [ "$SANDBOX_VAR" = false ]; then
+            sandbox=false
+          else
+            sandbox=true
+          fi
+          echo "sandbox=$sandbox" >> "$GITHUB_OUTPUT"
+          echo "Destino: $([ "$sandbox" = true ] && echo sandbox.zenodo.org || echo zenodo.org)"
+
+      - name: Exportar a trilha de auditoria (issues, PRs, comentários...)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/commands/github_auditoria__exportar_markdown.py \
+            --tag "$TAG" --saida build/auditoria
+
+      - name: Empacotar código e auditoria
+        id: pacote
+        run: |
+          nome="${GITHUB_REPOSITORY#*/}-$TAG"
+          git archive --format=zip --prefix="$nome/" -o "build/$nome-codigo.zip" "$TAG"
+          (cd build && zip -qr "$nome-auditoria.zip" auditoria)
+          # Notas da release, sem o bloco de DOI de uma execucao anterior
+          gh release view "$TAG" --json body -q .body \
+            | sed '/<!-- zenodo-doi -->/,/<!-- \/zenodo-doi -->/d' > build/notas.md
+          echo "nome=$nome" >> "$GITHUB_OUTPUT"
+          ls -lh build/*.zip
+
+      - name: Publicar no Zenodo
+        id: zenodo
+        env:
+          SANDBOX: ${{ steps.alvo.outputs.sandbox }}
+          NOME: ${{ steps.pacote.outputs.nome }}
+          TOKEN_REAL: ${{ secrets.ZENODO_TOKEN }}
+          TOKEN_SANDBOX: ${{ secrets.ZENODO_SANDBOX_TOKEN }}
+          RECID_REAL: ${{ vars.ZENODO_CONCEPT_RECID }}
+          RECID_SANDBOX: ${{ vars.ZENODO_SANDBOX_CONCEPT_RECID }}
+        run: |
+          if [ "$SANDBOX" = true ]; then
+            export ZENODO_TOKEN="$TOKEN_SANDBOX" ZENODO_CONCEPT_RECID="$RECID_SANDBOX"
+            flag=--sandbox
+          else
+            export ZENODO_TOKEN="$TOKEN_REAL" ZENODO_CONCEPT_RECID="$RECID_REAL"
+            flag=
+          fi
+          python3 scripts/commands/zenodo__publicar_release.py $flag \
+            --versao "$TAG" --notas build/notas.md \
+            --arquivo "build/$NOME-codigo.zip" \
+            --arquivo "build/$NOME-auditoria.zip"
+
+      - name: Registrar o DOI e anexar a auditoria na release
+        env:
+          SANDBOX: ${{ steps.alvo.outputs.sandbox }}
+          NOME: ${{ steps.pacote.outputs.nome }}
+          DOI: ${{ steps.zenodo.outputs.doi }}
+          URL: ${{ steps.zenodo.outputs.url }}
+        run: |
+          gh release upload "$TAG" "build/$NOME-auditoria.zip" --clobber
+          cp build/notas.md build/notas-doi.md
+          if [ "$SANDBOX" = true ]; then
+            linha="**DOI (sandbox, teste):** $DOI · [registro no sandbox do Zenodo]($URL)"
+          else
+            linha="**DOI:** [$DOI](https://doi.org/$DOI) · [registro no Zenodo]($URL)"
+          fi
+          printf '\n<!-- zenodo-doi -->\n%s\n<!-- /zenodo-doi -->\n' "$linha" >> build/notas-doi.md
+          gh release edit "$TAG" --notes-file build/notas-doi.md
+
+      - name: Resumo
+        env:
+          SANDBOX: ${{ steps.alvo.outputs.sandbox }}
+          DOI: ${{ steps.zenodo.outputs.doi }}
+          URL: ${{ steps.zenodo.outputs.url }}
+          CONCEPT_DOI: ${{ steps.zenodo.outputs.concept_doi }}
+          CONCEPT_RECID: ${{ steps.zenodo.outputs.concept_recid }}
+          RECID_REAL: ${{ vars.ZENODO_CONCEPT_RECID }}
+          RECID_SANDBOX: ${{ vars.ZENODO_SANDBOX_CONCEPT_RECID }}
+        run: |
+          if [ "$SANDBOX" = true ]; then var=ZENODO_SANDBOX_CONCEPT_RECID; atual="$RECID_SANDBOX"
+          else var=ZENODO_CONCEPT_RECID; atual="$RECID_REAL"; fi
+          {
+            echo "### Release \`$TAG\` arquivada no Zenodo$([ "$SANDBOX" = true ] && echo ' (sandbox)')"
+            echo
+            echo "- DOI da versão: \`$DOI\`"
+            echo "- DOI conceito (todas as versões): \`$CONCEPT_DOI\`"
+            echo "- Registro: $URL"
+            if [ -z "$atual" ]; then
+              echo
+              echo "**Primeira publicação:** crie a variável \`$var\` = \`$CONCEPT_RECID\`"
+              echo "(Settings > Secrets and variables > Actions > Variables) para as"
+              echo "próximas releases virarem novas versões deste mesmo registro."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

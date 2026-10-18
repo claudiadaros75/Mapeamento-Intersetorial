@@ -138,7 +138,8 @@ seguido de uma descrição curta em português:
 - *Licença*: todo o repositório (código, textos e dados derivados) está
   sob a GNU GPL v3 (ver [[*Licença][Licença]]).
 - *Citação*: um arquivo =CITATION.cff= na raiz, para o GitHub exibir
-  "Cite this repository" e o Zenodo preencher os metadados.
+  "Cite this repository".  Os metadados usados no Zenodo ficam em
+  =.zenodo.json=.
 - *Proveniência dos dados*: os scripts de =scripts/commands/= baixam os
   dados brutos das fontes oficiais; para cada arquivo, registrar a URL,
   a data do download e um hash (SHA-256).
@@ -148,11 +149,54 @@ seguido de uma descrição curta em português:
 - *Modelos no repositório*: =.github/pull_request_template.md= e modelos
   de issue, para que todos registrem as etapas do mesmo jeito.
 
+** Automação: release → Zenodo (DOI) com trilha de auditoria
+
+O workflow =.github/workflows/zenodo-release.yml= operacionaliza este
+fluxo.  Sempre que uma release é publicada no GitHub, ele:
+
+1. exporta toda a trilha de auditoria do repositório para Markdown
+   (script =scripts/commands/github_auditoria__exportar_markdown.py=):
+   - cada issue e cada pull request, com descrição e linha do tempo
+     completa (comentários, revisões, comentários em linhas de código,
+     commits, rótulos, milestones, referências cruzadas, integração);
+   - milestones, releases anteriores e o histórico de commits até a tag;
+   - as respostas brutas da API do GitHub em JSON, sem perdas;
+   - um arquivo =SHA256SUMS= para conferir a integridade de tudo;
+2. empacota o código da tag (=...-codigo.zip=) e a auditoria
+   (=...-auditoria.zip=);
+3. deposita os dois no Zenodo pela API (script
+   =scripts/commands/zenodo__publicar_release.py=), com os metadados de
+   =.zenodo.json=, e obtém o DOI da versão;
+4. escreve o DOI nas notas da release e anexa o zip da auditoria a ela.
+
+A primeira release cria o registro no Zenodo; as seguintes viram *novas
+versões* do mesmo registro.  Cada versão tem seu DOI, e o "DOI conceito"
+aponta sempre para a mais recente.
+
+Configuração (uma vez só, por quem administra o repositório):
+
+1. Preencher os autores reais em =.zenodo.json= (campo =creators=, no
+   formato "Sobrenome, Nome"); o workflow se recusa a publicar com o
+   texto de exemplo.
+2. Criar tokens pessoais no [[https://sandbox.zenodo.org][sandbox do Zenodo]] e no [[https://zenodo.org][Zenodo]] (escopos
+   =deposit:write= e =deposit:actions=) e guardá-los como /secrets/ do
+   repositório: =ZENODO_SANDBOX_TOKEN= e =ZENODO_TOKEN=.
+3. Testar no sandbox: enquanto a variável =ZENODO_SANDBOX= não for
+   =false=, as releases vão para o sandbox, com DOI fictício.  Também é
+   possível rodar o workflow à mão (aba Actions → "Run workflow"),
+   informando a tag.
+4. Depois de validar, definir a variável =ZENODO_SANDBOX= = =false=.
+5. Após a primeira publicação, criar a variável =ZENODO_CONCEPT_RECID=
+   (ou =ZENODO_SANDBOX_CONCEPT_RECID=) com o id indicado no resumo do job.
+6. Não ativar a integração GitHub do próprio Zenodo: ela criaria um
+   segundo depósito, sem a trilha de auditoria.
+
 ** Pendências para pôr o fluxo em prática
 
 - [ ] Confirmar o acesso de administrador ao repositório no GitHub
-      (necessário para Milestones, Zenodo e proteção do =main=).
-- [ ] Ativar a integração GitHub–Zenodo.
+      (necessário para Milestones, secrets do Zenodo e proteção do =main=).
+- [ ] Preencher os autores em =.zenodo.json=.
+- [ ] Configurar os tokens do Zenodo e testar uma release no sandbox.
 - [ ] Criar as três milestones das fases.
 - [ ] Criar o =CITATION.cff= e os modelos de PR e de issue.
 - [ ] Fechar o branch =ibge_malhas= com um PR para o =main= e publicar
