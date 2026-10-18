@@ -173,6 +173,25 @@ A primeira release cria o registro no Zenodo; as seguintes viram *novas
 versões* do mesmo registro.  Cada versão tem seu DOI, e o "DOI conceito"
 aponta sempre para a mais recente.
 
+*** Quando o pipeline roda
+
+A publicação é automática, mas o gatilho é *publicar uma release*, não
+fazer commit ou push: no fluxo do projeto, cada release fecha uma fase.
+
+| Ação                                                | O pipeline roda?                       |
+|-----------------------------------------------------+----------------------------------------|
+| Publicar uma release ou pré-release (botão Publish) | Sim, automaticamente                   |
+| Commit ou push em qualquer branch                   | Não                                    |
+| Salvar uma release como rascunho (draft)            | Não; só ao publicá-la                  |
+| Rodar à mão (Actions → "Release no Zenodo" → Run)   | Sim; serve para republicar uma release |
+
+O GitHub roda o workflow que existe *no commit da tag* da release.
+Enquanto o workflow estiver só no branch =ibge_malhas=, a release
+precisa ter Target = =ibge_malhas=; criada a partir do =main=, nada
+acontece.  O botão "Run workflow" também só aparece para workflows que
+estão no =main=.  Depois do merge de =ibge_malhas= no =main=, as duas
+restrições deixam de existir.
+
 Configuração (uma vez só, por quem administra o repositório):
 
 1. Preencher os autores reais em =.zenodo.json= (campo =creators=, no
