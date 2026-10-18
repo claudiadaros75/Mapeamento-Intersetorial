@@ -8,8 +8,8 @@ __pycache__/
 # -------------------------------------------------------------
 # Emacs
 # -------------------------------------------------------------
-# Pacotes do straight.el (~235 MB, reconstruidos pelo init.el)
-.emacs-revinfor/
+# Pacotes do straight.el (~200 MB, reconstruidos pelo init.el)
+.emacs-georef/
 *~
 \#*\#
 .\#*
