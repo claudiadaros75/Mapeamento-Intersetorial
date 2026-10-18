@@ -46,18 +46,21 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 
 def requisitar(metodo, url, token, dados=None, arquivo=None):
     """Faz uma requisicao a API do Zenodo e devolve o JSON da resposta."""
-    req = urllib.request.Request(url, method=metodo)
-    req.add_header("Authorization", f"Bearer {token}")
     corpo = None
+    cabecalhos = {"Authorization": f"Bearer {token}"}
     if arquivo is not None:
-        req.add_header("Content-Type", "application/octet-stream")
-        req.add_header("Content-Length", str(arquivo.stat().st_size))
         corpo = arquivo.open("rb")
+        cabecalhos["Content-Type"] = "application/octet-stream"
+        cabecalhos["Content-Length"] = str(arquivo.stat().st_size)
     elif dados is not None:
-        req.add_header("Content-Type", "application/json")
         corpo = json.dumps(dados).encode()
+        cabecalhos["Content-Type"] = "application/json"
+    # O corpo vai no construtor do Request: passa-lo ao urlopen() apagaria o
+    # Content-Length, e o urllib enviaria o arquivo em "chunked", que o
+    # Zenodo grava como arquivo vazio.
+    req = urllib.request.Request(url, data=corpo, headers=cabecalhos, method=metodo)
     try:
-        with urllib.request.urlopen(req, data=corpo, timeout=600) as resp:
+        with urllib.request.urlopen(req, timeout=600) as resp:
             texto = resp.read()
     except urllib.error.HTTPError as erro:
         sys.exit(f"Zenodo respondeu {erro.code} em {metodo} {url}:\n{erro.read().decode()}")
@@ -139,7 +142,11 @@ def main():
     bucket = rascunho["links"]["bucket"]
     for arquivo in args.arquivo:
         print(f"Enviando {arquivo.name} ({arquivo.stat().st_size / 1e6:.1f} MB)...")
-        requisitar("PUT", f"{bucket}/{urllib.parse.quote(arquivo.name)}", token, arquivo=arquivo)
+        enviado = requisitar("PUT", f"{bucket}/{urllib.parse.quote(arquivo.name)}", token,
+                             arquivo=arquivo)
+        if enviado.get("size") != arquivo.stat().st_size:
+            sys.exit(f"{arquivo.name}: o Zenodo registrou {enviado.get('size')} bytes, "
+                     f"mas o arquivo tem {arquivo.stat().st_size}; publicação cancelada.")
 
     requisitar("PUT", f"{api}/deposit/depositions/{rascunho['id']}", token,
                dados={"metadata": metadados})
