@@ -1,4 +1,15 @@
-# Publica a pasta web/ (mapas, dados e docs) no GitHub Pages.
+# Publica a pasta web/ (mapas, dados e docs) no GitHub Pages, com uma versao
+# por branch:
+#
+#   https://<usuario>.github.io/<repo>/                    -> web/ da main
+#   https://<usuario>.github.io/<repo>/versoes/<branch>/   -> web/ de cada outra branch
+#   https://<usuario>.github.io/<repo>/versoes/            -> lista das versoes
+#
+# O GitHub Pages tem um unico site por repositorio, e o ambiente github-pages
+# so aceita deploy da main. Por isso o deploy sempre roda na main e monta o
+# site inteiro (main + todas as branches) a cada vez. Um push em outra branch
+# so pede esse deploy a main (workflow_dispatch e o unico evento que o
+# GITHUB_TOKEN pode disparar).
 #
 # Pre-requisito (uma vez so): no repositorio, Settings > Pages > Build and
 # deployment > Source = "GitHub Actions".
@@ -6,7 +17,7 @@ name: Deploy GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     paths:
       - "web/**"
       - ".github/workflows/pages.yml"
@@ -16,24 +27,71 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write
 
 # Um deploy por vez; nao cancela um deploy em andamento.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  # Push em uma branch que nao e a main: pede o deploy a main.
+  disparar:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh workflow run pages.yml --ref main --repo "$GITHUB_REPOSITORY"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
   build:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/configure-pages@v5
 
-      # O site e estatico: basta empacotar a pasta web/ como esta.
+      # O site e estatico: a main vai para a raiz e cada outra branch que
+      # tenha web/index.html vai para versoes/<branch>/ ("/" no nome vira "-").
+      - name: Montar o site com todas as versoes
+        run: |
+          mkdir -p _site/versoes
+          cp -r web/. _site/
+          linhas=""
+          for branch in $(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin); do
+            case "$branch" in main|HEAD) continue ;; esac
+            git cat-file -e "origin/$branch:web/index.html" 2>/dev/null || continue
+            pasta="${branch//\//-}"
+            mkdir -p "_site/versoes/$pasta"
+            git archive "origin/$branch" web | tar -x -C "_site/versoes/$pasta" --strip-components=1
+            commit=$(git log -1 --format='%h - %s (%cd)' --date=short "origin/$branch")
+            linhas="$linhas<li><a href=\"$pasta/\">$branch</a><br><small>$commit</small></li>"
+            echo "versao: $branch -> versoes/$pasta/"
+          done
+          commit_main=$(git log -1 --format='%h - %s (%cd)' --date=short HEAD)
+          cat > _site/versoes/index.html <<EOF
+          <!doctype html>
+          <html lang="pt-br">
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Versões do site</title>
+          <style>body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 16px;line-height:1.5}li{margin:.75rem 0}small{color:#555}</style>
+          </head>
+          <body>
+          <h1>Versões do site</h1>
+          <ul>
+          <li><a href="../">main</a> (versão principal)<br><small>$commit_main</small></li>
+          $linhas
+          </ul>
+          </body>
+          </html>
+          EOF
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: _site
 
   deploy:
     needs: build

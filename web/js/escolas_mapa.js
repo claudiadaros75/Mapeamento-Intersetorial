@@ -958,21 +958,27 @@ async function carregarEscolasDaUf(uf) {
   return escolasPorUf[uf];
 }
 
+// Enquadra todas as UFs marcadas juntas (marcar AM e depois PA não pode cortar o AM)
+function enquadrarUfsAtivas() {
+  const pontos = [...ufsAtivas].flatMap((uf) => escolasPorUf[uf].map((e) => [e.LATITUDE, e.LONGITUDE]));
+  if (pontos.length) map.fitBounds(L.latLngBounds(pontos), { padding: [20, 20] });
+}
+
 async function alternarUf(uf, ligar) {
   if (!ligar) {
     ufsAtivas.delete(uf);
     reconstruirIndiceEscolas();
+    enquadrarUfsAtivas();
     return;
   }
 
   loadingIndicator.textContent = `Carregando escolas (${uf})...`;
   loadingIndicator.classList.remove("hidden");
   try {
-    const escolas = await carregarEscolasDaUf(uf);
+    await carregarEscolasDaUf(uf);
     ufsAtivas.add(uf);
     reconstruirIndiceEscolas();
-    const limites = L.latLngBounds(escolas.map((e) => [e.LATITUDE, e.LONGITUDE]));
-    map.fitBounds(limites, { padding: [20, 20] });
+    enquadrarUfsAtivas();
   } catch (erro) {
     console.error("Falha ao carregar escolas:", erro);
     alert(`Não foi possível carregar as escolas de ${uf}: ${erro.message}`);

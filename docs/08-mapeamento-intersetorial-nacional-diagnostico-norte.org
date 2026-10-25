@@ -471,6 +471,115 @@ Comparando com a primeira versão (estágio 2 único):
   (verde), Estágio 2a, nome exato (azul), Estágio 2b, nome ajustado
   (amarelo).
 
+* Plotagem no mapa web (AM, PA e SP)
+
+** Estratégia
+
+A estratégia de plotagem de SP foi mantida para todas as UFs. Ela foi feita
+para muitos pontos:
+- um arquivo JSON leve por UF (=web/data/escolas/escolas_<UF>_2024.json=),
+  carregado só quando a UF é marcada;
+- agrupamento em clusters (Supercluster), que se abrem ao aproximar o zoom;
+- pontos desenhados em canvas, não em elementos HTML.
+
+A página monta a lista de UFs a partir de =web/data/escolas/indice.json=.
+Por isso AM e PA apareceram sem mudança na lógica de plotagem: bastou
+rodar =escolas_mapa__gerar_dados_web.py=.
+
+** Correção: enquadramento de várias UFs
+
+Ao marcar AM e depois PA, o mapa enquadrava só a última UF marcada, e
+metade do AM ficava fora da tela. Agora a função =enquadrarUfsAtivas()=
+(=web/js/escolas_mapa.js=) enquadra todas as UFs marcadas, ao marcar e ao
+desmarcar.
+
+** Verificação geográfica dos pontos (25/10/2026)
+
+Cada ponto foi cruzado com a malha municipal simplificada da página
+(=web/data/BR_municipios_2024_minima.geojson=), com geopandas:
+
+| UF | Com coordenada | Fora do município declarado | A mais de 5 km | A mais de 50 km |
+|----+----------------+-----------------------------+----------------+-----------------|
+| AM |          2.103 | 22 (1,0%)                   |              1 |               0 |
+| PA |          4.136 | 39 (0,9%)                   |              0 |               0 |
+| SP |         18.549 | 328 (1,8%)                  |              1 |               0 |
+
+- Os pontos fora do município ficam a 1 ou 2 km da divisa, o que é
+  compatível com o contorno simplificado da malha "mínima".
+- O caso de 22 km (Ilhabela, SP) caiu no mar: a ilha é muito simplificada
+  nessa malha.
+- Nenhuma escola caiu em outro estado.
+- Limite do teste: o casamento já exige o mesmo município, então este teste
+  confirma que as coordenadas do CNEFE são coerentes, mas não prova que cada
+  escola foi ligada ao ponto certo.
+
+Inspeção visual (Tefé, AM, com imagem de satélite): as escolas aparecem ao
+longo do Solimões e do Lago de Tefé, como esperado para escolas
+ribeirinhas.
+
+** Problemas encontrados (pendentes)
+
+1. *Mapa de fundo padrão quebrado*: o CartoDB Positron (e o Dark Matter)
+   aparece coberto de "API KEY REQUIRED"; o serviço passou a exigir chave.
+   OpenStreetMap, Esri Satélite e OpenTopoMap funcionam. Proposta: trocar o
+   padrão para OpenStreetMap.
+2. *Municípios coloridos por cima do satélite*: o preenchimento dos
+   polígonos esconde os rios. Proposta: opção de mostrar só o contorno.
+3. *Escolas sem coordenada invisíveis*: no Norte, cerca de 65% das escolas
+   não aparecem no mapa e o painel mostra só o total. Proposta: colorir cada
+   município pela porcentagem de escolas no mapa, para mostrar onde o mapa
+   está incompleto em vez de parecer que ali não há escolas.
+
+** Como testar localmente
+
+#+begin_src sh
+cd web && python3 -m http.server 8765
+# abrir http://127.0.0.1:8765/escolas_mapa.html
+# se aparecer a versao antiga da pagina: Ctrl+Shift+R
+#+end_src
+
+* Publicação no GitHub Pages: uma versão por branch
+
+** Como era
+
+=.github/workflows/pages.yml= publicava a pasta =web/= só em push na =main=.
+Push em outra branch não publicava nada, e cada deploy substituía o site
+inteiro.
+
+** Como ficou
+
+O GitHub Pages tem *um único site por repositório*, e o ambiente
+=github-pages= só aceita deploy da =main=. Para ter várias versões, o
+deploy roda sempre na =main= e monta um site com todas elas:
+
+| Endereço                                          | Conteúdo                       |
+|---------------------------------------------------+--------------------------------|
+| =https://claudiadaros75.github.io/Mapeamento-Intersetorial/=                       | =web/= da =main= (versão principal) |
+| =.../Mapeamento-Intersetorial/versoes/=                                            | lista de versões, com o último commit de cada uma |
+| =.../Mapeamento-Intersetorial/versoes/mapeamento-intersetorial-nacional/=          | =web/= desta branch |
+| =.../Mapeamento-Intersetorial/versoes/ibge_malhas/=                                | =web/= da branch =ibge_malhas= |
+
+Funcionamento:
+- *Push na =main=* (alterando =web/= ou o workflow): monta e publica o site.
+- *Push em outra branch*: o job =disparar= pede o deploy à =main=
+  (=gh workflow run pages.yml --ref main=). É o único jeito, porque
+  =workflow_dispatch= é o único evento que o =GITHUB_TOKEN= pode disparar e
+  o ambiente =github-pages= não aceita deploy de outra branch.
+- Em todo deploy, cada branch do GitHub que tenha =web/index.html= vira uma
+  pasta em =versoes/= ("/" no nome da branch vira "-"). Nenhuma versão
+  substitui outra.
+- Uma versão some do site quando a branch é apagada do GitHub.
+- As páginas usam só caminhos relativos (conferido), então funcionam dentro
+  de uma subpasta.
+
+Pré-requisito: o novo =pages.yml= precisa estar na =main=, porque é o
+arquivo da =main= que monta o site. Até isso acontecer, o site continua
+mostrando só a =main=.
+
+O script de montagem foi testado localmente, numa cópia do repositório:
+gerou a raiz com a =main=, =versoes/ibge_malhas/=,
+=versoes/mapeamento-intersetorial-nacional/= e a lista de versões.
+
 * Próximos passos
 
 1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
