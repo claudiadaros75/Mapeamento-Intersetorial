@@ -1,4 +1,4 @@
-#+TITLE: Georeferenciamento com as Malhas Municipais do IBGE
+#+TITLE: Utilização e Reuso de dados abertos
 #+AUTHOR: Projeto de aprendizagem
 #+EMAIL: 
 #+LANGUAGE: pt-br
@@ -7,20 +7,258 @@
 
 * Sobre o projeto
 
-Este projeto é um espaço de estudo sobre georeferenciamento e análise
+Este projeto é uma oportunidade de ação social: um exercício cívico que
+cumpre os objetivos da política de dados abertos, que são justamente a
+*utilização* e o *reuso* dos dados públicos disponibilizados por fontes
+oficiais, como o IBGE e o Censo Escolar do INEP.
+
+Inicialmente, o projeto estudou o georreferenciamento e a análise
 geoespacial, tendo como material de partida as Malhas Municipais Digitais
-(MMD) do IBGE, na edição de 2024.
+(MMD) do IBGE, na edição de 2024. O objetivo foi aprender na prática
+conceitos fundamentais de cartografia, sistemas de coordenadas, projeções
+e manipulação de dados geoespaciais, documentando todo o aprendizado em
+arquivos Org (formato *org-mode* do Emacs).
 
-O objetivo é aprender na prática conceitos fundamentais de cartografia,
-sistemas de coordenadas, projeções e manipulação de dados geoespaciais,
-documentando todo o aprendizado em arquivos Org (formato *org-mode* do
-Emacs)
+A partir de agora, o projeto passa a apresentar alguns painéis abertos já
+existentes e os seus respectivos microdados (veja o inventário em
+=docs/paines-publicos.org=), trabalhando as duas dimensões dos dados
+abertos:
 
-* Decisões iniciais
+- *Utilização*: consultar e interpretar os painéis abertos, usando os
+  dados da forma como já são publicados.
+- *Reuso*: manipular os microdados respectivos de cada painel para
+  produzir novas análises, cruzamentos e visualizações, como os mapas
+  georreferenciados deste projeto.
+
+* Painéis de dados abertos públicos: delimitação do que será utilizado e reusado
+
+Existem muitos dados abertos disponíveis no Brasil, publicados por
+órgãos federais, estaduais, municipais e por organizações da sociedade
+civil, inclusive por meio de iniciativas que agregam vários painéis num
+só lugar.  Alguns dos mais importantes:
+
+- Portal Brasileiro de Dados Abertos — catálogo central do governo federal.
+  https://dados.gov.br
+- Mapa das Organizações da Sociedade Civil (IPEA).
+  https://mapaosc.ipea.gov.br
+- Dados Abertos do INEP (Censo Escolar, Enem, Saeb e outros microdados).
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos
+- Dados Abertos do TSE (eleições).
+  https://dadosabertos.tse.jus.br
+- Dados Abertos da Câmara dos Deputados.
+  https://dadosabertos.camara.leg.br
+
+Uma lista bem maior, organizada por tema, está em
+[[./README-paineis-publicos-disponiveis-de-dados-abertos.org][README-paineis-publicos-disponiveis-de-dados-abertos.org]].
+
+** Delimitação
+
+Diante de tantas fontes, este projeto se delimita a três conjuntos de
+dados:
+
+1. *Malhas territoriais do IBGE* — a base geográfica (municípios, UFs e
+   regiões) sobre a qual os demais dados são georreferenciados.
+2. *Censo Escolar do INEP* — dados de escolas, matrículas e docentes da
+   educação básica.
+3. *Organizações da Sociedade Civil (OSCs) do IPEA* — dados do Mapa das
+   OSCs.
+
+** Decisões iniciais (malhas do IBGE)
 
 - Ano de referência: MMD 2024
 - Ferramenta principal: Python com geopandas
 - Recorte territorial inicial: todo o Brasil
+
+* Registro e divulgação do processo colaborativo (Contexto de Ciência Aberta)
+
+Este projeto segue os princípios da *ciência aberta*: cada etapa do
+que é feito precisa ser *auditável*, ou seja, qualquer pessoa deve
+conseguir ver o que foi feito, por que foi feito, com quais dados e
+como reproduzir o resultado.  Para isso usamos o Git e o GitHub, com o
+repositório público e todo o registro das etapas exposto nele.
+
+O commit sozinho registra tudo, mas é granular demais para contar a
+história do projeto.  Por isso combinamos várias camadas do Git/GitHub,
+cada uma com uma granularidade diferente: *o commit é o rastro de
+auditoria, o Pull Request é a unidade de etapa e a Release é a unidade
+de divulgação*.
+
+** Camadas de registro
+
+| Camada        | O que registra                                | Papel na ciência aberta                                      |
+|---------------+-----------------------------------------------+--------------------------------------------------------------|
+| Commit        | Cada alteração (o "como")                     | Auditoria completa, linha a linha                            |
+| Issue         | Uma pergunta, tarefa ou problema (o "porquê") | Registra a intenção antes do trabalho e a discussão          |
+| Pull Request  | Uma *etapa* concluída (conjunto de commits)   | Resumo legível da etapa: o que, por quê, dados, reprodução   |
+| Milestone     | Uma *fase* que agrupa issues e PRs            | Mostra o andamento de cada fase do projeto                   |
+| Tag + Release | Um marco público, com notas de versão         | *Divulgação*: o que cada versão entrega                      |
+| Zenodo (DOI)  | Arquivamento permanente de cada Release       | Torna cada versão citável e preservada fora do GitHub        |
+| GitHub Pages  | O site público (pasta =web/=)                 | Divulgação dos mapas, da documentação e do diário do projeto |
+
+** Fases (Milestones)
+
+As fases seguem a delimitação do projeto:
+
+1. *Fase 1 — Malhas territoriais do IBGE*
+2. *Fase 2 — Censo Escolar do INEP*
+3. *Fase 3 — Organizações da Sociedade Civil (IPEA)*
+
+** Fluxo de cada etapa
+
+1. *Issue*: toda etapa começa com uma issue que descreve o objetivo e as
+   fontes de dados, ligada à milestone da fase.
+2. *Branch*: o trabalho é feito num branch próprio, com nome descritivo
+   (ex.: =inep-censo-matriculas=), em commits pequenos.
+3. *Pull Request*: a etapa termina com um PR para o =main=, seguindo o
+   modelo do repositório:
+   - objetivo da etapa;
+   - dados usados (URL da fonte e data do download);
+   - como reproduzir (comandos e scripts);
+   - resultados obtidos;
+   - decisões tomadas.
+   O PR fecha a issue correspondente (=Closes #N= na descrição).
+4. *Release*: ao fim de cada fase, publica-se uma release
+   (ex.: =v0.1.0 — Malhas do IBGE=).  As notas da release são o texto
+   de divulgação da fase, e o Zenodo gera um DOI para ela.
+
+** Convenção das mensagens de commit
+
+As mensagens começam com um prefixo que indica o tipo da mudança,
+seguido de uma descrição curta em português:
+
+- =feat:= nova funcionalidade (script, mapa, painel)
+- =data:= inclusão ou atualização de dados
+- =docs:= documentação
+- =fix:= correção
+- =chore:= manutenção (configuração, organização)
+- =ci:= automação (GitHub Actions, Pages)
+
+** Peças que completam a auditabilidade
+
+- *Licença*: todo o repositório (código, textos e dados derivados) está
+  sob a GNU GPL v3 (ver [[*Licença][Licença]]).
+- *Citação*: um arquivo =CITATION.cff= na raiz, para o GitHub exibir
+  "Cite this repository".  Os metadados usados no Zenodo ficam em
+  =.zenodo.json=.
+- *Proveniência dos dados*: os scripts de =scripts/commands/= baixam os
+  dados brutos das fontes oficiais; para cada arquivo, registrar a URL,
+  a data do download e um hash (SHA-256).
+- *Registro de decisões*: escolhas importantes ganham um arquivo em
+  =docs/decisoes/= (ex.: =001-usar-cnefe-para-georreferenciar.org=),
+  explicando por que se escolheu uma alternativa e não outra.
+- *Modelos no repositório*: =.github/pull_request_template.md= e modelos
+  de issue, para que todos registrem as etapas do mesmo jeito.
+
+** Automação: release → Zenodo (DOI) com trilha de auditoria
+
+O workflow =.github/workflows/zenodo-release.yml= operacionaliza este
+fluxo.  Sempre que uma release é publicada no GitHub, ele:
+
+1. exporta toda a trilha de auditoria do repositório para Markdown
+   (script =scripts/commands/github_auditoria__exportar_markdown.py=):
+   - cada issue e cada pull request, com descrição e linha do tempo
+     completa (comentários, revisões, comentários em linhas de código,
+     commits, rótulos, milestones, referências cruzadas, integração);
+   - milestones, releases anteriores e o histórico de commits até a tag;
+   - as respostas brutas da API do GitHub em JSON, sem perdas;
+   - um arquivo =SHA256SUMS= para conferir a integridade de tudo;
+2. empacota o código da tag (=...-codigo.zip=) e a auditoria
+   (=...-auditoria.zip=);
+3. deposita os dois no Zenodo pela API (script
+   =scripts/commands/zenodo__publicar_release.py=), com os metadados de
+   =.zenodo.json=, e obtém o DOI da versão;
+4. escreve o DOI nas notas da release e anexa o zip da auditoria a ela.
+
+A primeira release cria o registro no Zenodo; as seguintes viram *novas
+versões* do mesmo registro.  Cada versão tem seu DOI, e o "DOI conceito"
+aponta sempre para a mais recente.
+
+*** Quando o pipeline roda
+
+A publicação é automática, mas o gatilho é *publicar uma release*, não
+fazer commit ou push: no fluxo do projeto, cada release fecha uma fase.
+
+| Ação                                                | O pipeline roda?                       |
+|-----------------------------------------------------+----------------------------------------|
+| Publicar uma release ou pré-release (botão Publish) | Sim, automaticamente                   |
+| Commit ou push em qualquer branch                   | Não                                    |
+| Salvar uma release como rascunho (draft)            | Não; só ao publicá-la                  |
+| Rodar à mão (Actions → "Release no Zenodo" → Run)   | Sim; serve para republicar uma release |
+
+O GitHub roda o workflow que existe *no commit da tag* da release.
+Enquanto o workflow estiver só no branch =ibge_malhas=, a release
+precisa ter Target = =ibge_malhas=; criada a partir do =main=, nada
+acontece.  O botão "Run workflow" também só aparece para workflows que
+estão no =main=.  Depois do merge de =ibge_malhas= no =main=, as duas
+restrições deixam de existir.
+
+Configuração (uma vez só, por quem administra o repositório):
+
+1. Preencher os autores reais em =.zenodo.json= (campo =creators=, no
+   formato "Sobrenome, Nome"); o workflow se recusa a publicar com o
+   texto de exemplo.
+2. Criar tokens pessoais no [[https://sandbox.zenodo.org][sandbox do Zenodo]] e no [[https://zenodo.org][Zenodo]] (escopos
+   =deposit:write= e =deposit:actions=) e guardá-los como /secrets/ do
+   repositório: =ZENODO_SANDBOX_TOKEN= e =ZENODO_TOKEN=.
+3. Testar no sandbox: enquanto a variável =ZENODO_SANDBOX= não for
+   =false=, as releases vão para o sandbox, com DOI fictício.  Também é
+   possível rodar o workflow à mão (aba Actions → "Run workflow"),
+   informando a tag.
+4. Depois de validar, definir a variável =ZENODO_SANDBOX= = =false=.
+5. Após a primeira publicação, criar a variável =ZENODO_CONCEPT_RECID=
+   (ou =ZENODO_SANDBOX_CONCEPT_RECID=) com o id indicado no resumo do job.
+6. Não ativar a integração GitHub do próprio Zenodo: ela criaria um
+   segundo depósito, sem a trilha de auditoria.
+
+*** Sandbox ou Zenodo real: como o destino é escolhido
+
+Ao publicar uma release, quem decide é a variável =ZENODO_SANDBOX=
+(Settings → Secrets and variables → Actions → Variables).  O padrão é
+sempre o sandbox, para que ninguém gere um DOI permanente por engano:
+
+| Variável =ZENODO_SANDBOX=           | Destino                  |
+|-------------------------------------+--------------------------|
+| não existe                          | sandbox                  |
+| qualquer valor diferente de =false= | sandbox                  |
+| exatamente =false=                  | Zenodo real (zenodo.org) |
+
+Ao rodar o workflow à mão (aba Actions → "Run workflow"), a variável é
+ignorada e vale a caixa "Publicar no sandbox do Zenodo", que vem marcada.
+
+Cada destino tem o seu par de configuração, sem mistura:
+
+| Destino     | Token (Secret)         | Registro conceito (Variable)   |
+|-------------+------------------------+--------------------------------|
+| sandbox     | =ZENODO_SANDBOX_TOKEN= | =ZENODO_SANDBOX_CONCEPT_RECID= |
+| Zenodo real | =ZENODO_TOKEN=         | =ZENODO_CONCEPT_RECID=         |
+
+Como saber onde uma publicação foi parar:
+
+- nas notas da release, o sandbox aparece como "DOI (sandbox, teste)",
+  com link para =sandbox.zenodo.org=; o Zenodo real, só como "DOI", com
+  link para =doi.org=;
+- pelo prefixo do DOI: =10.5072/...= é do sandbox (fictício, não resolve
+  no doi.org); =10.5281/...= é do Zenodo real (permanente);
+- no log do job, o passo "Escolher o destino" mostra
+  =Destino: sandbox.zenodo.org= ou =Destino: zenodo.org=.
+
+Na prática: para testar, apague =ZENODO_SANDBOX= (ou use =true=) e
+publique uma pré-release; para publicar uma fase, deixe
+=ZENODO_SANDBOX= = =false=.  Uma publicação no Zenodo real não pode ser
+apagada: é possível criar uma nova versão, mas o DOI daquela versão é
+permanente.
+
+** Pendências para pôr o fluxo em prática
+
+- [ ] Confirmar o acesso de administrador ao repositório no GitHub
+      (necessário para Milestones, secrets do Zenodo e proteção do =main=).
+- [ ] Preencher os autores em =.zenodo.json=.
+- [ ] Configurar os tokens do Zenodo e testar uma release no sandbox.
+- [ ] Criar as três milestones das fases.
+- [ ] Criar o =CITATION.cff= e os modelos de PR e de issue.
+- [ ] Fechar o branch =ibge_malhas= com um PR para o =main= e publicar
+      a release =v0.1.0 — Malhas do IBGE=, a primeira etapa já no
+      novo fluxo.
 
 * Estrutura do projeto
 
@@ -75,3 +313,16 @@ Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
   https://servicodados.ibge.gov.br/api/docs/localidades
 - Publicação "Acesso e uso de dados geoespaciais":
   https://www.ibge.gov.br/geociencias/metodologia-e-trabalho-de-campo/acesso-e-uso-de-dados-geoespaciais.html
+
+* Licença
+
+Copyright (C) 2026 os autores e colaboradores do projeto.
+
+Todo o conteúdo deste repositório — código, documentação e dados
+derivados — é distribuído sob a GNU General Public License, versão 3
+(GPL-3.0).  Você pode usar, estudar, modificar e redistribuir, desde que
+as versões derivadas também sejam distribuídas sob a GPL-3.0.  O texto
+completo está no arquivo [[./LICENSE][LICENSE]].
+
+Os dados brutos baixados das fontes oficiais (IBGE, INEP, IPEA) seguem
+as condições de uso definidas por cada órgão.

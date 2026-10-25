@@ -1,0 +1,32 @@
+{
+  "title": "Mapeamento Intersetorial: utilização e reuso de dados abertos",
+  "upload_type": "software",
+  "description": "<p>Projeto de ciência aberta sobre a utilização e o reuso de dados abertos públicos brasileiros: malhas territoriais do IBGE, Censo Escolar do INEP e Organizações da Sociedade Civil do IPEA. Cada versão arquiva o código, a documentação e a trilha de auditoria completa do processo colaborativo (issues, pull requests, comentários, revisões, milestones e histórico de commits) exportada do GitHub em Markdown.</p>",
+  "creators": [
+    {
+      "name": "Sobrenome, Nome",
+      "affiliation": "Instituição"
+    }
+  ],
+  "license": "gpl-3.0-only",
+  "access_right": "open",
+  "language": "por",
+  "keywords": [
+    "dados abertos",
+    "ciência aberta",
+    "georreferenciamento",
+    "IBGE",
+    "Censo Escolar",
+    "INEP",
+    "organizações da sociedade civil",
+    "IPEA"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/claudiadaros75/Mapeamento-Intersetorial",
+      "relation": "isSupplementTo",
+      "resource_type": "software",
+      "scheme": "url"
+    }
+  ]
+}
