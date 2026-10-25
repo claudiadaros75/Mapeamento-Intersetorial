@@ -1,0 +1,488 @@
+#+TITLE: Mapeamento Intersetorial Nacional - Diagnóstico do Cruzamento INEP x CNEFE no Norte (AM e PA)
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t
+#+STARTUP: overview
+
+* Objetivo deste documento
+
+Registrar a conversa de abertura da branch =mapeamento-intersetorial-nacional=
+(24/10/2026): o objetivo da branch, o diagnóstico feito ao rodar o ETL do
+piloto de SP em dois estados do Norte (Amazonas e Pará), as perguntas
+levantadas durante a conversa e as respostas, e os problemas encontrados
+que precisam ser corrigidos antes de levar o mapa para outras UFs.
+
+Documentos relacionados:
+- [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]] - estratégia de geolocalização (camadas de confiança)
+- [[file:07-relatorio-etl-escolas-piloto-sp.org][07-relatorio-etl-escolas-piloto-sp.org]] - relatório do piloto em SP
+
+* Objetivo da branch
+
+Levar para os outros estados o que já existe para São Paulo: o plot das
+escolas do Censo Escolar no mapa web (=web/escolas_mapa.html=), com
+coordenadas obtidas cruzando o Censo Escolar 2024 (INEP) com o CNEFE 2022
+(IBGE).
+
+Decisões tomadas na conversa:
+- Começar por *alguns estados*, não pelos 26 restantes de uma vez.
+- Começar pelo *Norte*, porque o padrão de endereço é muito diferente do de SP
+  (zona rural, comunidades ribeirinhas e indígenas).
+- Escolhidos *Amazonas (AM)* e *Pará (PA)*. Atenção: AM é Amazonas;
+  Amapá é AP e ainda não foi testado.
+- Antes de expandir, detalhar melhor o casamento de endereços.
+
+* O que já existia (ponto de partida)
+
+O código já estava em grande parte preparado para várias UFs:
+- =scripts/commands/ibge_cnefe__baixar_dados.py= sabe baixar o CNEFE das 27 UFs.
+- =scripts/commands/escolas_mapa__gerar_dados_web.py= já grava um JSON por UF
+  (=web/data/escolas/escolas_<UF>_2024.json=) e um =indice.json=.
+- =scripts/commands/escolas_dados__cruzar_inep_cnefe.py= aceita uma lista de
+  UFs, mas suas regras e limiares foram calibrados no piloto de SP.
+- Até então só o CNEFE de SP havia sido baixado.
+
+* Como o diagnóstico foi feito
+
+1. Download do CNEFE de AM e PA:
+   #+begin_src sh
+   .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py am pa --extrair
+   #+end_src
+2. Execução do ETL existente, *sem nenhuma alteração de lógica*, gravando em
+   um arquivo de teste (para não sobrescrever o CSV de SP, ver [[*Cuidado: o ETL sobrescreve o CSV de saída][abaixo]]):
+   #+begin_src sh
+   .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa --saida <arquivo-de-teste>.csv
+   #+end_src
+3. Os números de SP vieram do =web/data/escolas/indice.json= (resultado do
+   piloto já gerado). Ex.: alta = 15.237 de 33.863 escolas = 45%.
+4. Scripts Python avulsos (não versionados) para perfilar os endereços do
+   INEP e do CNEFE e contar pontos reaproveitados.
+
+* Como cada status é atribuído
+
+Para *cada escola do INEP*, o ETL procura no CNEFE um endereço marcado como
+estabelecimento de ensino (=COD_ESPECIE = 4=). Se encontra, a escola recebe a
+latitude/longitude desse ponto. As camadas são testadas em ordem; a primeira
+que resolve encerra a busca:
+
+| Status                | Regra                                                                                                                 |
+|-----------------------+-----------------------------------------------------------------------------------------------------------------------|
+| =alta=                | mesmo município + mesmo CEP + mesmo número. Vários pontos no mesmo endereço exato: escolhe o de nome mais parecido.   |
+| =media=               | mesmo município + mesmo CEP (número ausente ou diferente). Um candidato: aceito. Vários: desempate por nome.           |
+| =baixa=               | CEP não ajudou: procura no *município inteiro* o ponto de nome mais parecido, aceito se a similaridade for >= 0,5.     |
+| =ambiguo=             | os dois melhores candidatos ficam a menos de 0,05 de similaridade um do outro: não escolhe nenhum.                    |
+| =sem_correspondencia= | nenhum candidato serviu.                                                                                              |
+
+A similaridade de nome compara as palavras dos dois nomes sem acento, sem
+pontuação e em qualquer ordem (=difflib.SequenceMatcher= sobre as palavras
+ordenadas).
+
+* Resultado: o cruzamento atual quase não funciona no Norte
+
+| Status                               | SP (piloto) | AM  | PA  |
+|--------------------------------------+-------------+-----+-----|
+| alta (CEP + número batem)            | 45%         | 5%  | 9%  |
+| média (só CEP bate)                  | 19%         | 11% | 8%  |
+| baixa (só nome, no município)        | 16%         | 44% | 49% |
+| ambíguo                              | 18%         | 39% | 34% |
+| sem correspondência                  | 1%          | 0,3% | 0,7% |
+
+Totais: AM 6.181 escolas no INEP / 7.052 pontos de ensino no CNEFE;
+PA 11.848 / 14.150; SP 33.863 / 40.746.
+
+* Por que falha: o endereço no Norte é outro
+
+Perfil dos endereços no Censo Escolar 2024:
+
+|                                            | AM  | PA  | SP  |
+|--------------------------------------------+-----+-----+-----|
+| Escolas rurais (=TP_LOCALIZACAO = 2=)      | 68% | 66% | 5%  |
+| Sem número no endereço                     | 80% | 78% | 11% |
+| CEP genérico do município (termina em 000) | 75% | 81% | 22% |
+| Em terra indígena*                         | 18% | 3%  | ~0% |
+
+\* =TP_LOCALIZACAO_DIFERENCIADA = 2=. O significado do código ainda precisa
+ser confirmado no dicionário do INEP.
+
+CEP e número, a base das camadas =alta= e =media=, praticamente não existem.
+O endereço é a *comunidade e o rio*. Exemplos reais:
+
+- INEP: =ALDEIA DEUS E AMOR= / =LAGO DO MIRA= (Beruri)
+- INEP: =COMUNIDADE MATAPI= / =BAIXO RIO WAUPES= (São Gabriel da Cachoeira)
+- CNEFE: logradouro =RIO TIQUIE=, localidade =ALDEIA INDIGENA SAO PEDRO=, estabelecimento =ESCOLA TUYUKA=
+
+O dado de localização do CNEFE, porém, é bom: no AM, 99,6% dos pontos de
+ensino têm =NV_GEO_COORD = 1= (a confirmar no dicionário do IBGE: coordenada
+coletada no próprio local). O problema está na ligação entre as bases, não
+na coordenada.
+
+* Escolas que existem em uma base e não na outra
+
+O ETL trata as duas direções de forma diferente.
+
+** Escola do INEP sem ponto no CNEFE
+
+Nunca é descartada. O INEP é a lista mestra: a escola permanece no CSV sem
+coordenada, com status =ambiguo= ou =sem_correspondencia=.
+
+O INEP também inclui escolas paralisadas ou extintas
+(=TP_SITUACAO_FUNCIONAMENTO != 1=): 639 no AM, 1.257 no PA, 3.117 em SP.
+É esperado que muitas não existam no CNEFE.
+
+** Ponto de ensino do CNEFE sem escola do INEP
+
+É descartado sem aviso; o ETL não informa quantos são:
+
+| UF | Pontos de ensino no CNEFE | Usados por alguma escola | Nunca usados |
+|----+---------------------------+--------------------------+--------------|
+| AM |                     7.052 |                    3.030 |        4.020 |
+| PA |                    14.150 |                    5.986 |        8.160 |
+| SP |                    40.746 |                   23.021 |       17.629 |
+
+Parte é esperada (faculdades, autoescolas, cursos livres, pontos marcados
+como =ESCOLA DESATIVADA=). No Norte, provavelmente há também escolas reais
+que o ETL não conseguiu ligar.
+
+* Problema: o mesmo ponto do CNEFE é dado a várias escolas
+
+O ETL escolhe o melhor ponto para cada escola *de forma independente*. Nada
+impede que duas ou mais escolas recebam o mesmo ponto.
+
+| UF | Pontos usados por >1 escola | Escolas nesses pontos | Dessas, com endereço INEP idêntico | Camada =baixa= | Camada =media= | Camada =alta= |
+|----+-----------------------------+-----------------------+------------------------------------+----------------+----------------+---------------|
+| AM |                         485 |                 1.197 |                                 24 |            894 |            253 |            50 |
+| PA |                       1.042 |                 2.774 |                                 61 |          2.112 |            391 |           271 |
+| SP |                       3.507 |                 7.810 |                              1.166 |          2.242 |          2.620 |         2.948 |
+
+Leitura:
+- Compartilhar ponto é legítimo quando várias escolas funcionam no mesmo
+  prédio (mesmo endereço). Isso explica parte dos casos em SP (1.166 escolas),
+  mas quase nada no Norte (24 no AM, 61 no PA).
+- No Norte, ~75% dos casos vêm da camada =baixa=: um ponto com nome genérico
+  "atrai" várias escolas do município inteiro.
+- Piores grupos encontrados:
+  - PA, Altamira: 26 escolas no ponto =EMEF NOVO HORIZONTE= (ex.: =EMEIF NOVO PARAISO=, =EMEIF INDIGENA NGORARATI=, =EMEIF NOVO PACTO=).
+  - AM, Envira: 9 escolas no ponto =ESCOLA MUNICIPAL RURAL SAO PEDRO=.
+  - SP, São Paulo: 37 unidades da Fundação CASA no ponto =CENTRO DE ATENDIMENTO SOCIOEDUCATIVO AO ADOLESCENTE IPE=.
+    O prefixo comum e longo ("CENTRO DE ATEND SOCIOEDUC AO ADOLESC") domina a similaridade.
+
+** Correção proposta inicialmente (substituída pela lógica de dois estágios, ver seção seguinte)
+
+1. *Atribuição um-para-um por município*: em vez de cada escola escolher
+   sozinha, juntar todos os pares (escola, ponto, nota) do município,
+   ordenar pela nota e atribuir do melhor para o pior. Um ponto já usado sai
+   da disputa.
+2. *Exceção para o mesmo prédio*: o ponto pode ser compartilhado quando as
+   escolas têm o mesmo endereço exato no INEP (mesmo CEP + número). É o caso
+   legítimo da camada =alta=.
+3. *A escola que perde a disputa* tenta o próximo candidato, ainda sujeito ao
+   limiar e à margem de ambiguidade. Se nenhum serve, fica sem coordenada
+   com um status próprio (ex.: =ponto_disputado=), para ficar visível nos
+   números.
+4. *Ignorar palavras genéricas na comparação de nomes* ("ESCOLA", "MUNICIPAL",
+   "EMEF", "EMEIF", "RURAL", "INDIGENA", "CENTRO DE ATENDIMENTO" etc.).
+   Assim a nota reflete a parte que distingue a escola ("NOVO HORIZONTE" x
+   "NOVO PARAISO").
+5. *Relatório no fim do ETL*, por UF: pontos do CNEFE não usados e pontos
+   compartilhados.
+
+* Nova lógica de casamento: dois estágios (especificação)
+
+** A proposta
+
+Proposta feita na conversa (25/10/2026), antes de implementar a correção
+acima:
+
+1. *Primeiro estágio*: mesmo CEP e mesmo número nas duas bases. Mesmo que o
+   nome esteja escrito diferente, o endereço exato identifica a escola.
+2. *Segundo estágio*: quando CEP e número não batem, o nome da escola e o
+   município batem.
+3. *Um CSV de auditoria*, com qual escola do INEP foi associada a qual ponto
+   do CNEFE, para conferir depois.
+4. Outras estratégias (localidade, rio etc.) ficam para uma conversa
+   posterior.
+
+** Avaliação: quanto cada estágio resolveria (antes dos ajustes)
+
+Simulação com a normalização de nomes antiga (só acento e pontuação):
+
+|    | Estágio 1: CEP + número | Estágio 2: nome igual + município | Ficariam sem coordenada |
+|----+-------------------------+-----------------------------------+-------------------------|
+| AM | 309 (5%)                | 606 (10%)                         | 85%                     |
+| PA | 1.037 (9%)              | 340 (3%)                          | 88%                     |
+| SP | 15.237 (45%)            | 392 (1%)                          | 54%                     |
+
+O estágio 1 é a antiga camada =alta=. Os números mostraram três ajustes
+necessários, todos aceitos.
+
+** Ajustes aceitos
+
+1. *Número 0 é "sem número"*. No CNEFE, =NUM_ENDERECO = 0= significa S/N.
+   Antes, "CEP genérico + 0" virava casamento exato (228 casos no PA).
+2. *CEP genérico no estágio 1*: aceito, mas marcado com o alerta
+   =cep_generico=. Numa cidade com um único CEP, duas escolas em ruas
+   diferentes podem ter o mesmo número por coincidência.
+3. *Nome comparado pelo "núcleo"*, depois de padronizar (ver abaixo).
+4. *Núcleo único dos dois lados no município*: se houver duas escolas no
+   INEP, ou dois pontos no CNEFE, com o mesmo núcleo no município, não há
+   casamento. Isso resolve, por construção, o problema dos pontos
+   compartilhados no estágio 2.
+5. *Quem sobra fica sem coordenada* nesta versão. As camadas antigas
+   (=media=, =baixa=, =ambiguo=, fallback por API de CEP) foram retiradas; a
+   versão anterior continua no histórico do git.
+6. *CSV de auditoria* e *CSV de pontos do CNEFE não usados*.
+
+** Núcleo do nome
+
+Função =nucleo_nome()= em =escolas_dados__cruzar_inep_cnefe.py=. Passos:
+
+1. Remove acento e pontuação, tudo em maiúsculas.
+2. Junta letras soltas em sigla: "E.M.E.F." vira "E M E F" e depois "EMEF".
+   O INEP escreve muitas siglas com ponto; o CNEFE costuma escrever "EMEF".
+3. Expande abreviações (=ABREVIACOES=): ESC → ESCOLA, MUN/MUL → MUNICIPAL,
+   PROF → PROFESSOR, DR → DOUTOR, STA → SANTA, NSRA → NOSSA SENHORA etc. A
+   lista saiu das palavras mais frequentes nos nomes reais de AM, PA e SP.
+4. Remove palavras que dizem o *tipo* da escola, e não *qual* escola é
+   (=PALAVRAS_GENERICAS=): ESCOLA, MUNICIPAL, ESTADUAL, ENSINO, FUNDAMENTAL,
+   INFANTIL, CRECHE, RURAL, INDIGENA, siglas como EMEF, EMEIF, EE, CEI,
+   CMEI, títulos (PROFESSOR, DOUTOR) e preposições (DE, DA, DO, E...).
+
+Exemplos reais:
+
+| Nome                                                           | Núcleo                  |
+|----------------------------------------------------------------+-------------------------|
+| E.M.E.F. PROF. JOAO DA SILVA                                   | JOAO SILVA              |
+| ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL PROFESSOR JOAO DA SILVA | JOAO SILVA              |
+| E M E I F NOVO HORIZONTE                                       | NOVO HORIZONTE          |
+| ESCOLA ESTADUAL MAGNOLIA VENTURA / E E MAGNOLIA VENTURA        | MAGNOLIA VENTURA        |
+| ESCOLA MUNICIPAL                                               | (vazio: nome genérico)  |
+
+Núcleo vazio nunca casa (motivo =nome_generico=).
+
+** Regras implementadas
+
+Ordem: o estágio 1 roda para todas as escolas da UF; depois o 2a para as
+que sobraram; depois o 2b para as que ainda sobraram. (Na primeira versão
+havia um único estágio 2, =nome_municipio=, equivalente ao 2b; a divisão
+está explicada em [[*Estágio 2 dividido em 2a (nome exato) e 2b (nome ajustado)][Estágio 2 dividido em 2a e 2b]].)
+
+| Status                | Regra                                                                                                                                         |
+|-----------------------+-----------------------------------------------------------------------------------------------------------------------------------------------|
+| =cep_numero=          | Estágio 1. Município + CEP + número (diferente de 0) iguais. O nome não precisa bater. Várias escolas do INEP podem dividir o ponto (mesmo prédio). |
+| =nome_exato=          | Estágio 2a. Nome igual (só sem acento, pontuação e diferença de maiúsculas), único no município no INEP e no CNEFE, ponto ainda não usado. |
+| =nome_ajustado=       | Estágio 2b. Núcleo do nome igual, único no município no INEP e no CNEFE, ponto ainda não usado (nem no estágio 1, nem no 2a).              |
+| =sem_correspondencia= | Nenhum estágio resolveu. A escola fica sem coordenada; o motivo vai em =MOTIVO_GEOLOCALIZACAO=.                                               |
+
+Motivos de =sem_correspondencia= (vêm do estágio 2b, o último a tentar):
+
+| Motivo                | Significado                                                                     |
+|-----------------------+---------------------------------------------------------------------------------|
+| =nome_nao_encontrado= | nenhum ponto do CNEFE no município tem o mesmo núcleo                           |
+| =nome_repetido_inep=  | mais de uma escola do INEP no município tem esse núcleo                         |
+| =nome_repetido_cnefe= | mais de um ponto do CNEFE no município tem esse núcleo                          |
+| =ponto_ja_usado=      | o único ponto com esse núcleo já foi dado a outra escola no estágio 1 ou 2a     |
+| =nome_generico=       | o nome só tem palavras genéricas (núcleo vazio)                                 |
+
+(Na primeira versão =ponto_ja_usado= se chamava =ponto_ja_usado_estagio1=.)
+
+Alertas (=ALERTAS_GEOLOCALIZACAO=, separados por =|=). Não tiram a
+coordenada, só pedem conferência:
+
+| Alerta                | Significado                                                       |
+|-----------------------+-------------------------------------------------------------------|
+| =cep_generico=        | estágio 1 com CEP terminado em 000                                |
+| =varios_no_endereco=  | estágio 1 com mais de um ponto do CNEFE no mesmo endereço exato   |
+| =ponto_compartilhado= | o mesmo ponto do CNEFE foi dado a mais de uma escola              |
+
+** Arquivos gerados
+
+| Arquivo                                                           | Conteúdo                                                                                         |
+|-------------------------------------------------------------------+--------------------------------------------------------------------------------------------------|
+| =data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=  | todas as colunas do INEP + =LATITUDE=, =LONGITUDE=, =CNEFE_COD_UNICO_ENDERECO=, =CNEFE_NV_GEO_COORD=, =CNEFE_DSC_ESTABELECIMENTO=, =STATUS_GEOLOCALIZACAO=, =MOTIVO_GEOLOCALIZACAO=, =ALERTAS_GEOLOCALIZACAO= |
+| =data/auditoria/escolas_inep_x_cnefe_2024.csv=                    | uma linha por escola do INEP com o ponto do CNEFE ao lado (ver colunas abaixo)                    |
+| =data/auditoria/cnefe_ensino_nao_usados_2024.csv=                 | pontos de ensino do CNEFE que nenhuma escola usou                                                |
+
+Colunas do CSV de auditoria:
+- Escola do INEP: =SG_UF=, =CO_MUNICIPIO=, =NO_MUNICIPIO=, =CO_ENTIDADE=,
+  =NO_ENTIDADE=, =INEP_NOME_NORMALIZADO= (chave do 2a), =INEP_NUCLEO_NOME=
+  (chave do 2b), =TP_SITUACAO_FUNCIONAMENTO=,
+  =TP_LOCALIZACAO=, =INEP_ENDERECO=, =INEP_CEP=, =INEP_NUMERO=.
+- Decisão: =STATUS_GEOLOCALIZACAO=, =MOTIVO_GEOLOCALIZACAO=,
+  =ALERTAS_GEOLOCALIZACAO=, =N_CANDIDATOS=, =SIMILARIDADE_NOME= (só
+  informativa; não decide nada).
+- Ponto do CNEFE: =CNEFE_COD_UNICO_ENDERECO= (ID estável do CNEFE),
+  =CNEFE_DSC_ESTABELECIMENTO=, =CNEFE_NOME_NORMALIZADO=, =CNEFE_NUCLEO_NOME=,
+  =CNEFE_ENDERECO=,
+  =CNEFE_CEP=, =CNEFE_NUMERO=, =LATITUDE=, =LONGITUDE=, =CNEFE_NV_GEO_COORD=.
+
+As três saídas são *mescladas por UF*: rodar só =am= substitui as linhas do
+AM e mantém as das outras UFs (testado: 6.181 linhas novas, 45.711
+mantidas). Isso corrige a sobrescrita que apagava SP quando se rodava só
+=am pa=.
+
+** Como auditar
+
+- Abrir =data/auditoria/escolas_inep_x_cnefe_2024.csv= numa planilha (separador =;=).
+- Filtrar por =STATUS_GEOLOCALIZACAO= e comparar =NO_ENTIDADE= com
+  =CNEFE_DSC_ESTABELECIMENTO= e =INEP_ENDERECO= com =CNEFE_ENDERECO=.
+- Para conferir no mapa, colar =LATITUDE, LONGITUDE= no Google Maps ou no
+  OpenStreetMap.
+- Prioridade de conferência: linhas com alertas, e estágio 2 com núcleo de
+  uma só palavra (ex.: "GUARANI", "CASTANHAL"), que é o caso mais frágil
+  (165 no AM, 338 no PA).
+
+** Resultados da primeira versão, com estágio 2 único (25/10/2026)
+
+Mantidos como registro. Os números atuais estão em
+[[*Estágio 2 dividido em 2a (nome exato) e 2b (nome ajustado)][Estágio 2 dividido em 2a e 2b]].
+
+Comando:
+#+begin_src sh
+.venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
+.venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+#+end_src
+
+| Status                         | AM            | PA            | SP             |
+|--------------------------------+---------------+---------------+----------------|
+| =cep_numero= (estágio 1)       | 300 (4,9%)    | 809 (6,8%)    | 15.218 (44,9%) |
+| =nome_municipio= (estágio 2)   | 1.744 (28,2%) | 3.302 (27,9%) | 3.283 (9,7%)   |
+| =sem_correspondencia=          | 4.137 (66,9%) | 7.737 (65,3%) | 15.362 (45,4%) |
+| *Total no mapa*                | *2.044*       | *4.111*       | *18.501*       |
+
+Motivos e alertas:
+
+|                                  | AM    | PA    | SP     |
+|----------------------------------+-------+-------+--------|
+| motivo =nome_nao_encontrado=     | 3.446 | 6.981 | 14.646 |
+| motivo =nome_repetido_inep=      | 577   | 566   | 431    |
+| motivo =nome_repetido_cnefe=     | 105   | 180   | 233    |
+| motivo =ponto_ja_usado_estagio1= | 7     | 9     | 52     |
+| motivo =nome_generico=           | 2     | 1     | 0      |
+| alerta =cep_generico=            | 126   | 451   | 3.119  |
+| alerta =varios_no_endereco=      | 14    | 46    | 470    |
+| alerta =ponto_compartilhado=     | 18    | 66    | 1.507  |
+
+Pontos do CNEFE:
+
+|                               | AM    | PA     | SP     |
+|-------------------------------+-------+--------+--------|
+| usados                        | 2.035 | 4.078  | 17.713 |
+| não usados                    | 5.017 | 10.072 | 23.033 |
+| usados por mais de uma escola | 9     | 33     | 719    |
+
+Leitura:
+- *Pontos compartilhados*: no AM caíram de 485 para 9, no PA de 1.042 para
+  33. Os que restam são todos do estágio 1 (mesmo endereço exato), que é o
+  caso legítimo de várias escolas no mesmo prédio. Em SP, 719 (antes 3.507).
+- *Cobertura*: menos escolas no mapa do que na versão antiga (que punha
+  quase todas, muitas com camada =baixa=), mas cada ponto agora tem uma
+  evidência forte. Com a normalização de nomes, o estágio 2 rendeu muito
+  mais que na simulação (AM de 10% para 28%, PA de 3% para 28%).
+- Amostras sorteadas do estágio 2 no AM e PA mostraram nomes coerentes, ex.:
+  "E M E I F NOVO HORIZONTE" x "NOVO HORIZONTE", "ESCOLA ESTADUAL EROTILDES
+  FROTA AGUIAR" x "EEEFM PROF EROTILDES FROTA AGUIAR". Ainda falta uma
+  conferência sistemática no mapa.
+
+** Mudanças no mapa web
+
+- =escolas_mapa__gerar_dados_web.py=: leva para o mapa as escolas com status
+  =cep_numero= ou =nome_municipio=, e leva também =ALERTAS_GEOLOCALIZACAO=.
+- =web/js/escolas_mapa.js=: legenda e filtro de confiança passam a ser
+  "Estágio 1 (CEP + número)" e "Estágio 2 (nome)"; o popup da escola mostra
+  os alertas.
+- AM e PA entram no =web/data/escolas/indice.json= e aparecem na lista de UFs
+  da página.
+
+* Estágio 2 dividido em 2a (nome exato) e 2b (nome ajustado)
+
+** A proposta
+
+Proposta feita na conversa (25/10/2026): dividir o estágio 2 em dois.
+Primeiro tentar o *nome exato*; só depois o *nome ajustado* (o núcleo, com
+abreviações expandidas e palavras genéricas removidas).
+
+Vantagens:
+- *Auditoria*: o status diz se o nome bateu como está escrito ou só depois
+  do ajuste. O casamento por nome exato é a evidência mais forte; o ajustado
+  é o que merece mais conferência.
+- *Mais acertos*: um nome exato pode ser único no município mesmo quando o
+  núcleo não é. Ex.: "EMEF SAO JOSE" e "EMEI SAO JOSE" têm o mesmo núcleo
+  ("SAO JOSE"), então no 2b nenhuma das duas casa; no 2a, cada uma pode
+  casar com o ponto de nome idêntico.
+
+** Regras
+
+- *2a =nome_exato=*: compara o nome depois de =normalizar_nome()=, que só
+  remove acento, pontuação e diferença de maiúsculas. "Exato" quer dizer
+  isso: "Escola Municipal São João" e "ESCOLA MUNICIPAL SAO JOAO" são o
+  mesmo nome; "ESC MUN SAO JOAO" não é.
+- *2b =nome_ajustado=*: compara o núcleo (=nucleo_nome()=), como o antigo
+  estágio 2.
+- Nos dois: nome único dos dois lados no município, e o ponto do CNEFE não
+  pode ter sido usado em um estágio anterior.
+- O 2a só registra acertos. Quem não casa no 2a segue para o 2b, e o motivo
+  de quem fica sem coordenada é o do 2b.
+- Implementação: a mesma função =estagio2_por_nome()= roda duas vezes, só
+  mudando a função que transforma o nome (=normalizar_nome= ou
+  =nucleo_nome=).
+
+** Resultados (25/10/2026)
+
+| Status                          | AM            | PA            | SP             |
+|---------------------------------+---------------+---------------+----------------|
+| =cep_numero= (estágio 1)        | 300 (4,9%)    | 809 (6,8%)    | 15.218 (44,9%) |
+| =nome_exato= (estágio 2a)       | 604 (9,8%)    | 341 (2,9%)    | 380 (1,1%)     |
+| =nome_ajustado= (estágio 2b)    | 1.199 (19,4%) | 2.986 (25,2%) | 2.951 (8,7%)   |
+| =sem_correspondencia=           | 4.078 (66,0%) | 7.712 (65,1%) | 15.314 (45,2%) |
+| *Total no mapa*                 | *2.103*       | *4.136*       | *18.549*       |
+
+| Motivo / alerta                | AM    | PA    | SP     |
+|--------------------------------+-------+-------+--------|
+| motivo =nome_nao_encontrado=   | 3.446 | 6.981 | 14.646 |
+| motivo =nome_repetido_inep=    | 541   | 556   | 398    |
+| motivo =nome_repetido_cnefe=   | 82    | 166   | 218    |
+| motivo =ponto_ja_usado=        | 7     | 9     | 52     |
+| motivo =nome_generico=         | 2     | 0     | 0      |
+| alerta =cep_generico=          | 126   | 451   | 3.119  |
+| alerta =varios_no_endereco=    | 14    | 46    | 470    |
+| alerta =ponto_compartilhado=   | 18    | 66    | 1.507  |
+
+|                               | AM    | PA     | SP     |
+|-------------------------------+-------+--------+--------|
+| pontos do CNEFE usados        | 2.094 | 4.103  | 17.761 |
+| não usados                    | 4.958 | 10.047 | 22.985 |
+| usados por mais de uma escola | 9     | 33     | 719    |
+
+Comparando com a primeira versão (estágio 2 único):
+- Escolas no mapa: AM 2.044 → 2.103 (+59), PA 4.111 → 4.136 (+25),
+  SP 18.501 → 18.549 (+48). São escolas cujo núcleo se repetia no município,
+  mas cujo nome exato é único (o motivo =nome_repetido_inep= caiu de 577
+  para 541 no AM).
+- Os pontos compartilhados não mudaram (9 / 33 / 719): continuam sendo só os
+  do estágio 1, mesmo endereço exato.
+- No AM, cerca de 1 em cada 3 escolas casadas por nome casou pelo nome
+  exato (604 de 1.803); no PA, só 1 em cada 10 (341 de 3.327). O PA usa
+  muito "E M E I F", que só casa depois do ajuste.
+
+** Mudanças no mapa web
+
+- =escolas_mapa__gerar_dados_web.py=: leva para o mapa os status
+  =cep_numero=, =nome_exato= e =nome_ajustado=.
+- =web/js/escolas_mapa.js=: legenda e filtro com três cores: Estágio 1
+  (verde), Estágio 2a, nome exato (azul), Estágio 2b, nome ajustado
+  (amarelo).
+
+* Próximos passos
+
+1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
+   palavra e pelos alertas.
+2. Analisar o motivo =nome_nao_encontrado= (maior grupo sem coordenada):
+   quanto é escola paralisada/extinta, quanto é diferença de nome que a
+   normalização ainda não cobre, quanto é escola que não está no CNEFE.
+3. Próximos estágios, a conversar: casamento por *localidade* (comunidade,
+   aldeia, rio, lago, ramal) para o Norte, comparando
+   =DS_ENDERECO= / =DS_COMPLEMENTO= / =NO_BAIRRO= do INEP com
+   =DSC_LOCALIDADE= / =NOM_SEGLOGR= do CNEFE.
+4. Confirmar nos dicionários oficiais: =TP_LOCALIZACAO_DIFERENCIADA= (INEP),
+   =NV_GEO_COORD= e =COD_ESPECIE= (CNEFE).
+5. Atualizar docs 06 e 07, que ainda descrevem as camadas antigas.
+6. Depois de estabilizar AM e PA, expandir para outras UFs.

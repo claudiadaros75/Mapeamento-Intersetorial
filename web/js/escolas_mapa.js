@@ -820,11 +820,11 @@ const REDE_ENSINO = {
   "4": { nome: "Privada", cor: "#9333ea" },
 };
 
-// Camadas de confiança do ETL (docs/06-georeferenciamento-escolas.org)
+// Estágios do ETL (docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org)
 const CONFIANCA_GEO = {
-  alta: { nome: "Alta (município + CEP + número)", cor: "#15803d" },
-  media: { nome: "Média (município + CEP)", cor: "#d4a106" },
-  baixa: { nome: "Baixa (nome no município)", cor: "#dc2626" },
+  cep_numero: { nome: "Estágio 1 (município + CEP + número)", cor: "#15803d" },
+  nome_exato: { nome: "Estágio 2a (nome exato, único no município)", cor: "#2563eb" },
+  nome_ajustado: { nome: "Estágio 2b (nome ajustado, único no município)", cor: "#d4a106" },
 };
 
 const LOCALIZACAO = { "1": "Urbana", "2": "Rural" };
@@ -850,7 +850,7 @@ const CNEFE_NIVEL_COORD = {
 // Filtros da barra lateral; "padrao" lista as opções marcadas ao abrir a página
 const ESCOLAS_FILTROS = [
   { campo: "TP_DEPENDENCIA", titulo: "Rede de ensino", opcoes: mapearNomes(REDE_ENSINO) },
-  { campo: "STATUS_GEOLOCALIZACAO", titulo: "Confiança da coordenada", opcoes: { alta: "Alta", media: "Média", baixa: "Baixa" } },
+  { campo: "STATUS_GEOLOCALIZACAO", titulo: "Confiança da coordenada", opcoes: { cep_numero: "Estágio 1 (CEP + número)", nome_exato: "Estágio 2a (nome exato)", nome_ajustado: "Estágio 2b (nome ajustado)" } },
   { campo: "TP_LOCALIZACAO", titulo: "Localização", opcoes: LOCALIZACAO },
   { campo: "TP_SITUACAO_FUNCIONAMENTO", titulo: "Situação", opcoes: SITUACAO_FUNCIONAMENTO, padrao: ["1"] },
 ];
@@ -1128,6 +1128,7 @@ function htmlEscola(escola, comTitulo) {
     ["Endereço (Censo)", escola.ENDERECO_CENSO],
     ["Nome no CNEFE", escola.CNEFE_DSC_ESTABELECIMENTO],
     ["Confiança", confianca.nome || escola.STATUS_GEOLOCALIZACAO],
+    ["Alertas", escola.ALERTAS_GEOLOCALIZACAO ? escola.ALERTAS_GEOLOCALIZACAO.split("|").join(", ") : "-"],
     ["Nível CNEFE", nivel],
     ["Coordenadas", `${lat.toFixed(6)}, ${lng.toFixed(6)}`],
   ];
@@ -1179,7 +1180,7 @@ function renderResumoEscolas() {
       <span class="math-label">Escolas no Censo (UFs marcadas):</span>
       <span class="math-value">${total.toLocaleString("pt-BR")}</span>
     </div>
-    <div class="math-row" title="Status ambiguo ou sem_correspondencia no ETL: estas escolas não aparecem no mapa">
+    <div class="math-row" title="Status sem_correspondencia no ETL: estas escolas não aparecem no mapa">
       <span class="math-label">Sem coordenada (fora do mapa):</span>
       <span class="math-value">${semCoordenada.toLocaleString("pt-BR")}</span>
     </div>`;
