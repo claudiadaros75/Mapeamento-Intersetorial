@@ -576,12 +576,116 @@ Pré-requisito: o novo =pages.yml= precisa estar na =main=, porque é o
 arquivo da =main= que monta o site. Até isso acontecer, o site continua
 mostrando só a =main=.
 
+*Feito em 25/10/2026:* como a conta usada não é administradora do
+repositório (não pode liberar outra branch no ambiente =github-pages=), a
+=main= antiga foi congelada na tag =main-antes-mapeamento-nacional= e esta
+branch foi mesclada na =main= (commit =34a41ee=). O site principal passou a
+mostrar SP, AM e PA: https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_mapa.html
+
 O script de montagem foi testado localmente, numa cópia do repositório:
 gerou a raiz com a =main=, =versoes/ibge_malhas/=,
 =versoes/mapeamento-intersetorial-nacional/= e a lista de versões.
 
+* Coordenadas do INEP (Catálogo de Escolas, via geobr)
+
+** Contexto
+
+Para o mapa de auditoria (um segundo mapa, só para mostrar como cada escola
+ganhou latitude/longitude), surgiu a pergunta: há escolas com coordenada
+vinda do próprio INEP?
+
+- *Na versão anterior da main* (tag =main-antes-mapeamento-nacional=), não.
+  Conferido no código e nos dados: todos os pontos vinham do CNEFE
+  (=alta=, =media=, =baixa=); =ambiguo= e =sem_correspondencia= ficavam com
+  LATITUDE/LONGITUDE vazias. O único recurso fora do CNEFE era o fallback
+  opcional de CEP (AwesomeAPI, status =aproximado_cep=), que nunca foi
+  usado (0 escolas). Em SP: alta 15.237, media 6.565, baixa 5.522,
+  ambiguo 6.201, sem_correspondencia 338.
+- *Nos microdados do Censo Escolar*, também não: conferido o cabeçalho de
+  2023 (408 colunas), 2024 (426) e 2025 (=Tabela_Escola=, 290). Nenhuma
+  coluna de latitude/longitude.
+- *Mas o INEP publica as coordenadas*: o Catálogo de Escolas (painel do
+  INEP Data) exporta latitude/longitude, e o pacote *geobr*, do Ipea,
+  redistribui esse cadastro pronto (=read_schools=). O doc 06 dizia o
+  contrário e foi corrigido.
+
+** Download
+
+Script: =scripts/commands/ipea_geobr_escolas__baixar_dados.py=, no mesmo
+padrão dos outros =__baixar_dados.py= (retoma download parcial e confere o
+tamanho; não há checksum publicado).
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py        # 2023 (padrão)
+  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py 2020 2023
+#+end_src
+
+- Origem: =https://www.ipea.gov.br/geobr/data_gpkg/schools/<ano>/schools_<ano>.gpkg=
+  (anos disponíveis no metadata do geobr 1.7.0: 2020 e 2023).
+- Destino: =data/ipea_geobr_escolas/schools_2023.gpkg= (96,5 MB, fora do
+  git, no =.gitignore=).
+- Arquivo de 2023: 212.313 escolas, SIRGAS 2000 (EPSG:4674),
+  =date_update= 2024-03-22. *52.819 sem geometria* (o próprio INEP não tem
+  coordenada para elas).
+- Colunas: =abbrev_state=, =name_muni=, =code_school= (= =CO_ENTIDADE=),
+  =name_school=, =education_level=, =admin_category=, =address=,
+  =government_level=, =service_restriction=, =size=, =urban=,
+  =location_type=, =date_update=, =empty_geo=, =geometry=.
+
+** Primeiro cruzamento com o nosso resultado (25/10/2026)
+
+Cruzamento exato por código (=code_school= = =CO_ENTIDADE=), só com as
+escolas que têm geometria no geobr:
+
+| UF | Status               | Total | Com coordenada INEP |
+|----+----------------------+-------+---------------------|
+| AM | cep_numero           |   300 |                 226 |
+| AM | nome_exato           |   604 |                 473 |
+| AM | nome_ajustado        | 1.199 |                 861 |
+| AM | sem_correspondencia  | 4.078 |               2.410 |
+| PA | cep_numero           |   809 |                 667 |
+| PA | nome_exato           |   341 |                 291 |
+| PA | nome_ajustado        | 2.986 |               2.655 |
+| PA | sem_correspondencia  | 7.712 |               5.834 |
+| SP | cep_numero           | 15.218|              13.413 |
+| SP | nome_exato           |   380 |                 313 |
+| SP | nome_ajustado        | 2.951 |               2.824 |
+| SP | sem_correspondencia  | 15.314|              12.511 |
+
+Distância entre o ponto do CNEFE e o do INEP, nas escolas que têm os dois
+(km):
+
+| UF | Status        | Mediana | P90  | Máximo |
+|----+---------------+---------+------+--------|
+| AM | cep_numero    |    0,02 | 0,39 |  171,6 |
+| AM | nome_exato    |    0,02 | 0,83 |  177,8 |
+| AM | nome_ajustado |    0,02 | 1,32 |  186,7 |
+| PA | cep_numero    |    0,02 | 0,57 |  155,3 |
+| PA | nome_exato    |    0,02 | 0,36 |  362,0 |
+| PA | nome_ajustado |    0,02 | 0,16 |  345,6 |
+| SP | cep_numero    |    0,03 | 0,08 |   28,2 |
+| SP | nome_exato    |    0,03 | 0,26 |   17,0 |
+| SP | nome_ajustado |    0,03 | 0,08 |   26,3 |
+
+Leitura:
+- Na maioria dos casos, CNEFE e INEP concordam em poucas dezenas de metros,
+  inclusive no estágio 2b (nome ajustado) - boa notícia para a lógica de
+  casamento.
+- No Norte há uma cauda de pontos a mais de 100 km: ou o casamento errou,
+  ou a coordenada do INEP está errada. São os casos a examinar primeiro no
+  mapa de auditoria.
+- O INEP cobre boa parte de quem ficou sem correspondência no CNEFE
+  (AM 2.410 de 4.078; PA 5.834 de 7.712; SP 12.511 de 15.314).
+- Atenção à safra: o cadastro é de 2023 e o nosso Censo Escolar é 2024.
+  Escolas novas em 2024 não estão nele.
+
 * Próximos passos
 
+0. Mapa de auditoria (página separada do mapa do usuário final), com
+   filtros por origem da coordenada: nível 1 (CEP + número), nível 2a/2b
+   (nome exato/ajustado + município, destacando quem cai fora do
+   município), coordenada do INEP para quem ficou sem correspondência no
+   CNEFE, e a distância CNEFE x INEP onde houver as duas.
 1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
    palavra e pelos alertas.
 2. Analisar o motivo =nome_nao_encontrado= (maior grupo sem coordenada):
