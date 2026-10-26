@@ -21,9 +21,12 @@ o plano registra como pendente na Fase 7.
 * Resumo executivo
 
 - O *Censo Escolar do INEP* (fonte primária de dados sobre escolas) *não
-  publica* latitude/longitude por escola nos microdados abertos, nem no
-  Catálogo de Escolas. O INEP coleta essa geolocalização desde 2018, mas
-  mantém o dado fechado - ver seção abaixo.
+  publica* latitude/longitude por escola nos microdados abertos. O INEP
+  coleta essa geolocalização desde 2018. *Correção (25/10/2026):* ela é
+  publicada no Catálogo de Escolas (exportável) e redistribuída pelo geobr
+  do Ipea - ver
+  [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]],
+  seção "Coordenadas do INEP (Catálogo de Escolas, via geobr)".
 - O *CNEFE* (Cadastro Nacional de Endereços para Fins Estatísticos), do
   IBGE, publica coordenadas geográficas por endereço desde o Censo
   Demográfico 2022 (divulgado em fev/2024), classificando cada endereço por
@@ -53,8 +56,11 @@ coordenadas. Acesso: https://dados.gov.br
   detalhes técnicos em
   [[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]).
 - O Catálogo de Escolas (portal de BI em =anonymousdata.inep.gov.br=) expõe
-  endereço e informações gerais por escola, mas é um painel interativo, sem
-  exportação em massa de coordenadas.
+  endereço e informações gerais por escola. *Correção (25/10/2026):* esta
+  conclusão estava errada - o Catálogo exporta latitude/longitude, e o
+  geobr (Ipea) redistribui esse cadastro com coordenadas (212.313 escolas
+  em 2023). Ver doc 08, seção "Coordenadas do INEP (Catálogo de Escolas,
+  via geobr)".
 
 Por que o dado não é público, se existe? Ver seção dedicada abaixo.
 
@@ -581,7 +587,7 @@ Resumo geral (1 UF(s), 33863 escolas): /home/wgn/mnt/ext4/Projects-Srcs/Projects
   https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/
 - Dicionário de dados do CNEFE 2022 (.xls, ainda não lido):
   https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/Dicionario_CNEFE_Censo_2022.xls
-- Catálogo de Escolas do INEP (não publica lat/long em massa):
+- Catálogo de Escolas do INEP (exporta lat/long; ver correção no resumo):
   https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
 - Notícia sobre a coleta de geolocalização pelo Censo Escolar desde 2018
   (dado interno, não público):

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoria do Georreferenciamento das Escolas (Censo Escolar 2024)</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/escolas_mapa.css">
+  <link rel="stylesheet" href="css/escolas_auditoria.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-title">
+      <a href="index.html" class="btn-home-link" title="Voltar à Página Inicial de Mapas">🏠 Início</a>
+      <h1>🔎 Auditoria do Georreferenciamento das Escolas (Censo Escolar 2024)</h1>
+      <span class="badge">De onde veio cada coordenada</span>
+    </div>
+    <div class="header-controls">
+      <div class="control-group">
+        <label for="basemap-select">🗺️ Mapa Base:</label>
+        <select id="basemap-select">
+          <option value="osm" selected>OpenStreetMap</option>
+          <option value="esri-satellite">Esri World Imagery (Satélite)</option>
+        </select>
+      </div>
+      <a href="escolas_mapa.html" class="btn-home-link" title="Mapa de escolas para o usuário final">🏫 Mapa de escolas</a>
+      <span id="loading-indicator" class="loading hidden">Carregando...</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <aside class="sidebar">
+
+      <details class="accordion-item" open>
+        <summary class="accordion-header">🔎 Origem da coordenada</summary>
+        <div class="accordion-body">
+          <p class="instruction">
+            Cada escola do Censo Escolar 2024 aparece no ponto que recebeu e na cor
+            da forma como esse ponto foi obtido. Clique numa escola para ver os
+            detalhes, o município declarado e, quando houver, o ponto do INEP.
+          </p>
+
+          <h3>UFs</h3>
+          <div id="auditoria-ufs" class="escolas-filtro-grupo">
+            <div class="empty-state">Carregando índice...</div>
+          </div>
+
+          <h3 class="mt-2">Origem</h3>
+          <div id="auditoria-origens"></div>
+
+          <h3 class="mt-2">Casos a conferir</h3>
+          <div class="escolas-filtro-grupo auditoria-filtros">
+            <label class="checkbox-label" title="O ponto cai fora do polígono do município declarado no Censo Escolar (malha municipal do IBGE em resolução máxima)">
+              <input type="checkbox" id="filtro-fora"> Só pontos fora do município declarado
+            </label>
+            <label class="checkbox-label" title="Escolas com ponto do CNEFE e do INEP a mais de N km um do outro">
+              <input type="checkbox" id="filtro-distancia"> Só CNEFE × INEP a mais de
+              <input type="number" id="filtro-distancia-km" value="1" min="0" step="0.5" class="auditoria-km"> km
+            </label>
+          </div>
+
+          <div id="auditoria-resumo" class="tile-math-box mt-2"></div>
+        </div>
+      </details>
+
+      <details class="accordion-item" open>
+        <summary class="accordion-header">📋 Lista dos casos (maior distância primeiro)</summary>
+        <div class="accordion-body">
+          <p class="instruction">
+            Ordenada pela maior distância: até o município declarado ou entre o
+            ponto do CNEFE e o do INEP. Clique numa linha para ir até a escola.
+          </p>
+          <ol id="auditoria-lista" class="auditoria-lista"></ol>
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary class="accordion-header">💡 Como ler este mapa</summary>
+        <div class="accordion-body">
+          <ul class="steps-list">
+            <li><strong>Nível 1 (CEP + número):</strong> ponto do CNEFE/IBGE com o mesmo CEP e número da escola.</li>
+            <li><strong>Nível 2a (nome exato):</strong> ponto do CNEFE com o mesmo nome, no mesmo município.</li>
+            <li><strong>Nível 2b (nome ajustado):</strong> mesmo nome depois de expandir abreviações e tirar palavras genéricas.</li>
+            <li><strong>INEP:</strong> a escola não teve correspondência no CNEFE; o ponto vem do Catálogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea).</li>
+            <li><strong>Contorno vermelho:</strong> o ponto cai fora do município declarado no Censo Escolar.</li>
+            <li><strong>Linha tracejada:</strong> ao clicar numa escola com os dois pontos, liga o ponto do CNEFE ao do INEP.</li>
+          </ul>
+          <p class="instruction">
+            Detalhes em <code>docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org</code>.
+          </p>
+        </div>
+      </details>
+    </aside>
+
+    <main id="map" class="map-container"></main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/escolas_auditoria.js"></script>
+</body>
+</html>
