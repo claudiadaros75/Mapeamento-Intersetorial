@@ -1,0 +1,55 @@
+{
+  "ano_censo_escolar": "2024",
+  "ano_cadastro_inep": "2023",
+  "ufs": {
+    "AM": {
+      "arquivo": "data/auditoria/auditoria_AM_2024.json",
+      "tamanho_bytes": 1141505,
+      "total_escolas": 6181,
+      "por_origem": {
+        "nome_ajustado": 1199,
+        "inep": 2410,
+        "nome_exato": 604,
+        "sem_ponto": 1668,
+        "cep_numero": 300
+      },
+      "fora_do_municipio": {
+        "inep": 27,
+        "nome_ajustado": 1
+      }
+    },
+    "PA": {
+      "arquivo": "data/auditoria/auditoria_PA_2024.json",
+      "tamanho_bytes": 2446947,
+      "total_escolas": 11848,
+      "por_origem": {
+        "cep_numero": 809,
+        "inep": 5834,
+        "nome_ajustado": 2986,
+        "sem_ponto": 1878,
+        "nome_exato": 341
+      },
+      "fora_do_municipio": {
+        "inep": 63,
+        "nome_exato": 1,
+        "nome_ajustado": 7
+      }
+    },
+    "SP": {
+      "arquivo": "data/auditoria/auditoria_SP_2024.json",
+      "tamanho_bytes": 8225192,
+      "total_escolas": 33863,
+      "por_origem": {
+        "nome_ajustado": 2951,
+        "inep": 12511,
+        "cep_numero": 15218,
+        "sem_ponto": 2803,
+        "nome_exato": 380
+      },
+      "fora_do_municipio": {
+        "cep_numero": 6,
+        "inep": 30
+      }
+    }
+  }
+}

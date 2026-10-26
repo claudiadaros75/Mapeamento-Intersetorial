@@ -679,13 +679,95 @@ Leitura:
 - Atenção à safra: o cadastro é de 2023 e o nosso Censo Escolar é 2024.
   Escolas novas em 2024 não estão nele.
 
+* Mapa de auditoria do georreferenciamento
+
+** Objetivo
+
+Dois mapas, com públicos diferentes:
+
+- =web/escolas_mapa.html= - mapa do usuário final (sem mudanças).
+- =web/escolas_auditoria.html= - mapa de auditoria: mostra *de onde veio a
+  coordenada* de cada escola e destaca os casos a conferir. Link no card da
+  página inicial e no cabeçalho do próprio mapa.
+
+** Origem da coordenada (cores)
+
+| Origem          | Nível | Como                                                  | Cor     |
+|-----------------+-------+-------------------------------------------------------+---------|
+| =cep_numero=    | 1     | CNEFE, mesmo CEP + número                             | verde   |
+| =nome_exato=    | 2a    | CNEFE, mesmo nome + município                         | azul    |
+| =nome_ajustado= | 2b    | CNEFE, mesmo núcleo do nome + município               | amarelo |
+| =inep=          | -     | sem correspondência no CNEFE; Catálogo de Escolas do  | roxo    |
+|                 |       | INEP (cadastro 2023, geobr)                           |         |
+| sem ponto       | -     | sem correspondência e sem coordenada no INEP: só      | -       |
+|                 |       | contagem                                              |         |
+
+Regra: a coordenada do CNEFE tem prioridade; a do INEP só entra para quem
+ficou sem correspondência. Quando a escola tem os dois pontos, o do INEP
+fica guardado para comparação.
+
+** Casos a conferir
+
+- *Fora do município declarado*: distância (km) do ponto ao polígono do
+  município declarado no Censo Escolar (=CO_MUNICIPIO=), usando a malha
+  municipal do IBGE 2024 em *resolução máxima*
+  (=data/ibge_malha_municipal/zipfiles/BR_Municipios_2024.zip=) e projeção
+  SIRGAS 2000 / Brazil Polyconic (EPSG:5880). Contorno vermelho no mapa.
+  Também mostra em qual município o ponto realmente caiu.
+- *Distância CNEFE × INEP*: para escolas com os dois pontos. Filtro "a mais
+  de N km".
+- *Lista dos casos*: ordenada pela maior das duas distâncias; clicar
+  enquadra a escola, a linha tracejada até o ponto do INEP e o contorno do
+  município declarado.
+
+** Arquivos
+
+- Gerador: =scripts/commands/escolas_mapa__gerar_dados_auditoria.py= (lê
+  =data/auditoria/escolas_inep_x_cnefe_2024.csv=, o GeoPackage do geobr e a
+  malha municipal).
+- Saída: =web/data/auditoria/auditoria_<UF>_2024.json= (AM 1,1 MB, PA
+  2,3 MB, SP 7,9 MB) e =indice.json=.
+- Página: =web/escolas_auditoria.html=, =web/js/escolas_auditoria.js=,
+  =web/css/escolas_auditoria.css=. Pontos em canvas, sem cluster (41 mil
+  pontos com as três UFs, redesenho em ~0,3 s).
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+#+end_src
+
+** Resultados (25/10/2026)
+
+| UF | Escolas | Nível 1 | 2a  | 2b    | INEP   | Sem ponto |
+|----+---------+---------+-----+-------+--------+-----------|
+| AM |   6.181 |     300 | 604 | 1.199 |  2.410 |     1.668 |
+| PA |  11.848 |     809 | 341 | 2.986 |  5.834 |     1.878 |
+| SP |  33.863 |  15.218 | 380 | 2.951 | 12.511 |     2.803 |
+
+Com a coordenada do INEP, as escolas sem ponto caem de 4.078 para 1.668
+(AM), de 7.712 para 1.878 (PA) e de 15.314 para 2.803 (SP).
+
+| UF | Fora do município     | Maior distância | CNEFE e INEP | > 1 km | > 10 km | > 50 km |
+|----+-----------------------+-----------------+--------------+--------+---------+---------|
+| AM | 28 (27 INEP, 1 2b)    | 1,16 km         |        1.560 |    156 |     104 |      42 |
+| PA | 71 (63 INEP, 7 2b, 1 2a) | 0,57 km      |        3.613 |    253 |     121 |      29 |
+| SP | 36 (30 INEP, 6 nível 1) | 0,22 km       |       16.550 |    261 |      25 |       0 |
+
+Leitura:
+- Com a malha em resolução máxima, *nenhum ponto cai longe do município
+  declarado*: todos os casos estão a menos de 1,2 km da divisa (escolas de
+  beira de rio ou de divisa). Os pontos a 1-22 km da "Verificação
+  geográfica" anterior eram efeito da malha simplificada.
+- O que pede conferência no Norte é a *distância CNEFE × INEP*: 42 escolas
+  no AM e 29 no PA a mais de 50 km (máximo 187 km em Humaitá/AM). Nesses
+  casos o casamento pegou o ponto errado, ou o INEP está errado - o mapa
+  mostra os dois pontos para decidir.
+
 * Próximos passos
 
-0. Mapa de auditoria (página separada do mapa do usuário final), com
-   filtros por origem da coordenada: nível 1 (CEP + número), nível 2a/2b
-   (nome exato/ajustado + município, destacando quem cai fora do
-   município), coordenada do INEP para quem ficou sem correspondência no
-   CNEFE, e a distância CNEFE x INEP onde houver as duas.
+0. Conferir no mapa de auditoria as escolas com CNEFE × INEP a mais de
+   50 km (AM 42, PA 29) e decidir se a coordenada do INEP também entra no
+   mapa do usuário final.
 1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
    palavra e pelos alertas.
 2. Analisar o motivo =nome_nao_encontrado= (maior grupo sem coordenada):
