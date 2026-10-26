@@ -736,6 +736,16 @@ fica guardado para comparação.
   .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
 #+end_src
 
+** Publicação
+
+- Versão da branch (26/10/2026, commit =7cf2925=):
+  https://claudiadaros75.github.io/Mapeamento-Intersetorial/versoes/mapeamento-intersetorial-nacional/escolas_auditoria.html
+- Site principal, depois do merge na =main= (26/10/2026):
+  https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_auditoria.html
+- Testado no navegador (local): seleção de escola, linha CNEFE × INEP,
+  contorno do município declarado, filtros e lista; e conferido no ar por
+  requisição direta (página, script e dados com HTTP 200).
+
 ** Resultados (25/10/2026)
 
 | UF | Escolas | Nível 1 | 2a  | 2b    | INEP   | Sem ponto |
