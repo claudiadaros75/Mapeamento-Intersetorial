@@ -43,7 +43,7 @@
           <p class="instruction">
             Cada escola do Censo Escolar 2024 aparece no ponto que recebeu e na cor
             da forma como esse ponto foi obtido. Clique numa escola para ver os
-            detalhes, o município declarado e, quando houver, o ponto do INEP.
+            detalhes, o município declarado e, quando houver, o ponto da outra fonte.
           </p>
 
           <h3>UFs</h3>
@@ -59,8 +59,8 @@
             <label class="checkbox-label" title="O ponto cai fora do polígono do município declarado no Censo Escolar (malha municipal do IBGE em resolução máxima)">
               <input type="checkbox" id="filtro-fora"> Só pontos fora do município declarado
             </label>
-            <label class="checkbox-label" title="Escolas com ponto do CNEFE e do INEP a mais de N km um do outro">
-              <input type="checkbox" id="filtro-distancia"> Só CNEFE × INEP a mais de
+            <label class="checkbox-label" title="Escolas com ponto do INEP e do CNEFE a mais de N km um do outro">
+              <input type="checkbox" id="filtro-distancia"> Só INEP × CNEFE a mais de
               <input type="number" id="filtro-distancia-km" value="1" min="0" step="0.5" class="auditoria-km"> km
             </label>
           </div>
@@ -74,7 +74,7 @@
         <div class="accordion-body">
           <p class="instruction">
             Ordenada pela maior distância: até o município declarado ou entre o
-            ponto do CNEFE e o do INEP. Clique numa linha para ir até a escola.
+            ponto do INEP e o do CNEFE. Clique numa linha para ir até a escola.
           </p>
           <ol id="auditoria-lista" class="auditoria-lista"></ol>
         </div>
@@ -84,12 +84,10 @@
         <summary class="accordion-header">💡 Como ler este mapa</summary>
         <div class="accordion-body">
           <ul class="steps-list">
-            <li><strong>Nível 1 (CEP + número):</strong> ponto do CNEFE/IBGE com o mesmo CEP e número da escola.</li>
-            <li><strong>Nível 2a (nome exato):</strong> ponto do CNEFE com o mesmo nome, no mesmo município.</li>
-            <li><strong>Nível 2b (nome ajustado):</strong> mesmo nome depois de expandir abreviações e tirar palavras genéricas.</li>
-            <li><strong>INEP:</strong> a escola não teve correspondência no CNEFE; o ponto vem do Catálogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea).</li>
+            <li><strong>INEP primeiro:</strong> a coordenada vem do Catálogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea), ligado pelo código da escola. A cor diz se o CNEFE/IBGE confirma o ponto (até 300 m), fica perto (300 m a 1 km), diverge (mais de 1 km) ou não tem ponto para comparar.</li>
+            <li><strong>CNEFE como reserva:</strong> para escolas sem coordenada no INEP (ou com um ponto do INEP repetido por 5 ou mais escolas), o ponto vem do casamento com o CNEFE: nível 1 (CEP + número), 2a (nome exato no município) ou 2b (nome ajustado no município).</li>
             <li><strong>Contorno vermelho:</strong> o ponto cai fora do município declarado no Censo Escolar.</li>
-            <li><strong>Linha tracejada:</strong> ao clicar numa escola com os dois pontos, liga o ponto do CNEFE ao do INEP.</li>
+            <li><strong>Linha tracejada:</strong> ao clicar numa escola com as duas fontes, liga o ponto usado ao da outra fonte (círculo branco).</li>
           </ul>
           <p class="instruction">
             Detalhes em <code>docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org</code>.

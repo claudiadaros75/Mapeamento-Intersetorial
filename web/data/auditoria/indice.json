@@ -4,51 +4,66 @@
   "ufs": {
     "AM": {
       "arquivo": "data/auditoria/auditoria_AM_2024.json",
-      "tamanho_bytes": 1141505,
+      "tamanho_bytes": 1282524,
       "total_escolas": 6181,
       "por_origem": {
-        "nome_ajustado": 1199,
-        "inep": 2410,
-        "nome_exato": 604,
-        "sem_ponto": 1668,
-        "cep_numero": 300
+        "inep_confirmado": 1364,
+        "inep_sem_cnefe": 2410,
+        "sem_correspondencia": 1668,
+        "inep_divergente": 149,
+        "inep_proximo": 40,
+        "cep_numero": 75,
+        "nome_ajustado": 344,
+        "nome_exato": 131
       },
       "fora_do_municipio": {
-        "inep": 27,
+        "inep_divergente": 4,
+        "inep_sem_cnefe": 27,
         "nome_ajustado": 1
       }
     },
     "PA": {
       "arquivo": "data/auditoria/auditoria_PA_2024.json",
-      "tamanho_bytes": 2446947,
+      "tamanho_bytes": 2766824,
       "total_escolas": 11848,
       "por_origem": {
-        "cep_numero": 809,
-        "inep": 5834,
-        "nome_ajustado": 2986,
-        "sem_ponto": 1878,
-        "nome_exato": 341
+        "inep_confirmado": 3264,
+        "inep_sem_cnefe": 5834,
+        "inep_divergente": 253,
+        "nome_ajustado": 331,
+        "sem_correspondencia": 1878,
+        "inep_proximo": 96,
+        "cep_numero": 142,
+        "nome_exato": 50
       },
       "fora_do_municipio": {
-        "inep": 63,
+        "inep_sem_cnefe": 63,
+        "inep_proximo": 1,
+        "inep_divergente": 3,
         "nome_exato": 1,
-        "nome_ajustado": 7
+        "nome_ajustado": 2,
+        "inep_confirmado": 4
       }
     },
     "SP": {
       "arquivo": "data/auditoria/auditoria_SP_2024.json",
-      "tamanho_bytes": 8225192,
+      "tamanho_bytes": 9153770,
       "total_escolas": 33863,
       "por_origem": {
-        "nome_ajustado": 2951,
-        "inep": 12511,
-        "cep_numero": 15218,
-        "sem_ponto": 2803,
-        "nome_exato": 380
+        "inep_confirmado": 15935,
+        "inep_sem_cnefe": 12511,
+        "sem_correspondencia": 2803,
+        "cep_numero": 1817,
+        "inep_proximo": 342,
+        "inep_divergente": 261,
+        "nome_exato": 67,
+        "nome_ajustado": 127
       },
       "fora_do_municipio": {
-        "cep_numero": 6,
-        "inep": 30
+        "inep_sem_cnefe": 30,
+        "inep_confirmado": 4,
+        "cep_numero": 1,
+        "inep_divergente": 1
       }
     }
   }

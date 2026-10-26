@@ -12,9 +12,22 @@ piloto de SP em dois estados do Norte (Amazonas e Pará), as perguntas
 levantadas durante a conversa e as respostas, e os problemas encontrados
 que precisam ser corrigidos antes de levar o mapa para outras UFs.
 
+O documento foi crescendo com a conversa e hoje é a especificação viva do
+georreferenciamento das escolas. As seções estão em ordem cronológica;
+quando uma decisão foi substituída depois, isso está marcado nela.
+
+*Estado atual (26/10/2026):*
+- Coordenada de cada escola: primeiro a do *Catálogo de Escolas do INEP*,
+  conferida com o CNEFE; o CNEFE (casamento em estágios) só para quem não
+  tem ponto no INEP. Ver "Qual coordenada usar: INEP primeiro, CNEFE como
+  reserva".
+- UFs processadas: SP, AM e PA.
+- Dois mapas no GitHub Pages: o do usuário final e o de auditoria.
+
 Documentos relacionados:
-- [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]] - estratégia de geolocalização (camadas de confiança)
-- [[file:07-relatorio-etl-escolas-piloto-sp.org][07-relatorio-etl-escolas-piloto-sp.org]] - relatório do piloto em SP
+- [[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]] - plano do recurso de marcadores de escolas
+- [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]] - pesquisa das fontes e raciocínio original do casamento com o CNEFE
+- [[file:07-relatorio-etl-escolas-piloto-sp.org][07-relatorio-etl-escolas-piloto-sp.org]] - relatório do piloto em SP (histórico)
 
 * Objetivo da branch
 
@@ -685,12 +698,16 @@ Leitura:
 
 Dois mapas, com públicos diferentes:
 
-- =web/escolas_mapa.html= - mapa do usuário final (sem mudanças).
+- =web/escolas_mapa.html= - mapa do usuário final.
 - =web/escolas_auditoria.html= - mapa de auditoria: mostra *de onde veio a
   coordenada* de cada escola e destaca os casos a conferir. Link no card da
   página inicial e no cabeçalho do próprio mapa.
 
-** Origem da coordenada (cores)
+** Origem da coordenada (cores) - primeira versão, substituída
+
+*Substituída em 26/10/2026* pela ordem "INEP primeiro, CNEFE como reserva"
+(ver seção "Qual coordenada usar"). A tabela abaixo registra a primeira
+versão do mapa de auditoria, em que o CNEFE tinha prioridade.
 
 | Origem          | Nível | Como                                                  | Cor     |
 |-----------------+-------+-------------------------------------------------------+---------|
@@ -714,11 +731,11 @@ fica guardado para comparação.
   (=data/ibge_malha_municipal/zipfiles/BR_Municipios_2024.zip=) e projeção
   SIRGAS 2000 / Brazil Polyconic (EPSG:5880). Contorno vermelho no mapa.
   Também mostra em qual município o ponto realmente caiu.
-- *Distância CNEFE × INEP*: para escolas com os dois pontos. Filtro "a mais
+- *Distância INEP × CNEFE*: para escolas com os dois pontos. Filtro "a mais
   de N km".
 - *Lista dos casos*: ordenada pela maior das duas distâncias; clicar
-  enquadra a escola, a linha tracejada até o ponto do INEP e o contorno do
-  município declarado.
+  enquadra a escola, a linha tracejada até o ponto da outra fonte (círculo
+  branco, não usado) e o contorno do município declarado.
 
 ** Arquivos
 
@@ -773,11 +790,189 @@ Leitura:
   casos o casamento pegou o ponto errado, ou o INEP está errado - o mapa
   mostra os dois pontos para decidir.
 
+* Qual coordenada usar: INEP primeiro, CNEFE como reserva
+
+** A pergunta (26/10/2026)
+
+Com o cadastro do INEP baixado, a pergunta foi: a latitude/longitude do
+Catálogo de Escolas do INEP tem mais qualidade que a do CNEFE? Se sim,
+usar a do INEP; se não, manter o casamento com o CNEFE e usar o INEP só
+para quem ficou sem ponto.
+
+** Como medimos
+
+Não há gabarito (a posição verdadeira de cada escola), então comparamos as
+duas fontes por critérios objetivos, nas escolas de AM, PA e SP:
+
+1. *Concordância*: distância entre os dois pontos, quando a escola tem os
+   dois.
+2. *Quem está certo quando divergem*: nas escolas com mais de 10 km entre
+   os pontos, se o ponto do INEP fica a até 300 m de *algum* prédio de
+   ensino do CNEFE (usado ou não por nós). Se fica, o INEP aponta para uma
+   escola real e o nosso casamento pegou outra.
+3. *Município*: distância do ponto ao polígono do município declarado
+   (malha do IBGE em resolução máxima).
+4. *Sinais de marcação genérica no INEP*: o mesmo ponto para várias
+   escolas, poucas casas decimais.
+
+** Resultados
+
+| Medida                                              | AM     | PA     | SP     |
+|-----------------------------------------------------+--------+--------+--------|
+| Distância mediana INEP × CNEFE                      | ~20 m  | ~20 m  | ~30 m  |
+| Escolas com divergência > 10 km                     | 104    | 121    | 25     |
+| ... com o ponto do INEP a até 300 m de um prédio    | 90%    | 84%    | 88%    |
+| de ensino do CNEFE                                  |        |        |        |
+| Ponto do INEP a mais de 0,5 km do município         | 4      | 0      | 0      |
+| Ponto do INEP a até 300 m de um prédio de ensino    | 92%    | 92%    | 96%    |
+| do CNEFE (todas as escolas com ponto do INEP)       |        |        |        |
+| Ponto do INEP repetido por 5+ escolas               | 85     | 14     | 12     |
+| Ponto do INEP com até 3 casas decimais              | 0      | 4      | 131    |
+
+Exemplos de divergência em que o erro é do nosso casamento com o CNEFE:
+- Novo Airão (AM): o estágio 1 (CEP + número) ligou a "Escola Estadual
+  Balbina Mestrinho" à "Escola Municipal Jaú Tambor", a 172 km - CEP
+  genérico.
+- Altamira (PA, o maior município do Brasil): escolas homônimas em
+  comunidades diferentes ("Bela Vista", "São Francisco", "Novo Paraíso")
+  ligadas a até 362 km.
+- São Paulo: a "ETEC Albert Einstein" ligada a outra "Escola Albert
+  Einstein", a 23 km; a "Esc Part Recanto Infantil" a uma "Escola Recanto",
+  a 26 km.
+
+** Conclusão
+
+O ponto do INEP é melhor *como fonte*, não por ser mais preciso que o do
+CNEFE (quando os dois acertam, ficam a poucas dezenas de metros), mas
+porque:
+- é ligado pelo código da escola, sem depender de casamento por nome ou
+  endereço;
+- quando as fontes divergem muito, é o do INEP que fica sobre um prédio de
+  ensino (84-90%);
+- nunca cai longe do município declarado.
+
+Cuidados com o INEP: o cadastro é de 2023 (escolas novas de 2024 não estão
+nele); 20-35% das nossas escolas não têm ponto no INEP; o próprio INEP
+avisa que a precisão é heterogênea (a escola marca o ponto num aplicativo);
+há pontos repetidos por várias escolas.
+
+** Regras implementadas
+
+No ETL =scripts/commands/escolas_dados__cruzar_inep_cnefe.py= (função
+=escolher_coordenada=), depois do casamento com o CNEFE:
+
+1. *INEP primeiro.* Se a escola tem ponto no cadastro do INEP, ele é a
+   coordenada final. O status diz quanto o CNEFE confirma:
+
+   | Status            | Distância até o ponto do CNEFE             |
+   |-------------------+--------------------------------------------|
+   | =inep_confirmado= | até 300 m                                  |
+   | =inep_proximo=    | de 300 m a 1 km                            |
+   | =inep_divergente= | mais de 1 km                               |
+   | =inep_sem_cnefe=  | o casamento não achou ponto no CNEFE       |
+
+2. *Ponto do INEP repetido.* Se o ponto do INEP é exatamente o mesmo de 5
+   ou mais escolas do cadastro (marcação genérica) e o CNEFE tem ponto para
+   a escola, usa-se o do CNEFE. O alerta =ponto_inep_repetido= marca os dois
+   casos (com e sem ponto do CNEFE).
+3. *CNEFE como reserva.* Sem ponto no INEP, vale o casamento com o CNEFE:
+   =cep_numero=, =nome_exato= ou =nome_ajustado=, com os mesmos alertas.
+4. *Sem ponto.* Nenhuma das fontes: =sem_correspondencia=, só na contagem.
+
+Constantes no topo do script: =CONFIRMADO_ATE_KM= (0,3),
+=DIVERGENTE_ACIMA_KM= (1,0), =PONTO_INEP_REPETIDO= (5).
+
+O nome do arquivo de saida
+(=escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=) ficou o mesmo
+por compatibilidade, embora agora traga as duas fontes.
+
+** Colunas do CSV principal
+
+| Coluna                      | Conteúdo                                                  |
+|-----------------------------+-----------------------------------------------------------|
+| =LATITUDE=, =LONGITUDE=     | coordenada final                                          |
+| =FONTE_COORDENADA=          | =inep=, =cnefe= ou vazio                                  |
+| =STATUS_GEOLOCALIZACAO=     | status final (tabela acima, mais os do CNEFE)             |
+| =STATUS_CNEFE=              | resultado do casamento com o CNEFE, sempre preenchido     |
+| =MOTIVO_GEOLOCALIZACAO=     | motivo de o CNEFE não ter achado ponto                    |
+| =ALERTAS_GEOLOCALIZACAO=    | =cep_generico=, =varios_no_endereco=,                     |
+|                             | =ponto_compartilhado=, =ponto_inep_repetido=              |
+| =DIST_INEP_CNEFE_KM=        | distância entre os dois pontos, quando há os dois         |
+| =INEP_LATITUDE/LONGITUDE=   | ponto do cadastro do INEP                                 |
+| =INEP_ESCOLAS_NO_PONTO=     | quantas escolas do cadastro têm o mesmo ponto             |
+| =CNEFE_LATITUDE/LONGITUDE=  | ponto do CNEFE escolhido pelo casamento                   |
+| =CNEFE_COD_UNICO_ENDERECO=, | identificação do ponto do CNEFE                           |
+| =CNEFE_NV_GEO_COORD=,       |                                                           |
+| =CNEFE_DSC_ESTABELECIMENTO= |                                                           |
+
+O CSV de auditoria (=data/auditoria/escolas_inep_x_cnefe_2024.csv=)
+ganhou as mesmas colunas de coordenada final, INEP e distância.
+
+** Resultados (26/10/2026)
+
+| Status                | AM    | PA    | SP     |
+|-----------------------+-------+-------+--------|
+| =inep_confirmado=     | 1.364 | 3.264 | 15.935 |
+| =inep_proximo=        |    40 |    96 |    342 |
+| =inep_divergente=     |   149 |   253 |    261 |
+| =inep_sem_cnefe=      | 2.410 | 5.834 | 12.511 |
+| =cep_numero= (CNEFE)  |    75 |   142 |  1.817 |
+| =nome_exato= (CNEFE)  |   131 |    50 |     67 |
+| =nome_ajustado= (CNEFE)|  344 |   331 |    127 |
+| =sem_correspondencia= | 1.668 | 1.878 |  2.803 |
+| Total                 | 6.181 |11.848 | 33.863 |
+| Com ponto             | 73,0% | 84,1% |  91,7% |
+
+- Ponto do INEP: AM 3.963, PA 9.447, SP 29.049. Ponto do CNEFE (reserva):
+  AM 550, PA 523, SP 2.011.
+- Ponto do INEP repetido trocado pelo do CNEFE: AM 7, SP 12. Repetido sem
+  ponto do CNEFE (fica o do INEP, com alerta): AM 27.
+- A cobertura é a mesma da primeira versão do mapa de auditoria; o que
+  muda é qual ponto é usado. As 663 escolas =inep_divergente= deixaram de
+  ficar no ponto que o casamento com o CNEFE tinha escolhido.
+
+** Mudanças nos mapas
+
+- *Mapa do usuário final* (=web/escolas_mapa.html=): "Confiança da
+  coordenada" passou a ter os sete status, com cores e filtro; a ficha da
+  escola mostra a origem da coordenada e a distância INEP × CNEFE. Gerador
+  =scripts/commands/escolas_mapa__gerar_dados_web.py= leva
+  =FONTE_COORDENADA= e =DIST_INEP_CNEFE_KM=.
+- *Mapa de auditoria* (=web/escolas_auditoria.html=): as origens são os
+  mesmos sete status, com as mesmas cores; ao clicar numa escola com as
+  duas fontes, a linha tracejada liga o ponto usado ao da outra fonte. O
+  gerador =scripts/commands/escolas_mapa__gerar_dados_auditoria.py= passou
+  a ler a escolha já feita pelo ETL (não lê mais o GeoPackage do geobr).
+
+Cores (iguais nos dois mapas):
+
+| Status            | Cor         |
+|-------------------+-------------|
+| =inep_confirmado= | verde       |
+| =inep_proximo=    | verde-claro |
+| =inep_sem_cnefe=  | roxo        |
+| =inep_divergente= | laranja     |
+| =cep_numero=      | azul        |
+| =nome_exato=      | ciano       |
+| =nome_ajustado=   | amarelo     |
+
+** Como reproduzir
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+#+end_src
+
 * Próximos passos
 
-0. Conferir no mapa de auditoria as escolas com CNEFE × INEP a mais de
-   50 km (AM 42, PA 29) e decidir se a coordenada do INEP também entra no
-   mapa do usuário final.
+0. Conferir no mapa de auditoria uma amostra das =inep_divergente= (filtro
+   "INEP × CNEFE a mais de N km") para confirmar, caso a caso, que o ponto
+   do INEP é o certo; e as =ponto_inep_repetido=.
+0b. Quando o geobr publicar um cadastro mais novo que o de 2023, atualizar
+   =ANOS= em =ipea_geobr_escolas__baixar_dados.py= e =ARQUIVO_INEP_COORDENADAS=
+   no ETL.
 1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
    palavra e pelos alertas.
 2. Analisar o motivo =nome_nao_encontrado= (maior grupo sem coordenada):
@@ -789,5 +984,6 @@ Leitura:
    =DSC_LOCALIDADE= / =NOM_SEGLOGR= do CNEFE.
 4. Confirmar nos dicionários oficiais: =TP_LOCALIZACAO_DIFERENCIADA= (INEP),
    =NV_GEO_COORD= e =COD_ESPECIE= (CNEFE).
-5. Atualizar docs 06 e 07, que ainda descrevem as camadas antigas.
+5. Feito (26/10/2026): docs 05, 06 e 07 atualizados com notas apontando
+   para este documento.
 6. Depois de estabilizar AM e PA, expandir para outras UFs.

@@ -30,6 +30,22 @@ Este é um documento *vivo*, mantido entre sessões de trabalho:
 
 * Estado atual (resumo rápido)
 
+*Atualização (26/10/2026) - estado atual:*
+
+- UFs processadas: SP, AM e PA (branch =mapeamento-intersetorial-nacional=,
+  já mesclada na =main=).
+- Coordenada de cada escola: primeiro a do *Catálogo de Escolas do INEP*
+  (cadastro de 2023, via geobr/Ipea, ligado pelo código da escola),
+  conferida com o CNEFE; o CNEFE só para quem não tem ponto no INEP.
+  Escolas com ponto: AM 73,0%, PA 84,1%, SP 91,7%.
+- Dois mapas publicados no GitHub Pages: =web/escolas_mapa.html= (usuário
+  final) e =web/escolas_auditoria.html= (origem de cada coordenada).
+- Análise, regras e números em [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]]. Os itens abaixo são o histórico do
+  piloto SP (as camadas =alta=/=media=/=baixa= e os 81,1% citados foram
+  substituídos).
+
+*Histórico (até 2026-09-18):*
+
 - Fase em andamento: *Fase 1 - Obtenção de Dados* (Censo Escolar e CNEFE).
 - Já decidido: ano de referência =2024= para os microdados do Censo
   Escolar; geolocalização passa a ser *ponto exato por escola via CNEFE*
@@ -101,7 +117,16 @@ ideia era agregar (contar) escolas por município e plotar um marcador
 malha =BR_municipios_2024_minima.geojson=. Essa limitação deixou de existir
 com a descoberta do CNEFE (ver decisão abaixo).
 
-** Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)
+** Estratégia de geolocalização: ponto do INEP, conferido com o CNEFE (26/10/2026)
+
+A coordenada principal passou a ser a do Catálogo de Escolas do INEP, que
+o geobr (Ipea) redistribui com o código da escola (=code_school= =
+=CO_ENTIDADE=). O casamento com o CNEFE, descrito na decisão seguinte,
+virou reserva (escolas sem ponto no INEP) e conferência (distância entre
+os dois pontos). Motivo, medições e regras em [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]], seção "Qual
+coordenada usar: INEP primeiro, CNEFE como reserva".
+
+** SUPERSEDIDA (26/10/2026) - Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)
 
 Encontramos e verificamos uma fonte com latitude/longitude real por
 endereço, incluindo estabelecimentos de ensino: o *CNEFE* do IBGE (Censo

@@ -1,13 +1,43 @@
 #!/usr/bin/env python3
-"""ETL: cruza o Censo Escolar do INEP com o CNEFE do IBGE e gera escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv.
+"""ETL: georreferencia as escolas do Censo Escolar (INEP) e gera escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv.
 
-Le os dados ja baixados por inep_censo_escolar__baixar_dados.py e por
-ibge_cnefe__baixar_dados.py (script separado deste - o download nao faz
-nenhuma transformacao) e produz uma linha por escola do Censo Escolar,
-enriquecida com LATITUDE/LONGITUDE do CNEFE quando uma correspondencia
-confiavel e encontrada.
+Le os dados ja baixados por inep_censo_escolar__baixar_dados.py,
+ibge_cnefe__baixar_dados.py e ipea_geobr_escolas__baixar_dados.py (scripts
+separados deste - o download nao faz nenhuma transformacao) e produz uma
+linha por escola do Censo Escolar, com LATITUDE/LONGITUDE de uma de duas
+fontes (o nome do arquivo de saida ficou o mesmo por compatibilidade):
 
-Estrategia de casamento em estagios (decisoes e numeros em
+    1. Catalogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea),
+       ligado pelo codigo da escola (code_school = CO_ENTIDADE). E a fonte
+       principal: nao depende de casamento por nome ou endereco, e nas
+       escolas em que as duas fontes divergem muito o ponto do INEP e o que
+       fica sobre um predio de ensino (ver doc 08, "Qual coordenada usar").
+    2. CNEFE 2022 (IBGE), pelo casamento em estagios descrito abaixo. E a
+       reserva, para quem nao tem coordenada no INEP, e serve para
+       confirmar o ponto do INEP quando as duas existem.
+
+Status final (STATUS_GEOLOCALIZACAO):
+
+    inep_confirmado  - ponto do INEP; o CNEFE tem ponto a ate 300 m.
+    inep_proximo     - ponto do INEP; o do CNEFE esta entre 300 m e 1 km.
+    inep_divergente  - ponto do INEP; o do CNEFE esta a mais de 1 km (na
+                       maioria, o casamento com o CNEFE pegou outra escola).
+    inep_sem_cnefe   - ponto do INEP; o casamento nao achou ponto no CNEFE.
+    cep_numero, nome_exato, nome_ajustado
+                     - ponto do CNEFE, para quem nao tem coordenada no INEP
+                       (ou tem um ponto do INEP repetido, ver abaixo).
+    sem_correspondencia - nenhuma das duas fontes tem ponto.
+
+Ponto do INEP repetido: quando 5 ou mais escolas do cadastro do INEP tem
+exatamente o mesmo ponto (marcacao generica, como a sede da secretaria) e
+o CNEFE tem ponto para a escola, usa-se o do CNEFE; o alerta
+ponto_inep_repetido marca os dois casos.
+
+O resultado do casamento com o CNEFE fica sempre em STATUS_CNEFE, com o
+ponto em CNEFE_LATITUDE/CNEFE_LONGITUDE, mesmo quando a coordenada final
+e a do INEP.
+
+Estrategia de casamento com o CNEFE em estagios (decisoes e numeros em
 docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org). A regra
 geral e conservadora: escola sem coordenada e melhor que escola no lugar
 errado.
@@ -42,14 +72,17 @@ so marcam o que merece conferencia:
                            endereco exato.
     ponto_compartilhado  - o mesmo ponto do CNEFE foi dado a mais de uma
                            escola do INEP.
+    ponto_inep_repetido  - o ponto do INEP e o mesmo de 5 ou mais escolas do
+                           cadastro do INEP.
 
 Saidas:
     data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv
         todas as colunas do INEP + as colunas de geolocalizacao.
     data/auditoria/escolas_inep_x_cnefe_2024.csv
         uma linha por escola do INEP com o ponto do CNEFE escolhido lado a
-        lado (ids, nomes, nucleos, enderecos, estagio, motivo, alertas) -
-        e o arquivo para auditar o casamento.
+        lado (ids, nomes, nucleos, enderecos, estagio, motivo, alertas), o
+        ponto do INEP e a distancia entre os dois - e o arquivo para
+        auditar o casamento e a escolha da coordenada.
     data/auditoria/cnefe_ensino_nao_usados_2024.csv
         pontos de ensino do CNEFE que nenhuma escola usou.
 
@@ -76,6 +109,7 @@ import argparse
 import collections
 import csv
 import difflib
+import math
 import re
 import unicodedata
 from pathlib import Path
@@ -85,6 +119,7 @@ DIR_INEP = RAIZ / "data" / "inep_censo_escolar" / "zipfiles"
 DIR_CNEFE = RAIZ / "data" / "ibge_cnefe" / "zipfiles"
 SAIDA_PADRAO = RAIZ / "data" / "escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv"
 DIR_AUDITORIA = RAIZ / "data" / "auditoria"
+ARQUIVO_INEP_COORDENADAS = RAIZ / "data" / "ipea_geobr_escolas" / "schools_2023.gpkg"
 
 ANO_CENSO_ESCOLAR = "2024"
 
@@ -98,7 +133,17 @@ UFS = {
 }
 CODIGO_PARA_SIGLA = {codigo: sigla for sigla, codigo in UFS.items()}
 
-STATUS = ["cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia"]
+STATUS_CNEFE = ["cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia"]
+STATUS = [
+    "inep_confirmado", "inep_proximo", "inep_divergente", "inep_sem_cnefe",
+    "cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia",
+]
+
+# Concordancia entre o ponto do INEP e o do CNEFE (ver doc 08)
+CONFIRMADO_ATE_KM = 0.3
+DIVERGENTE_ACIMA_KM = 1.0
+# A partir de quantas escolas no mesmo ponto o ponto do INEP e tratado como generico
+PONTO_INEP_REPETIDO = 5
 
 # Abreviacoes encontradas nos nomes reais do INEP e do CNEFE (AM, PA, SP),
 # expandidas antes de comparar para que "ESC MUN" e "ESCOLA MUNICIPAL"
@@ -136,12 +181,20 @@ PALAVRAS_GENERICAS = {
 COLUNAS_NOVAS = [
     "LATITUDE",
     "LONGITUDE",
+    "FONTE_COORDENADA",
+    "STATUS_GEOLOCALIZACAO",
+    "STATUS_CNEFE",
+    "MOTIVO_GEOLOCALIZACAO",
+    "ALERTAS_GEOLOCALIZACAO",
+    "DIST_INEP_CNEFE_KM",
+    "INEP_LATITUDE",
+    "INEP_LONGITUDE",
+    "INEP_ESCOLAS_NO_PONTO",
+    "CNEFE_LATITUDE",
+    "CNEFE_LONGITUDE",
     "CNEFE_COD_UNICO_ENDERECO",
     "CNEFE_NV_GEO_COORD",
     "CNEFE_DSC_ESTABELECIMENTO",
-    "STATUS_GEOLOCALIZACAO",
-    "MOTIVO_GEOLOCALIZACAO",
-    "ALERTAS_GEOLOCALIZACAO",
 ]
 
 COLUNAS_AUDITORIA = [
@@ -149,11 +202,13 @@ COLUNAS_AUDITORIA = [
     "CO_ENTIDADE", "NO_ENTIDADE", "INEP_NOME_NORMALIZADO", "INEP_NUCLEO_NOME",
     "TP_SITUACAO_FUNCIONAMENTO", "TP_LOCALIZACAO",
     "INEP_ENDERECO", "INEP_CEP", "INEP_NUMERO",
-    "STATUS_GEOLOCALIZACAO", "MOTIVO_GEOLOCALIZACAO", "ALERTAS_GEOLOCALIZACAO",
+    "STATUS_GEOLOCALIZACAO", "FONTE_COORDENADA", "LATITUDE", "LONGITUDE",
+    "STATUS_CNEFE", "MOTIVO_GEOLOCALIZACAO", "ALERTAS_GEOLOCALIZACAO",
     "N_CANDIDATOS", "SIMILARIDADE_NOME",
     "CNEFE_COD_UNICO_ENDERECO", "CNEFE_DSC_ESTABELECIMENTO", "CNEFE_NOME_NORMALIZADO", "CNEFE_NUCLEO_NOME",
     "CNEFE_ENDERECO", "CNEFE_CEP", "CNEFE_NUMERO",
-    "LATITUDE", "LONGITUDE", "CNEFE_NV_GEO_COORD",
+    "CNEFE_LATITUDE", "CNEFE_LONGITUDE", "CNEFE_NV_GEO_COORD",
+    "INEP_LATITUDE", "INEP_LONGITUDE", "INEP_ESCOLAS_NO_PONTO", "DIST_INEP_CNEFE_KM",
 ]
 
 COLUNAS_NAO_USADOS = [
@@ -229,6 +284,71 @@ def normalizar_numero(texto: str) -> str:
     numero fazia "CEP generico + 0" virar casamento exato (228 casos no PA).
     """
     return re.sub(r"\D", "", texto or "").lstrip("0")
+
+
+def distancia_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Distancia em km entre dois pontos (formula de haversine)."""
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dlat, dlon = p2 - p1, math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlon / 2) ** 2
+    return 6371.0 * 2 * math.asin(math.sqrt(a))
+
+
+def carregar_coordenadas_inep(caminho: Path) -> dict:
+    """Le o cadastro de escolas do INEP (geobr) e devolve CO_ENTIDADE -> (lat, lon, escolas_no_ponto).
+
+    Escolas sem geometria no cadastro ficam de fora. escolas_no_ponto conta
+    quantas escolas do cadastro inteiro tem exatamente o mesmo ponto (6
+    casas decimais, ~0,1 m), para detectar marcacoes genericas.
+    """
+    if not caminho.exists():
+        raise SystemExit(
+            "cadastro do INEP nao encontrado em {} - rode antes: "
+            "ipea_geobr_escolas__baixar_dados.py".format(caminho)
+        )
+    import geopandas  # so este passo precisa ler GeoPackage
+
+    cadastro = geopandas.read_file(caminho, columns=["code_school"])
+    cadastro = cadastro[~(cadastro.geometry.is_empty | cadastro.geometry.isna())]
+    pontos = {}
+    for codigo, geometria in zip(cadastro["code_school"], cadastro.geometry):
+        pontos[str(int(codigo))] = (round(geometria.y, 6), round(geometria.x, 6))
+    no_ponto = collections.Counter(pontos.values())
+    return {codigo: (lat, lon, no_ponto[(lat, lon)]) for codigo, (lat, lon) in pontos.items()}
+
+
+def escolher_coordenada(r: dict, inep: tuple) -> dict:
+    """Decide a coordenada final de uma escola a partir do casamento com o CNEFE (r) e do ponto do INEP.
+
+    Devolve as colunas de coordenada final, status, fonte e distancia, e
+    acrescenta o alerta ponto_inep_repetido em r["alertas"] quando for o caso.
+    """
+    registro = r["registro"]
+    cnefe = (float(registro["latitude"]), float(registro["longitude"])) if registro else None
+    final = {"DIST_INEP_CNEFE_KM": "", "INEP_LATITUDE": "", "INEP_LONGITUDE": "", "INEP_ESCOLAS_NO_PONTO": ""}
+
+    if inep is not None:
+        lat, lon, no_ponto = inep
+        final.update(INEP_LATITUDE=lat, INEP_LONGITUDE=lon, INEP_ESCOLAS_NO_PONTO=no_ponto)
+        if no_ponto >= PONTO_INEP_REPETIDO:
+            r["alertas"].append("ponto_inep_repetido")
+        if cnefe is not None:
+            final["DIST_INEP_CNEFE_KM"] = round(distancia_km(lat, lon, *cnefe), 3)
+
+    if inep is not None and not (cnefe is not None and inep[2] >= PONTO_INEP_REPETIDO):
+        if cnefe is None:
+            status = "inep_sem_cnefe"
+        elif final["DIST_INEP_CNEFE_KM"] <= CONFIRMADO_ATE_KM:
+            status = "inep_confirmado"
+        elif final["DIST_INEP_CNEFE_KM"] <= DIVERGENTE_ACIMA_KM:
+            status = "inep_proximo"
+        else:
+            status = "inep_divergente"
+        return dict(final, LATITUDE=inep[0], LONGITUDE=inep[1], FONTE_COORDENADA="inep", STATUS_GEOLOCALIZACAO=status)
+    if cnefe is not None:
+        return dict(final, LATITUDE=registro["latitude"], LONGITUDE=registro["longitude"],
+                    FONTE_COORDENADA="cnefe", STATUS_GEOLOCALIZACAO=r["status"])
+    return dict(final, LATITUDE="", LONGITUDE="", FONTE_COORDENADA="", STATUS_GEOLOCALIZACAO="sem_correspondencia")
 
 
 def endereco_inep(linha: dict) -> str:
@@ -384,7 +504,7 @@ def estagio2_por_nome(escolas_inep: list, cnefe: list, resultado: list, usados: 
                             "n_candidatos": len(candidatos), "nota": None}
 
 
-def processar_uf(uf_sigla: str, escolas_inep: list) -> tuple:
+def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> tuple:
     """Geolocaliza as escolas de uma UF. Devolve (linhas_saida, linhas_auditoria, linhas_nao_usados, contagens)."""
     uf_codigo = UFS[uf_sigla]
     print("[{}] {} escolas no Censo Escolar {}".format(uf_sigla, len(escolas_inep), ANO_CENSO_ESCOLAR))
@@ -422,24 +542,28 @@ def processar_uf(uf_sigla: str, escolas_inep: list) -> tuple:
 
     linhas_saida, linhas_auditoria = [], []
     contagens = collections.Counter()
+    contagens_cnefe = collections.Counter()
     motivos = collections.Counter()
     alertas_total = collections.Counter()
     for escola, r in zip(escolas_inep, resultado):
         registro = r["registro"] or {}
-        contagens[r["status"]] += 1
+        final = escolher_coordenada(r, coordenadas_inep.get(escola["CO_ENTIDADE"]))
+        contagens[final["STATUS_GEOLOCALIZACAO"]] += 1
+        contagens_cnefe[r["status"]] += 1
         if r["motivo"]:
             motivos[r["motivo"]] += 1
         alertas_total.update(r["alertas"])
-        geo = {
-            "LATITUDE": registro.get("latitude", ""),
-            "LONGITUDE": registro.get("longitude", ""),
-            "CNEFE_COD_UNICO_ENDERECO": registro.get("cod_unico", ""),
-            "CNEFE_NV_GEO_COORD": registro.get("nv_geo_coord", ""),
-            "CNEFE_DSC_ESTABELECIMENTO": registro.get("dsc_estabelecimento", ""),
-            "STATUS_GEOLOCALIZACAO": r["status"],
-            "MOTIVO_GEOLOCALIZACAO": r["motivo"],
-            "ALERTAS_GEOLOCALIZACAO": "|".join(r["alertas"]),
-        }
+        geo = dict(
+            final,
+            STATUS_CNEFE=r["status"],
+            MOTIVO_GEOLOCALIZACAO=r["motivo"],
+            ALERTAS_GEOLOCALIZACAO="|".join(r["alertas"]),
+            CNEFE_LATITUDE=registro.get("latitude", ""),
+            CNEFE_LONGITUDE=registro.get("longitude", ""),
+            CNEFE_COD_UNICO_ENDERECO=registro.get("cod_unico", ""),
+            CNEFE_NV_GEO_COORD=registro.get("nv_geo_coord", ""),
+            CNEFE_DSC_ESTABELECIMENTO=registro.get("dsc_estabelecimento", ""),
+        )
         linhas_saida.append(dict(escola, **geo))
         linhas_auditoria.append(dict(
             geo,
@@ -468,8 +592,12 @@ def processar_uf(uf_sigla: str, escolas_inep: list) -> tuple:
     ]
 
     total = len(escolas_inep) or 1
+    print("    casamento com o CNEFE:")
+    for status in STATUS_CNEFE:
+        print("      {:22s} {:6d}  ({:.1f}%)".format(status, contagens_cnefe[status], 100 * contagens_cnefe[status] / total))
+    print("    coordenada final:")
     for status in STATUS:
-        print("    {:22s} {:6d}  ({:.1f}%)".format(status, contagens[status], 100 * contagens[status] / total))
+        print("      {:22s} {:6d}  ({:.1f}%)".format(status, contagens[status], 100 * contagens[status] / total))
     for motivo, quantidade in motivos.most_common():
         print("      motivo {:24s} {:6d}".format(motivo, quantidade))
     for alerta, quantidade in alertas_total.most_common():
@@ -556,11 +684,16 @@ def principal() -> None:
     print("Censo Escolar: {}".format(caminho_inep))
     codigos_uf = {UFS[uf] for uf in ufs_pedidas}
     escolas_por_uf, colunas_inep = carregar_escolas_inep(caminho_inep, codigos_uf)
+    print("Cadastro de escolas do INEP (coordenadas): {}".format(ARQUIVO_INEP_COORDENADAS))
+    coordenadas_inep = carregar_coordenadas_inep(ARQUIVO_INEP_COORDENADAS)
+    print("    {} escolas com coordenada".format(len(coordenadas_inep)))
 
     saida, auditoria, nao_usados = [], [], []
     contagens_totais = collections.Counter()
     for uf in ufs_pedidas:
-        linhas_saida, linhas_auditoria, linhas_nao_usados, contagens = processar_uf(uf, escolas_por_uf[UFS[uf]])
+        linhas_saida, linhas_auditoria, linhas_nao_usados, contagens = processar_uf(
+            uf, escolas_por_uf[UFS[uf]], coordenadas_inep
+        )
         saida += linhas_saida
         auditoria += linhas_auditoria
         nao_usados += linhas_nao_usados

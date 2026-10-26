@@ -12,6 +12,16 @@ poderiam fornecer latitude/longitude de escolas, registra o que cada uma
 realmente entrega (testado, não só documentado), e explica a fonte que
 escolhemos para georreferenciar escolas neste projeto: o *CNEFE* do IBGE.
 
+*Atualização (26/10/2026):* a estratégia mudou. A fonte principal passou a
+ser o *Catálogo de Escolas do INEP* (coordenada por escola, ligada pelo
+código =CO_ENTIDADE=, redistribuída pelo geobr do Ipea); o CNEFE ficou como
+*reserva* (escolas sem coordenada no INEP) e como *conferência* do ponto do
+INEP. A análise, as regras e os números estão em
+[[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]], seções "Qual coordenada usar: INEP primeiro, CNEFE como reserva" e
+seguintes. O restante deste documento é mantido como registro de como
+chegamos ao CNEFE e de como o casamento com ele funciona; os trechos
+superados estão marcados.
+
 É complementar ao plano de marcadores de escolas
 ([[file:05-plano-marcadores-escolas-inep.org][05-plano-marcadores-escolas-inep.org]]), que trata da v1 do recurso
 (agregação por município, usando o Censo Escolar do INEP). Este documento
@@ -35,6 +45,11 @@ o plano registra como pendente na Fase 7.
 - Nenhuma outra fonte oficial pesquisada (MEC, e-MEC, FNDE, dados.gov.br)
   tem um dataset público e baixável em massa com coordenadas de escolas -
   ver panorama completo abaixo.
+- *Estratégia atual (26/10/2026):* coordenada do Catálogo de Escolas do
+  INEP primeiro, conferida com o CNEFE; CNEFE só para quem não tem ponto no
+  INEP. Medimos que, quando as duas fontes divergem muito, o ponto do INEP
+  é o que fica sobre um prédio de ensino em 84-90% dos casos - o erro está
+  no nosso casamento com o CNEFE, não no INEP. Ver [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]].
 
 * Panorama das fontes oficiais pesquisadas
 
@@ -46,9 +61,11 @@ por "Censo Escolar" e "escolas"; tudo que encontramos remete às mesmas
 fontes primárias já listadas aqui, nenhum dataset exclusivo com
 coordenadas. Acesso: https://dados.gov.br
 
-** INEP - Censo Escolar / Catálogo de Escolas
+** INEP - Censo Escolar / Catálogo de Escolas ✅ fonte principal (desde 26/10/2026)
 
-*Sem latitude/longitude pública.* Confirmado de duas formas nesta sessão:
+*Sem latitude/longitude nos microdados; com latitude/longitude no Catálogo
+de Escolas* (ver as correções abaixo). A conclusão original desta seção era
+"sem latitude/longitude pública", confirmada de duas formas:
 
 - Lendo o cabeçalho real dos microdados do Censo Escolar 2024 (426 colunas)
   e 2025 (290 colunas) - nenhuma é =LATITUDE=/=LONGITUDE=; 2024 tem só
@@ -90,7 +107,7 @@ aberto. Fica como pendência caso quisermos investigar mais a fundo (ver
 
 Acesso: https://www.gov.br/fnde
 
-** IBGE - CNEFE ✅ fonte principal
+** IBGE - CNEFE ✅ reserva e conferência (fonte principal até 25/10/2026)
 
 Não é a fonte do Censo Escolar, mas é a fonte com *melhor cobertura
 nacional* confirmada de latitude/longitude de escolas, através do Cadastro
@@ -176,6 +193,10 @@ da "alta" atual) - ver pendências.
     seja suficiente.
 
 * Por que o INEP não publica latitude/longitude por escola
+
+*Correção (25/10/2026):* o INEP não publica a coordenada nos
+*microdados*, mas publica no Catálogo de Escolas (ver seção do INEP acima).
+O texto abaixo vale para os microdados.
 
 O Censo Escolar passou a coletar a localização geográfica das escolas a
 partir de 2018, através de um aplicativo que permite posicionar a escola no
@@ -280,6 +301,10 @@ registrada no Censo 2022.
 
 * Decisão desta sessão (revista)
 
+*Atualização (26/10/2026):* decisão revista de novo - a coordenada
+principal agora é a do Catálogo de Escolas do INEP, e o CNEFE é reserva e
+conferência. Ver [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]].
+
 Mudamos a estratégia: em vez de agregar escolas por município (limitação
 que existia por falta de coordenadas), vamos montar uma base com
 *latitude/longitude por escola*, cruzando o Censo Escolar do INEP com o
@@ -306,6 +331,15 @@ para validar a estratégia de casamento de nomes antes de baixar o Brasil
 inteiro (~27 UFs, vários GB).
 
 * Estratégia do ETL de cruzamento (INEP x CNEFE)
+
+*Atualização:* as camadas por confiança descritas aqui (=alta=, =media=,
+=baixa=, =ambiguo=) foram substituídas pelos estágios =cep_numero=,
+=nome_exato= e =nome_ajustado= (25/10/2026), e o casamento com o CNEFE
+passou a ser a reserva da coordenada do INEP (26/10/2026). As regras atuais
+estão em [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]] e na docstring de
+=scripts/commands/escolas_dados__cruzar_inep_cnefe.py=. O texto abaixo
+registra o raciocínio original, que continua valendo (lista mestra, nome
+sozinho não basta, endereço é chave forte).
 
 Esta seção explica, antes de escrever o código, como o ETL vai decidir
 qual coordenada do CNEFE pertence a qual escola do Censo Escolar - e, mais
@@ -543,6 +577,10 @@ não redescobrir depois):
   por município como opção adicional) - decisão explicitamente adiada.
 
 * Execucao do Script
+
+*Histórico:* saída da versão antiga do ETL (camadas =alta=/=media=/=baixa=,
+só SP). A saída atual está em
+[[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]].
 (venv) wgn@fedora:~/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts$ python3 scripts/commands/escolas_dados__cruzar_inep_cnefe.py 
 Censo Escolar: /home/wgn/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts/data/inep_censo_escolar/zipfiles/microdados_censo_escolar_2024/microdados_censo_escolar_2024_defeso/dados/microdados_ed_basica_2024.csv
 [sp] 33863 escolas no Censo Escolar 2024

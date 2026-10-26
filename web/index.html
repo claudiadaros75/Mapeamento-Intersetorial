@@ -276,10 +276,10 @@
       <!-- Card: Mapa de Escolas Georreferenciadas (Ativo) -->
       <div class="map-card featured">
         <div>
-          <span class="card-badge badge-active">● Disponível Agora (piloto SP)</span>
+          <span class="card-badge badge-active">● Disponível Agora (SP, AM e PA)</span>
           <h3>Mapa de Escolas Georreferenciadas (Censo Escolar 2024)</h3>
           <p>
-            Escolas do Censo Escolar 2024 (INEP) com coordenadas do CNEFE 2022 (IBGE), agrupadas em clusters que se dividem conforme o zoom.
+            Escolas do Censo Escolar 2024 (INEP) com coordenadas do Catálogo de Escolas do INEP, conferidas com o CNEFE 2022 (IBGE), que também cobre as escolas sem ponto no INEP. Agrupadas em clusters que se dividem conforme o zoom.
             Cores por rede de ensino ou por confiança da coordenada, filtros por rede, localização e situação, e ficha da escola com links para OpenStreetMap e Google Maps.
           </p>
           <div class="tech-tags">
@@ -288,6 +288,7 @@
             <span class="tech-tag">Canvas</span>
             <span class="tech-tag">INEP</span>
             <span class="tech-tag">CNEFE</span>
+            <span class="tech-tag">geobr</span>
           </div>
         </div>
         <a href="escolas_mapa.html" class="btn-open-map">
@@ -301,8 +302,8 @@
           <span class="card-badge badge-active">● Disponível Agora (SP, AM e PA)</span>
           <h3>Auditoria do Georreferenciamento das Escolas</h3>
           <p>
-            Mostra de onde veio a coordenada de cada escola: nível 1 (CEP + número no CNEFE), nível 2a/2b (nome exato/ajustado + município no CNEFE)
-            ou Catálogo de Escolas do INEP. Destaca os pontos fora do município declarado e a distância entre o ponto do CNEFE e o do INEP.
+            Mostra de onde veio a coordenada de cada escola: Catálogo de Escolas do INEP (confirmado, próximo ou divergente do CNEFE)
+            ou, para quem não tem ponto no INEP, o casamento com o CNEFE (nível 1, 2a ou 2b). Destaca os pontos fora do município declarado e a distância entre o ponto do INEP e o do CNEFE.
           </p>
           <div class="tech-tags">
             <span class="tech-tag">Leaflet.js</span>

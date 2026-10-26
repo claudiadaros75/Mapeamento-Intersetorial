@@ -6,6 +6,13 @@
 
 * Objetivo deste relatório
 
+*Nota (26/10/2026):* este relatório é o registro de encerramento do
+piloto SP e não é mais atualizado. Desde então: o casamento com o CNEFE foi
+refeito em estágios (=cep_numero=, =nome_exato=, =nome_ajustado=), AM e PA
+foram incluídos e a coordenada principal passou a ser a do Catálogo de
+Escolas do INEP, com o CNEFE como reserva e conferência. Estado atual em
+[[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]].
+
 Fechar o ciclo de trabalho desta sessão: sair de "não temos coordenada de
 escola nenhuma fonte oficial confirmada" até um piloto funcionando que
 geolocaliza escolas reais do Censo Escolar usando dados do IBGE, com

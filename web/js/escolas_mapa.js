@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Mapa de Escolas Georreferenciadas (Censo Escolar 2024 + CNEFE 2022)
+ * Mapa de Escolas Georreferenciadas (Censo Escolar 2024 + Catálogo de Escolas do INEP + CNEFE 2022)
  * ============================================================================
  *
  * Cópia de app.js (Explorador de Malhas do IBGE), mantida separada para que o
@@ -799,7 +799,7 @@ updateTilePyramidStats();
 
 
 // ============================================================================
-// PASSO 11: Camada de Escolas (Censo Escolar 2024 + CNEFE 2022)
+// PASSO 11: Camada de Escolas (Censo Escolar 2024 + coordenadas do INEP e do CNEFE 2022)
 // ============================================================================
 // Os dados vêm de web/data/escolas/, gerados por
 // scripts/commands/escolas_mapa__gerar_dados_web.py (um JSON leve por UF).
@@ -820,11 +820,17 @@ const REDE_ENSINO = {
   "4": { nome: "Privada", cor: "#9333ea" },
 };
 
-// Estágios do ETL (docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org)
+// Origem e confiança da coordenada (docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org):
+// primeiro o Catálogo de Escolas do INEP, conferido com o CNEFE; o CNEFE só
+// para quem não tem coordenada no INEP.
 const CONFIANCA_GEO = {
-  cep_numero: { nome: "Estágio 1 (município + CEP + número)", cor: "#15803d" },
-  nome_exato: { nome: "Estágio 2a (nome exato, único no município)", cor: "#2563eb" },
-  nome_ajustado: { nome: "Estágio 2b (nome ajustado, único no município)", cor: "#d4a106" },
+  inep_confirmado: { nome: "INEP, confirmado pelo CNEFE (até 300 m)", curto: "INEP confirmado", cor: "#15803d" },
+  inep_proximo: { nome: "INEP, CNEFE a 300 m-1 km", curto: "INEP próximo", cor: "#65a30d" },
+  inep_sem_cnefe: { nome: "INEP, sem ponto no CNEFE para conferir", curto: "INEP sem CNEFE", cor: "#9333ea" },
+  inep_divergente: { nome: "INEP, CNEFE a mais de 1 km", curto: "INEP divergente", cor: "#ea580c" },
+  cep_numero: { nome: "CNEFE: município + CEP + número", curto: "CNEFE CEP + número", cor: "#2563eb" },
+  nome_exato: { nome: "CNEFE: nome exato, único no município", curto: "CNEFE nome exato", cor: "#0891b2" },
+  nome_ajustado: { nome: "CNEFE: nome ajustado, único no município", curto: "CNEFE nome ajustado", cor: "#d4a106" },
 };
 
 const LOCALIZACAO = { "1": "Urbana", "2": "Rural" };
@@ -850,7 +856,7 @@ const CNEFE_NIVEL_COORD = {
 // Filtros da barra lateral; "padrao" lista as opções marcadas ao abrir a página
 const ESCOLAS_FILTROS = [
   { campo: "TP_DEPENDENCIA", titulo: "Rede de ensino", opcoes: mapearNomes(REDE_ENSINO) },
-  { campo: "STATUS_GEOLOCALIZACAO", titulo: "Confiança da coordenada", opcoes: { cep_numero: "Estágio 1 (CEP + número)", nome_exato: "Estágio 2a (nome exato)", nome_ajustado: "Estágio 2b (nome ajustado)" } },
+  { campo: "STATUS_GEOLOCALIZACAO", titulo: "Confiança da coordenada", opcoes: Object.fromEntries(Object.entries(CONFIANCA_GEO).map(([chave, item]) => [chave, item.curto])) },
   { campo: "TP_LOCALIZACAO", titulo: "Localização", opcoes: LOCALIZACAO },
   { campo: "TP_SITUACAO_FUNCIONAMENTO", titulo: "Situação", opcoes: SITUACAO_FUNCIONAMENTO, padrao: ["1"] },
 ];
@@ -1133,7 +1139,8 @@ function htmlEscola(escola, comTitulo) {
     ["Município", `${escola.NO_MUNICIPIO} - ${escola.SG_UF}`],
     ["Endereço (Censo)", escola.ENDERECO_CENSO],
     ["Nome no CNEFE", escola.CNEFE_DSC_ESTABELECIMENTO],
-    ["Confiança", confianca.nome || escola.STATUS_GEOLOCALIZACAO],
+    ["Origem da coordenada", confianca.nome || escola.STATUS_GEOLOCALIZACAO],
+    ["Distância INEP × CNEFE", escola.DIST_INEP_CNEFE_KM != null ? `${escola.DIST_INEP_CNEFE_KM.toLocaleString("pt-BR")} km` : "-"],
     ["Alertas", escola.ALERTAS_GEOLOCALIZACAO ? escola.ALERTAS_GEOLOCALIZACAO.split("|").join(", ") : "-"],
     ["Nível CNEFE", nivel],
     ["Coordenadas", `${lat.toFixed(6)}, ${lng.toFixed(6)}`],
@@ -1186,7 +1193,7 @@ function renderResumoEscolas() {
       <span class="math-label">Escolas no Censo (UFs marcadas):</span>
       <span class="math-value">${total.toLocaleString("pt-BR")}</span>
     </div>
-    <div class="math-row" title="Status sem_correspondencia no ETL: estas escolas não aparecem no mapa">
+    <div class="math-row" title="Status sem_correspondencia no ETL (sem ponto no INEP nem no CNEFE): estas escolas não aparecem no mapa">
       <span class="math-label">Sem coordenada (fora do mapa):</span>
       <span class="math-value">${semCoordenada.toLocaleString("pt-BR")}</span>
     </div>`;

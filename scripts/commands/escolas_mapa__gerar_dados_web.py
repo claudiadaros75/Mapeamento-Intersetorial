@@ -6,14 +6,15 @@ Le o CSV do ETL (data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv,
 
     web/data/escolas/escolas_<UF>_2024.json
 
-so com as escolas que tem coordenada (status cep_numero/nome_exato/nome_ajustado) e so com as
-colunas usadas no mapa. O formato e colunar compacto - uma lista de campos e
+so com as escolas que tem coordenada (do INEP ou do CNEFE, ver
+STATUS_COM_COORDENADA) e so com as colunas usadas no mapa. O formato e colunar compacto - uma lista de campos e
 uma lista de linhas - para o arquivo ficar pequeno:
 
     {"uf": "SP", "campos": ["CO_ENTIDADE", ...], "escolas": [[...], ...]}
 
 Grava tambem web/data/escolas/indice.json com as UFs disponiveis e, por UF,
-quantas escolas ficaram de fora do mapa (sem_correspondencia), para
+quantas escolas ficaram de fora do mapa (sem_correspondencia: sem ponto no
+INEP nem no CNEFE), para
 que a pagina mostre esse numero em vez de esconder as escolas sem coordenada.
 
 Uso:
@@ -43,6 +44,8 @@ CAMPOS = [
     "ENDERECO_CENSO",
     "QT_MAT_BAS",
     "STATUS_GEOLOCALIZACAO",
+    "FONTE_COORDENADA",
+    "DIST_INEP_CNEFE_KM",
     "ALERTAS_GEOLOCALIZACAO",
     "CNEFE_NV_GEO_COORD",
     "CNEFE_DSC_ESTABELECIMENTO",
@@ -50,7 +53,10 @@ CAMPOS = [
     "LONGITUDE",
 ]
 CAMPOS_INTEIROS = {"TP_DEPENDENCIA", "TP_LOCALIZACAO", "TP_SITUACAO_FUNCIONAMENTO", "QT_MAT_BAS", "CNEFE_NV_GEO_COORD"}
-STATUS_COM_COORDENADA = {"cep_numero", "nome_exato", "nome_ajustado"}
+STATUS_COM_COORDENADA = {
+    "inep_confirmado", "inep_proximo", "inep_divergente", "inep_sem_cnefe",
+    "cep_numero", "nome_exato", "nome_ajustado",
+}
 
 
 def montar_endereco(linha: dict) -> str:
@@ -72,6 +78,8 @@ def valor_web(campo: str, linha: dict):
     valor = linha[campo].strip()
     if campo in ("LATITUDE", "LONGITUDE"):
         return round(float(valor), 6)
+    if campo == "DIST_INEP_CNEFE_KM":
+        return round(float(valor), 3) if valor else None
     if campo in CAMPOS_INTEIROS:
         return int(valor) if valor else None
     return valor
