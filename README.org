@@ -1,4 +1,4 @@
-#+TITLE: Utilização e Reuso de dados abertos
+#+TITLE: Mapeamento Intersetorial com Uso e Reuso de dados abertos
 #+AUTHOR: Projeto de aprendizagem
 #+EMAIL: 
 #+LANGUAGE: pt-br
@@ -7,9 +7,7 @@
 
 * Sobre o projeto
 
-Este projeto é uma oportunidade de ação social: um exercício cívico que
-cumpre os objetivos da política de dados abertos, que são justamente a
-*utilização* e o *reuso* dos dados públicos disponibilizados por fontes
+Este projeto é uma oportunidade de ação social, um exercício cívico alinhado com os objetivos da política de dados abertos, que preconizam *utilização* e o *reuso* dos dados públicos e abertos disponibilizados por fontes
 oficiais, como o IBGE e o Censo Escolar do INEP.
 
 Inicialmente, o projeto estudou o georreferenciamento e a análise
@@ -19,13 +17,24 @@ conceitos fundamentais de cartografia, sistemas de coordenadas, projeções
 e manipulação de dados geoespaciais, documentando todo o aprendizado em
 arquivos Org (formato *org-mode* do Emacs).
 
-A partir de agora, o projeto passa a apresentar alguns painéis abertos já
-existentes e os seus respectivos microdados (veja o inventário em
+Esta etapa cumpre um importante objetivo que é apresentação dos dados em mapas cujos polígonos são oficiais, provenientes dos conjuntos de dados oficiais do IBGE.
+
+A segunda etapa foi viabilizar através do github actions o depósito de todos os artefatos gerados no Zenodo que é um fornecedor de doi (digital object identification) tornando os trabalhos desenvolvidos aqui no github citáveis em trabalhos acadêmicos.
+
+No momento estamos trabalhando nas seguintes etapas:
+ 1) incluir conjunto de dados do censo escolar INEP 2025
+ 2) apresentar escolas plotadas no mapa nacionalmente com a melhor latitude e longitude possível
+ 3)
+
+Para efeitos de demonstração da riqueza e a grande disponibilidade dos dados abertos são apresentados alguns painéis de dados abertos já existentes e os seus respectivos microdados (veja o inventário em
 =docs/paines-publicos.org=), trabalhando as duas dimensões dos dados
 abertos:
 
+Para efeitos de conceituação:
+
 - *Utilização*: consultar e interpretar os painéis abertos, usando os
   dados da forma como já são publicados.
+
 - *Reuso*: manipular os microdados respectivos de cada painel para
   produzir novas análises, cruzamentos e visualizações, como os mapas
   georreferenciados deste projeto.
@@ -58,6 +67,8 @@ dados:
 
 1. *Malhas territoriais do IBGE* — a base geográfica (municípios, UFs e
    regiões) sobre a qual os demais dados são georreferenciados.
+   Os conjuntos de dados das malhas territoriais do IBGE podem ser acessados [[https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais.html][aqui]], as publicações oficiais podem ser acessadas [[https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=publicacoes][aqui]].
+   As publicações oficiais
 2. *Censo Escolar do INEP* — dados de escolas, matrículas e docentes da
    educação básica.
 3. *Organizações da Sociedade Civil (OSCs) do IPEA* — dados do Mapa das
@@ -277,6 +288,7 @@ georef-artifacts/
 `-- .venv/                  ; ambiente virtual Python (não versionado)
 #+end_src
 
+
 * Roteiro de estudo
 
 O roteiro evolui conforme o projeto avança. Os primeiros passos são:
@@ -326,3 +338,33 @@ completo está no arquivo [[./LICENSE][LICENSE]].
 
 Os dados brutos baixados das fontes oficiais (IBGE, INEP, IPEA) seguem
 as condições de uso definidas por cada órgão.
+* rascunho
+** Temos escolas sem ponto?
+   Estudar sobre elas (Oportunidade de melhorias no processo de aquisição dos dados abertos)
+** Dados Do INEP
+***  INEP também inclui escolas paralisadas ou extintas
+     (639 no AM, 1.257 no PA e 3.117 em SP)
+*** Existem escolar no mesmo endereço (CEP e Número)? Quantas? Quais?     
+** Dados Do CNEP
+*** Ponto de ensino no CNEFE
+    não aparece como escola no INEP
+    
+  ┌─────┬───────────────────────────┬──────────────────────────┬──────────────┐
+  │     │ Pontos de ensino no CNEFE │ Usados por alguma escola │ Nunca usados │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ AM  │ 7.052                     │ 3.030                    │ 4.020        │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ PA  │ 14.150                    │ 5.986                    │ 8.160        │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ SP  │ 40.746                    │ 23.021                   │ 17.629       │
+  └─────┴───────────────────────────┴──────────────────────────┴──────────────┘
+*** O CNEFE inclui faculdades, autoescolas, cursos livres e até pontos registrados como "ESCOLA DESATIVADA"
+*** Existem escolar no mesmo endereço (CEP e Número)? Quantas? Quais?
+
+
+
+https://www.ibge.gov.br/apps/basescartograficas/#/produtos
+https://www.ibge.gov.br/apps/regioes_geograficas/#/home
+https://www.ibge.gov.br/apps/areas_urbanizadas/#/home
+
+
