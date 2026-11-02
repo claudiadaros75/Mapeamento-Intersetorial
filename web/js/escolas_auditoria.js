@@ -6,11 +6,12 @@
  * Mapa separado do mapa do usuário final (escolas_mapa.js): mostra de onde
  * veio a coordenada de cada escola (STATUS_GEOLOCALIZACAO do ETL).
  *
+ *   endereco_exato CNEFE, nível 1: mesmo CEP + número + rua
+ *   cep_numero     CNEFE, nível 2: mesmo CEP + número, rua diferente
  *   inep_*         ponto do Catálogo de Escolas do INEP (cadastro de 2023,
  *                  via geobr/Ipea), conforme a distância até o ponto do CNEFE
- *   cep_numero     CNEFE, mesmo CEP + número        (escola sem ponto no INEP)
- *   nome_exato     CNEFE, mesmo nome + município    (idem)
- *   nome_ajustado  CNEFE, mesmo núcleo do nome + município (idem)
+ *   nome_exato     CNEFE, nível 3: mesmo nome + município (escola sem ponto no INEP)
+ *   nome_ajustado  CNEFE, nível 4: mesmo núcleo do nome + município (idem)
  *
  * Os dados vêm de web/data/auditoria/ (gerados por
  * scripts/commands/escolas_mapa__gerar_dados_auditoria.py). Os pontos são
@@ -40,19 +41,21 @@ document.getElementById("basemap-select").addEventListener("change", (e) => {
 // ============================================================================
 // Mesmas cores do mapa do usuário final (CONFIANCA_GEO em escolas_mapa.js)
 const ORIGENS = {
+  endereco_exato: { nome: "CNEFE · nível 1, CEP + número + rua", cor: "#1e3a8a" },
+  cep_numero: { nome: "CNEFE · nível 2, CEP + número", cor: "#2563eb" },
   inep_confirmado: { nome: "INEP · confirmado pelo CNEFE (até 300 m)", cor: "#15803d" },
   inep_proximo: { nome: "INEP · CNEFE a 300 m-1 km", cor: "#65a30d" },
   inep_sem_cnefe: { nome: "INEP · sem ponto no CNEFE", cor: "#9333ea" },
   inep_divergente: { nome: "INEP · CNEFE a mais de 1 km", cor: "#ea580c" },
-  cep_numero: { nome: "CNEFE · nível 1, CEP + número", cor: "#2563eb" },
-  nome_exato: { nome: "CNEFE · nível 2a, nome exato + município", cor: "#0891b2" },
-  nome_ajustado: { nome: "CNEFE · nível 2b, nome ajustado + município", cor: "#d4a106" },
+  nome_exato: { nome: "CNEFE · nível 3, nome exato + município", cor: "#0891b2" },
+  nome_ajustado: { nome: "CNEFE · nível 4, nome ajustado + município", cor: "#d4a106" },
 };
 const NOME_FONTE = { inep: "INEP", cnefe: "CNEFE" };
 const STATUS_CNEFE = {
-  cep_numero: "nível 1 (CEP + número)",
-  nome_exato: "nível 2a (nome exato)",
-  nome_ajustado: "nível 2b (nome ajustado)",
+  endereco_exato: "nível 1 (CEP + número + rua)",
+  cep_numero: "nível 2 (CEP + número)",
+  nome_exato: "nível 3 (nome exato)",
+  nome_ajustado: "nível 4 (nome ajustado)",
   sem_correspondencia: "sem correspondência",
 };
 const COR_FORA = "#dc2626";

@@ -16,12 +16,14 @@ e grava web/data/auditoria/auditoria_<UF>_2024.json e indice.json.
 
 A origem de cada ponto e o STATUS_GEOLOCALIZACAO final do ETL:
 
+    endereco_exato, cep_numero
+                   ponto do CNEFE, casamento por endereco (niveis 1 e 2)
     inep_confirmado, inep_proximo, inep_divergente, inep_sem_cnefe
                    ponto do Catalogo de Escolas do INEP, conforme a
                    distancia ate o ponto do CNEFE
-    cep_numero, nome_exato, nome_ajustado
-                   ponto do CNEFE (escola sem coordenada no INEP, ou com
-                   ponto do INEP repetido)
+    nome_exato, nome_ajustado
+                   ponto do CNEFE, casamento por nome (niveis 3 e 4), para
+                   escola sem coordenada no INEP ou com ponto do INEP repetido
     (sem ponto)    sem_correspondencia - entra so na contagem do indice
 
 Para cada ponto, calcula a distancia (km) ate o municipio declarado no

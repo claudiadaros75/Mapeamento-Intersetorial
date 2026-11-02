@@ -55,7 +55,7 @@ CAMPOS = [
 CAMPOS_INTEIROS = {"TP_DEPENDENCIA", "TP_LOCALIZACAO", "TP_SITUACAO_FUNCIONAMENTO", "QT_MAT_BAS", "CNEFE_NV_GEO_COORD"}
 STATUS_COM_COORDENADA = {
     "inep_confirmado", "inep_proximo", "inep_divergente", "inep_sem_cnefe",
-    "cep_numero", "nome_exato", "nome_ajustado",
+    "endereco_exato", "cep_numero", "nome_exato", "nome_ajustado",
 }
 
 

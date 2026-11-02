@@ -8,68 +8,88 @@ linha por escola do Censo Escolar, com LATITUDE/LONGITUDE de uma de duas
 fontes (o nome do arquivo de saida ficou o mesmo por compatibilidade):
 
     1. Catalogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea),
-       ligado pelo codigo da escola (code_school = CO_ENTIDADE). E a fonte
-       principal: nao depende de casamento por nome ou endereco, e nas
-       escolas em que as duas fontes divergem muito o ponto do INEP e o que
-       fica sobre um predio de ensino (ver doc 08, "Qual coordenada usar").
-    2. CNEFE 2022 (IBGE), pelo casamento em estagios descrito abaixo. E a
-       reserva, para quem nao tem coordenada no INEP, e serve para
-       confirmar o ponto do INEP quando as duas existem.
+       ligado pelo codigo da escola (code_school = CO_ENTIDADE): nao
+       depende de casamento por nome ou endereco.
+    2. CNEFE 2022 (IBGE), pelo casamento em niveis descrito abaixo.
+
+Qual das duas vale depende do nivel do casamento com o CNEFE
+(NIVEL_CASAMENTO; decisao de 02/11/2026, ver
+docs/09-revisao-coordenadas-inep-x-cnefe.org):
+
+    niveis 1 e 2 (endereco)  - ponto do CNEFE: o endereco garante que e a
+                               mesma escola, e o CNEFE marca o predio.
+                               Excecao: nivel 2 com CEP generico segue a
+                               regra dos niveis 3 e 4 (no Norte, escolas
+                               diferentes dividem o CEP-base e o numero).
+    niveis 3 e 4 (nome)      - ponto do INEP: o casamento por nome e menos
+                               seguro (nas divergencias > 10 km, o INEP
+                               estava certo em 84-90%, ver doc 08). CNEFE se
+                               a escola nao tem ponto no INEP.
+    sem casamento            - ponto do INEP, quando houver.
 
 Status final (STATUS_GEOLOCALIZACAO):
 
+    endereco_exato, cep_numero
+                     - ponto do CNEFE (niveis 1 e 2; cep_numero tambem
+                       quando o CEP e generico e a escola nao tem ponto
+                       no INEP).
     inep_confirmado  - ponto do INEP; o CNEFE tem ponto a ate 300 m.
     inep_proximo     - ponto do INEP; o do CNEFE esta entre 300 m e 1 km.
     inep_divergente  - ponto do INEP; o do CNEFE esta a mais de 1 km (na
                        maioria, o casamento com o CNEFE pegou outra escola).
     inep_sem_cnefe   - ponto do INEP; o casamento nao achou ponto no CNEFE.
-    cep_numero, nome_exato, nome_ajustado
+    nome_exato, nome_ajustado
                      - ponto do CNEFE, para quem nao tem coordenada no INEP
                        (ou tem um ponto do INEP repetido, ver abaixo).
     sem_correspondencia - nenhuma das duas fontes tem ponto.
 
 Ponto do INEP repetido: quando 5 ou mais escolas do cadastro do INEP tem
 exatamente o mesmo ponto (marcacao generica, como a sede da secretaria) e
-o CNEFE tem ponto para a escola, usa-se o do CNEFE; o alerta
+o CNEFE tem ponto para a escola (niveis 3 e 4), usa-se o do CNEFE; o alerta
 ponto_inep_repetido marca os dois casos.
 
 O resultado do casamento com o CNEFE fica sempre em STATUS_CNEFE, com o
 ponto em CNEFE_LATITUDE/CNEFE_LONGITUDE, mesmo quando a coordenada final
 e a do INEP.
 
-Estrategia de casamento com o CNEFE em estagios (decisoes e numeros em
-docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org). A regra
-geral e conservadora: escola sem coordenada e melhor que escola no lugar
-errado.
+Estrategia de casamento com o CNEFE em niveis (decisoes e numeros em
+docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org e
+docs/09-revisao-coordenadas-inep-x-cnefe.org). A regra geral e
+conservadora: escola sem coordenada e melhor que escola no lugar errado.
 
-    estagio 1 - cep_numero: CO_MUNICIPIO+CO_CEP+NU_ENDERECO (INEP) bate
-             exato com COD_MUNICIPIO+CEP+NUM_ENDERECO (CNEFE). O nome nao
-             precisa bater. Numero "0" conta como sem numero (no CNEFE "0"
-             e "S/N"). Varios pontos no mesmo endereco: escolhe o de nome
+    nivel 1 - endereco_exato: CO_MUNICIPIO+CO_CEP+NU_ENDERECO (INEP) bate
+             exato com COD_MUNICIPIO+CEP+NUM_ENDERECO (CNEFE) e o nome da
+             rua tambem (palavras_logradouro: mesmo conjunto de palavras,
+             abreviacoes expandidas; o tipo - RUA, AVENIDA... - so pesa
+             quando as duas bases o informam).
+    nivel 2 - cep_numero: o mesmo endereco, mas com a rua diferente ou
+             ausente. O nome da escola nao precisa bater em nenhum dos
+             dois. Numero "0" conta como sem numero (no CNEFE "0" e
+             "S/N"). Varios pontos no mesmo endereco: escolhe o de nome
              mais parecido (a posicao e a mesma de qualquer forma). Varias
              escolas do INEP no mesmo endereco podem dividir o ponto (mesmo
              predio).
-    estagio 2a - nome_exato: para quem o estagio 1 nao resolveu, o nome
+    nivel 3 - nome_exato: para quem os niveis 1 e 2 nao resolveram, o nome
              e igual nas duas bases no mesmo municipio, depois de tirar so
              acento, pontuacao e diferenca de maiusculas (normalizar_nome),
              e e unico dos dois lados - um so ponto no CNEFE e uma so
              escola no INEP com aquele nome naquele municipio.
-    estagio 2b - nome_ajustado: a mesma regra do 2a, comparando o "nucleo"
+    nivel 4 - nome_ajustado: a mesma regra do nivel 3, comparando o "nucleo"
              do nome (nucleo_nome: abreviacoes expandidas e palavras
              genericas como ESCOLA/MUNICIPAL/EMEF removidas).
-             Nos estagios 2a e 2b um ponto ja usado em estagio anterior
-             nao e reaproveitado.
-    sem_correspondencia - nenhum estagio resolveu; o motivo (do estagio
-             2b, o ultimo) fica em MOTIVO_GEOLOCALIZACAO.
+             Nos niveis 3 e 4 um ponto ja usado em nivel anterior nao e
+             reaproveitado.
+    sem_correspondencia - nenhum nivel resolveu; o motivo (do nivel 4, o
+             ultimo) fica em MOTIVO_GEOLOCALIZACAO.
 
 Alertas (ALERTAS_GEOLOCALIZACAO, separados por "|") nao tiram a coordenada,
 so marcam o que merece conferencia:
 
-    cep_generico         - estagio 1 com CEP terminado em "000" (CEP-base do
-                           municipio): mesmo numero em ruas diferentes pode
-                           coincidir.
-    varios_no_endereco   - estagio 1 com mais de um ponto do CNEFE no mesmo
-                           endereco exato.
+    cep_generico         - nivel 1 ou 2 com CEP terminado em "000" (CEP-base
+                           do municipio): mesmo numero em ruas diferentes
+                           pode coincidir.
+    varios_no_endereco   - nivel 1 ou 2 com mais de um ponto do CNEFE no
+                           mesmo endereco.
     ponto_compartilhado  - o mesmo ponto do CNEFE foi dado a mais de uma
                            escola do INEP.
     ponto_inep_repetido  - o ponto do INEP e o mesmo de 5 ou mais escolas do
@@ -85,6 +105,16 @@ Saidas:
         auditar o casamento e a escolha da coordenada.
     data/auditoria/cnefe_ensino_nao_usados_2024.csv
         pontos de ensino do CNEFE que nenhuma escola usou.
+    data/inep_catalogo_escolas_2023_marcado.csv
+        copia do Catalogo de Escolas do INEP (so as UFs processadas, com a
+        coordenada do INEP em INEP_LATITUDE/INEP_LONGITUDE), mais o nivel
+        do casamento de cada escola, o ponto do CNEFE ligado, a distancia
+        entre os dois pontos e a fonte da coordenada escolhida.
+    data/cnefe_2022_ensino_marcado.csv
+        copia dos pontos de ensino do CNEFE (todas as colunas originais),
+        mais as escolas do INEP ligadas a cada ponto, o nivel e a
+        distancia - separados por "|" quando o ponto serve a mais de uma
+        escola (mesmo predio).
 
 Cada saida e mesclada por UF: rodar so "am pa" substitui as linhas de AM e
 PA e mantem as das outras UFs que ja estavam no arquivo.
@@ -118,6 +148,8 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 DIR_INEP = RAIZ / "data" / "inep_censo_escolar" / "zipfiles"
 DIR_CNEFE = RAIZ / "data" / "ibge_cnefe" / "zipfiles"
 SAIDA_PADRAO = RAIZ / "data" / "escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv"
+SAIDA_INEP_MARCADO = RAIZ / "data" / "inep_catalogo_escolas_2023_marcado.csv"
+SAIDA_CNEFE_MARCADO = RAIZ / "data" / "cnefe_2022_ensino_marcado.csv"
 DIR_AUDITORIA = RAIZ / "data" / "auditoria"
 ARQUIVO_INEP_COORDENADAS = RAIZ / "data" / "ipea_geobr_escolas" / "schools_2023.gpkg"
 
@@ -133,11 +165,16 @@ UFS = {
 }
 CODIGO_PARA_SIGLA = {codigo: sigla for sigla, codigo in UFS.items()}
 
-STATUS_CNEFE = ["cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia"]
+STATUS_CNEFE = ["endereco_exato", "cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia"]
 STATUS = [
+    "endereco_exato", "cep_numero",
     "inep_confirmado", "inep_proximo", "inep_divergente", "inep_sem_cnefe",
-    "cep_numero", "nome_exato", "nome_ajustado", "sem_correspondencia",
+    "nome_exato", "nome_ajustado", "sem_correspondencia",
 ]
+# Nivel de cada casamento com o CNEFE (coluna NIVEL_CASAMENTO); sem casamento fica vazio
+NIVEL_CASAMENTO = {"endereco_exato": 1, "cep_numero": 2, "nome_exato": 3, "nome_ajustado": 4}
+# Niveis em que a coordenada escolhida e a do CNEFE (o endereco garante a escola)
+NIVEIS_PONTO_CNEFE = {"endereco_exato", "cep_numero"}
 
 # Concordancia entre o ponto do INEP e o do CNEFE (ver doc 08)
 CONFIRMADO_ATE_KM = 0.3
@@ -163,6 +200,24 @@ ABREVIACOES = {
     "VER": "VEREADOR", "VEREAD": "VEREADOR",
 }
 
+# Tipos de logradouro (e suas abreviacoes nas duas bases). So contam como
+# tipo na primeira palavra do endereco; em "ESTRADA", "EST" nao pode virar
+# "ESTADUAL" como nos nomes de escola.
+TIPOS_LOGRADOURO = {
+    "R": "RUA", "RUA": "RUA",
+    "AV": "AVENIDA", "AVN": "AVENIDA", "AVENIDA": "AVENIDA",
+    "TV": "TRAVESSA", "TRAV": "TRAVESSA", "TRAVESSA": "TRAVESSA",
+    "AL": "ALAMEDA", "ALAMEDA": "ALAMEDA",
+    "EST": "ESTRADA", "ESTR": "ESTRADA", "ESTRADA": "ESTRADA",
+    "ROD": "RODOVIA", "RODOVIA": "RODOVIA",
+    "PC": "PRACA", "PCA": "PRACA", "PRACA": "PRACA",
+    "PSG": "PASSAGEM", "PASS": "PASSAGEM", "PASSAGEM": "PASSAGEM",
+    "LG": "LARGO", "LARGO": "LARGO",
+    "VL": "VILA", "VILA": "VILA",
+    "VIELA": "VIELA", "BECO": "BECO", "RAMAL": "RAMAL", "VICINAL": "VICINAL",
+}
+PREPOSICOES = {"DE", "DA", "DO", "DOS", "DAS", "E", "D"}
+
 # Palavras que descrevem o TIPO da escola (e nao QUAL escola e): sao
 # removidas para sobrar o "nucleo" do nome. Inclui as siglas de tipo de
 # escola mais frequentes nas duas bases, titulos (as bases divergem em
@@ -183,6 +238,7 @@ COLUNAS_NOVAS = [
     "LONGITUDE",
     "FONTE_COORDENADA",
     "STATUS_GEOLOCALIZACAO",
+    "NIVEL_CASAMENTO",
     "STATUS_CNEFE",
     "MOTIVO_GEOLOCALIZACAO",
     "ALERTAS_GEOLOCALIZACAO",
@@ -203,7 +259,7 @@ COLUNAS_AUDITORIA = [
     "TP_SITUACAO_FUNCIONAMENTO", "TP_LOCALIZACAO",
     "INEP_ENDERECO", "INEP_CEP", "INEP_NUMERO",
     "STATUS_GEOLOCALIZACAO", "FONTE_COORDENADA", "LATITUDE", "LONGITUDE",
-    "STATUS_CNEFE", "MOTIVO_GEOLOCALIZACAO", "ALERTAS_GEOLOCALIZACAO",
+    "NIVEL_CASAMENTO", "STATUS_CNEFE", "MOTIVO_GEOLOCALIZACAO", "ALERTAS_GEOLOCALIZACAO",
     "N_CANDIDATOS", "SIMILARIDADE_NOME",
     "CNEFE_COD_UNICO_ENDERECO", "CNEFE_DSC_ESTABELECIMENTO", "CNEFE_NOME_NORMALIZADO", "CNEFE_NUCLEO_NOME",
     "CNEFE_ENDERECO", "CNEFE_CEP", "CNEFE_NUMERO",
@@ -215,6 +271,13 @@ COLUNAS_NAO_USADOS = [
     "SG_UF", "COD_MUNICIPIO", "COD_UNICO_ENDERECO", "DSC_ESTABELECIMENTO", "NUCLEO_NOME",
     "ENDERECO", "CEP", "NUM_ENDERECO", "LATITUDE", "LONGITUDE", "NV_GEO_COORD",
 ]
+
+# Colunas acrescentadas as copias marcadas das duas bases primarias
+COLUNAS_MARCADAS_INEP = [
+    "NO_CENSO_ESCOLAR_2024", "NIVEL_CASAMENTO", "STATUS_CNEFE", "CNEFE_COD_UNICO_ENDERECO",
+    "DIST_INEP_CNEFE_KM", "FONTE_COORDENADA", "STATUS_GEOLOCALIZACAO",
+]
+COLUNAS_MARCADAS_CNEFE = ["CO_ENTIDADE", "NIVEL_CASAMENTO", "STATUS_CNEFE", "DIST_INEP_CNEFE_KM"]
 
 
 def cep_generico(cep: str) -> bool:
@@ -286,6 +349,34 @@ def normalizar_numero(texto: str) -> str:
     return re.sub(r"\D", "", texto or "").lstrip("0")
 
 
+def palavras_logradouro(texto: str) -> tuple:
+    """Separa um logradouro em (tipo, conjunto de palavras do nome) para comparar INEP e CNEFE.
+
+    O INEP muitas vezes escreve a rua sem o tipo e com o titulo no fim
+    ("HILARIA MARIA SAO LUIZ IRMA"), e o CNEFE com tipo e titulo na frente
+    ("RUA IRMA HILARIA MARIA SAO LUIZ"); por isso compara-se o conjunto de
+    palavras, sem preposicoes e com abreviacoes expandidas ("DR" ->
+    "DOUTOR"). O tipo e vazio quando a primeira palavra nao e um tipo de
+    logradouro.
+    """
+    palavras = normalizar_nome(texto).split()
+    tipo = ""
+    if palavras and palavras[0] in TIPOS_LOGRADOURO:
+        tipo = TIPOS_LOGRADOURO[palavras.pop(0)]
+    expandidas = []
+    for palavra in palavras:
+        expandidas.extend(ABREVIACOES.get(palavra, palavra).split())
+    return tipo, frozenset(p for p in expandidas if p not in PREPOSICOES)
+
+
+def mesmo_logradouro(a: tuple, b: tuple) -> bool:
+    """Mesma rua: mesmas palavras do nome e, se as duas bases informam o tipo, o mesmo tipo."""
+    (tipo_a, nome_a), (tipo_b, nome_b) = a, b
+    if not (nome_a and nome_b) or nome_a != nome_b:
+        return False
+    return not (tipo_a and tipo_b) or tipo_a == tipo_b
+
+
 def distancia_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Distancia em km entre dois pontos (formula de haversine)."""
     p1, p2 = math.radians(lat1), math.radians(lat2)
@@ -294,12 +385,15 @@ def distancia_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 6371.0 * 2 * math.asin(math.sqrt(a))
 
 
-def carregar_coordenadas_inep(caminho: Path) -> dict:
-    """Le o cadastro de escolas do INEP (geobr) e devolve CO_ENTIDADE -> (lat, lon, escolas_no_ponto).
+def carregar_coordenadas_inep(caminho: Path) -> tuple:
+    """Le o cadastro de escolas do INEP (geobr) e devolve (coordenadas, catalogo, colunas_catalogo).
 
-    Escolas sem geometria no cadastro ficam de fora. escolas_no_ponto conta
-    quantas escolas do cadastro inteiro tem exatamente o mesmo ponto (6
-    casas decimais, ~0,1 m), para detectar marcacoes genericas.
+    coordenadas: CO_ENTIDADE -> (lat, lon, escolas_no_ponto). Escolas sem
+    geometria no cadastro ficam de fora. escolas_no_ponto conta quantas
+    escolas do cadastro inteiro tem exatamente o mesmo ponto (6 casas
+    decimais, ~0,1 m), para detectar marcacoes genericas.
+    catalogo: o cadastro inteiro sem a geometria, uma lista de dicts com o
+    ponto em INEP_LATITUDE/INEP_LONGITUDE, para a copia marcada.
     """
     if not caminho.exists():
         raise SystemExit(
@@ -308,18 +402,28 @@ def carregar_coordenadas_inep(caminho: Path) -> dict:
         )
     import geopandas  # so este passo precisa ler GeoPackage
 
-    cadastro = geopandas.read_file(caminho, columns=["code_school"])
-    cadastro = cadastro[~(cadastro.geometry.is_empty | cadastro.geometry.isna())]
-    pontos = {}
-    for codigo, geometria in zip(cadastro["code_school"], cadastro.geometry):
-        pontos[str(int(codigo))] = (round(geometria.y, 6), round(geometria.x, 6))
+    cadastro = geopandas.read_file(caminho)
+    colunas = [c for c in cadastro.columns if c != "geometry"]
+    pontos, catalogo = {}, []
+    for registro, geometria in zip(cadastro[colunas].astype(object).where(cadastro[colunas].notna(), "")
+                                   .to_dict("records"), cadastro.geometry):
+        registro["code_school"] = str(int(registro["code_school"]))
+        tem_ponto = geometria is not None and not geometria.is_empty
+        if tem_ponto:
+            pontos[registro["code_school"]] = (round(geometria.y, 6), round(geometria.x, 6))
+        lat, lon = pontos[registro["code_school"]] if tem_ponto else ("", "")
+        catalogo.append(dict(registro, SG_UF=registro["abbrev_state"], INEP_LATITUDE=lat, INEP_LONGITUDE=lon))
     no_ponto = collections.Counter(pontos.values())
-    return {codigo: (lat, lon, no_ponto[(lat, lon)]) for codigo, (lat, lon) in pontos.items()}
+    coordenadas = {codigo: (lat, lon, no_ponto[(lat, lon)]) for codigo, (lat, lon) in pontos.items()}
+    return coordenadas, catalogo, ["SG_UF"] + colunas + ["INEP_LATITUDE", "INEP_LONGITUDE"]
 
 
 def escolher_coordenada(r: dict, inep: tuple) -> dict:
     """Decide a coordenada final de uma escola a partir do casamento com o CNEFE (r) e do ponto do INEP.
 
+    Niveis 1 e 2 (endereco): o ponto do CNEFE, salvo o nivel 2 com CEP
+    generico. Demais: o do INEP, salvo se nao existir ou for repetido por
+    varias escolas e o CNEFE tiver ponto.
     Devolve as colunas de coordenada final, status, fonte e distancia, e
     acrescenta o alerta ponto_inep_repetido em r["alertas"] quando for o caso.
     """
@@ -335,6 +439,11 @@ def escolher_coordenada(r: dict, inep: tuple) -> dict:
         if cnefe is not None:
             final["DIST_INEP_CNEFE_KM"] = round(distancia_km(lat, lon, *cnefe), 3)
 
+    endereco_confiavel = r["status"] in NIVEIS_PONTO_CNEFE and not (
+        r["status"] == "cep_numero" and "cep_generico" in r["alertas"])
+    if cnefe is not None and endereco_confiavel:
+        return dict(final, LATITUDE=registro["latitude"], LONGITUDE=registro["longitude"],
+                    FONTE_COORDENADA="cnefe", STATUS_GEOLOCALIZACAO=r["status"])
     if inep is not None and not (cnefe is not None and inep[2] >= PONTO_INEP_REPETIDO):
         if cnefe is None:
             status = "inep_sem_cnefe"
@@ -382,8 +491,11 @@ def carregar_escolas_inep(caminho_csv: Path, codigos_uf: set) -> tuple:
     return por_uf, leitor.fieldnames
 
 
-def carregar_cnefe_ensino(uf_codigo: str, uf_sigla: str) -> list:
-    """Le o CNEFE extraido de uma UF e devolve so os enderecos de estabelecimento de ensino.
+def carregar_cnefe_ensino(uf_codigo: str, uf_sigla: str) -> tuple:
+    """Le o CNEFE extraido de uma UF e devolve (registros, cabecalho) so dos estabelecimentos de ensino.
+
+    Cada registro guarda tambem a linha original ("linha"), para a copia
+    marcada do CNEFE.
 
     COD_ESPECIE = "4" foi inferido empiricamente (ver
     docs/06-georeferenciamento-escolas.org) - o dicionario oficial do CNEFE
@@ -427,13 +539,18 @@ def carregar_cnefe_ensino(uf_codigo: str, uf_sigla: str) -> list:
                     "nv_geo_coord": linha[indice["NV_GEO_COORD"]],
                     "dsc_estabelecimento": dsc,
                     "nucleo": nucleo_nome(dsc),
+                    "logradouro": palavras_logradouro(logradouro),
+                    "linha": linha,
                 }
             )
-    return registros
+    return registros, cabecalho
 
 
-def estagio1_cep_numero(escola: dict, idx_exato: dict):
-    """Estagio 1: municipio + CEP + numero. Devolve (registro, n_candidatos, nota, alertas) ou None."""
+def estagio_endereco(escola: dict, idx_exato: dict):
+    """Niveis 1 e 2: municipio + CEP + numero, com (endereco_exato) ou sem (cep_numero) a mesma rua.
+
+    Devolve (registro, status, n_candidatos, nota, alertas) ou None.
+    """
     cep = normalizar_cep(escola["CO_CEP"])
     numero = normalizar_numero(escola["NU_ENDERECO"])
     if not (cep and numero):
@@ -442,11 +559,16 @@ def estagio1_cep_numero(escola: dict, idx_exato: dict):
     if not candidatos:
         return None
 
+    rua = palavras_logradouro(escola["DS_ENDERECO"])
+    mesma_rua = [c for c in candidatos if mesmo_logradouro(rua, c["logradouro"])]
+    status = "endereco_exato" if mesma_rua else "cep_numero"
+    candidatos = mesma_rua or candidatos
+
     alertas = []
     if cep_generico(cep):
         alertas.append("cep_generico")
     if len(candidatos) == 1:
-        return candidatos[0], 1, similaridade_nome(escola["NO_ENTIDADE"], candidatos[0]["dsc_estabelecimento"]), alertas
+        return candidatos[0], status, 1, similaridade_nome(escola["NO_ENTIDADE"], candidatos[0]["dsc_estabelecimento"]), alertas
     # Mesmo endereco exato para todos - a posicao ja esta certa; o nome so
     # decide qual ponto anotar.
     alertas.append("varios_no_endereco")
@@ -454,15 +576,15 @@ def estagio1_cep_numero(escola: dict, idx_exato: dict):
         ((similaridade_nome(escola["NO_ENTIDADE"], c["dsc_estabelecimento"]), c) for c in candidatos),
         key=lambda par: par[0],
     )
-    return escolhido, len(candidatos), nota, alertas
+    return escolhido, status, len(candidatos), nota, alertas
 
 
 def estagio2_por_nome(escolas_inep: list, cnefe: list, resultado: list, usados: set,
                       chave_nome, status: str, registrar_falhas: bool) -> None:
-    """Estagio 2 (2a nome_exato / 2b nome_ajustado): nome igual e unico dos dois lados no municipio.
+    """Niveis 3 (nome_exato) e 4 (nome_ajustado): nome igual e unico dos dois lados no municipio.
 
-    chave_nome transforma o nome antes de comparar: normalizar_nome no 2a
-    (so acento, pontuacao e caixa) e nucleo_nome no 2b (abreviacoes
+    chave_nome transforma o nome antes de comparar: normalizar_nome no nivel 3
+    (so acento, pontuacao e caixa) e nucleo_nome no nivel 4 (abreviacoes
     expandidas e palavras genericas removidas). Preenche resultado[i] das
     escolas ainda sem resultado e acrescenta os pontos escolhidos a usados,
     para que um estagio seguinte nao os reaproveite. Com
@@ -505,12 +627,16 @@ def estagio2_por_nome(escolas_inep: list, cnefe: list, resultado: list, usados: 
 
 
 def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> tuple:
-    """Geolocaliza as escolas de uma UF. Devolve (linhas_saida, linhas_auditoria, linhas_nao_usados, contagens)."""
+    """Geolocaliza as escolas de uma UF.
+
+    Devolve (linhas_saida, linhas_auditoria, linhas_nao_usados, linhas_cnefe_marcado,
+    colunas_cnefe, contagens).
+    """
     uf_codigo = UFS[uf_sigla]
     print("[{}] {} escolas no Censo Escolar {}".format(uf_sigla, len(escolas_inep), ANO_CENSO_ESCOLAR))
 
     print("    lendo CNEFE de {}...".format(uf_sigla.upper()))
-    cnefe = carregar_cnefe_ensino(uf_codigo, uf_sigla)
+    cnefe, colunas_cnefe = carregar_cnefe_ensino(uf_codigo, uf_sigla)
     print("    {} estabelecimentos de ensino no CNEFE".format(len(cnefe)))
 
     idx_exato = {}
@@ -523,15 +649,15 @@ def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> t
     usados = set()
 
     for i, escola in enumerate(escolas_inep):
-        achado = estagio1_cep_numero(escola, idx_exato)
+        achado = estagio_endereco(escola, idx_exato)
         if achado is not None:
-            registro, n_candidatos, nota, alertas = achado
-            resultado[i] = {"registro": registro, "status": "cep_numero", "motivo": "", "alertas": alertas,
+            registro, status, n_candidatos, nota, alertas = achado
+            resultado[i] = {"registro": registro, "status": status, "motivo": "", "alertas": alertas,
                             "n_candidatos": n_candidatos, "nota": nota}
             usados.add(registro["cod_unico"])
 
-    # Estagio 2a so registra os acertos; quem falha segue para o 2b, que e
-    # o ultimo e por isso define o motivo de quem fica sem coordenada.
+    # O nivel 3 so registra os acertos; quem falha segue para o 4, que e o
+    # ultimo e por isso define o motivo de quem fica sem coordenada.
     estagio2_por_nome(escolas_inep, cnefe, resultado, usados, normalizar_nome, "nome_exato", registrar_falhas=False)
     estagio2_por_nome(escolas_inep, cnefe, resultado, usados, nucleo_nome, "nome_ajustado", registrar_falhas=True)
 
@@ -545,6 +671,7 @@ def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> t
     contagens_cnefe = collections.Counter()
     motivos = collections.Counter()
     alertas_total = collections.Counter()
+    escolas_no_ponto = collections.defaultdict(list)  # cod_unico do CNEFE -> [(CO_ENTIDADE, status, distancia)]
     for escola, r in zip(escolas_inep, resultado):
         registro = r["registro"] or {}
         final = escolher_coordenada(r, coordenadas_inep.get(escola["CO_ENTIDADE"]))
@@ -553,8 +680,12 @@ def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> t
         if r["motivo"]:
             motivos[r["motivo"]] += 1
         alertas_total.update(r["alertas"])
+        if registro:
+            escolas_no_ponto[registro["cod_unico"]].append(
+                (escola["CO_ENTIDADE"], r["status"], final["DIST_INEP_CNEFE_KM"]))
         geo = dict(
             final,
+            NIVEL_CASAMENTO=NIVEL_CASAMENTO.get(r["status"], ""),
             STATUS_CNEFE=r["status"],
             MOTIVO_GEOLOCALIZACAO=r["motivo"],
             ALERTAS_GEOLOCALIZACAO="|".join(r["alertas"]),
@@ -591,6 +722,18 @@ def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> t
         if c["cod_unico"] not in usos
     ]
 
+    linhas_cnefe_marcado = []
+    for c in cnefe:
+        ligadas = escolas_no_ponto.get(c["cod_unico"], [])
+        linhas_cnefe_marcado.append(dict(
+            zip(colunas_cnefe, c["linha"]),
+            SG_UF=uf_sigla.upper(),
+            CO_ENTIDADE="|".join(codigo for codigo, _, _ in ligadas),
+            NIVEL_CASAMENTO="|".join(str(NIVEL_CASAMENTO[status]) for _, status, _ in ligadas),
+            STATUS_CNEFE="|".join(status for _, status, _ in ligadas),
+            DIST_INEP_CNEFE_KM="|".join(str(dist) for _, _, dist in ligadas),
+        ))
+
     total = len(escolas_inep) or 1
     print("    casamento com o CNEFE:")
     for status in STATUS_CNEFE:
@@ -604,7 +747,7 @@ def processar_uf(uf_sigla: str, escolas_inep: list, coordenadas_inep: dict) -> t
         print("      alerta {:24s} {:6d}".format(alerta, quantidade))
     print("    pontos do CNEFE usados: {} | nao usados: {} | usados por mais de uma escola: {}".format(
         len(usos), len(linhas_nao_usados), sum(1 for n in usos.values() if n > 1)))
-    return linhas_saida, linhas_auditoria, linhas_nao_usados, contagens
+    return linhas_saida, linhas_auditoria, linhas_nao_usados, linhas_cnefe_marcado, colunas_cnefe, contagens
 
 
 def gravar_mesclando(caminho: Path, colunas: list, linhas_novas: list, ufs_processadas: set) -> None:
@@ -685,21 +828,34 @@ def principal() -> None:
     codigos_uf = {UFS[uf] for uf in ufs_pedidas}
     escolas_por_uf, colunas_inep = carregar_escolas_inep(caminho_inep, codigos_uf)
     print("Cadastro de escolas do INEP (coordenadas): {}".format(ARQUIVO_INEP_COORDENADAS))
-    coordenadas_inep = carregar_coordenadas_inep(ARQUIVO_INEP_COORDENADAS)
+    coordenadas_inep, catalogo_inep, colunas_catalogo = carregar_coordenadas_inep(ARQUIVO_INEP_COORDENADAS)
     print("    {} escolas com coordenada".format(len(coordenadas_inep)))
 
-    saida, auditoria, nao_usados = [], [], []
+    saida, auditoria, nao_usados, cnefe_marcado = [], [], [], []
+    colunas_cnefe = []
     contagens_totais = collections.Counter()
     for uf in ufs_pedidas:
-        linhas_saida, linhas_auditoria, linhas_nao_usados, contagens = processar_uf(
+        linhas_saida, linhas_auditoria, linhas_nao_usados, linhas_cnefe, colunas_cnefe, contagens = processar_uf(
             uf, escolas_por_uf[UFS[uf]], coordenadas_inep
         )
         saida += linhas_saida
         auditoria += linhas_auditoria
         nao_usados += linhas_nao_usados
+        cnefe_marcado += linhas_cnefe
         contagens_totais.update(contagens)
 
     ufs_processadas = {uf.upper() for uf in ufs_pedidas}
+
+    # Copia marcada do Catalogo do INEP: o resultado de cada escola, pelo codigo
+    por_codigo = {linha["CO_ENTIDADE"]: linha for linha in saida}
+    inep_marcado = []
+    for escola in catalogo_inep:
+        if escola["SG_UF"] not in ufs_processadas:
+            continue
+        linha = por_codigo.get(escola["code_school"])
+        marcas = {coluna: linha[coluna] for coluna in COLUNAS_MARCADAS_INEP[1:]} if linha else {}
+        inep_marcado.append(dict(escola, NO_CENSO_ESCOLAR_2024="sim" if linha else "nao", **marcas))
+
     gravar_mesclando(argumentos.saida, list(colunas_inep) + COLUNAS_NOVAS, saida, ufs_processadas)
     gravar_mesclando(
         argumentos.dir_auditoria / "escolas_inep_x_cnefe_{}.csv".format(ANO_CENSO_ESCOLAR),
@@ -709,6 +865,9 @@ def principal() -> None:
         argumentos.dir_auditoria / "cnefe_ensino_nao_usados_{}.csv".format(ANO_CENSO_ESCOLAR),
         COLUNAS_NAO_USADOS, nao_usados, ufs_processadas,
     )
+    gravar_mesclando(SAIDA_INEP_MARCADO, colunas_catalogo + COLUNAS_MARCADAS_INEP, inep_marcado, ufs_processadas)
+    gravar_mesclando(SAIDA_CNEFE_MARCADO, ["SG_UF"] + colunas_cnefe + COLUNAS_MARCADAS_CNEFE,
+                     cnefe_marcado, ufs_processadas)
 
     total = sum(contagens_totais.values()) or 1
     print("\nResumo geral ({} UF(s), {} escolas)".format(len(ufs_pedidas), total))

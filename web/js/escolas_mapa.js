@@ -820,15 +820,17 @@ const REDE_ENSINO = {
   "4": { nome: "Privada", cor: "#9333ea" },
 };
 
-// Origem e confiança da coordenada (docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org):
-// primeiro o Catálogo de Escolas do INEP, conferido com o CNEFE; o CNEFE só
-// para quem não tem coordenada no INEP.
+// Origem e confiança da coordenada (docs/09-revisao-coordenadas-inep-x-cnefe.org):
+// o CNEFE quando o casamento é por endereço (níveis 1 e 2); senão o Catálogo
+// de Escolas do INEP, conferido com o CNEFE; o CNEFE por nome (níveis 3 e 4)
+// só para quem não tem coordenada no INEP.
 const CONFIANCA_GEO = {
+  endereco_exato: { nome: "CNEFE: município + CEP + número + rua", curto: "CNEFE endereço exato", cor: "#1e3a8a" },
+  cep_numero: { nome: "CNEFE: município + CEP + número", curto: "CNEFE CEP + número", cor: "#2563eb" },
   inep_confirmado: { nome: "INEP, confirmado pelo CNEFE (até 300 m)", curto: "INEP confirmado", cor: "#15803d" },
   inep_proximo: { nome: "INEP, CNEFE a 300 m-1 km", curto: "INEP próximo", cor: "#65a30d" },
   inep_sem_cnefe: { nome: "INEP, sem ponto no CNEFE para conferir", curto: "INEP sem CNEFE", cor: "#9333ea" },
   inep_divergente: { nome: "INEP, CNEFE a mais de 1 km", curto: "INEP divergente", cor: "#ea580c" },
-  cep_numero: { nome: "CNEFE: município + CEP + número", curto: "CNEFE CEP + número", cor: "#2563eb" },
   nome_exato: { nome: "CNEFE: nome exato, único no município", curto: "CNEFE nome exato", cor: "#0891b2" },
   nome_ajustado: { nome: "CNEFE: nome ajustado, único no município", curto: "CNEFE nome ajustado", cor: "#d4a106" },
 };
