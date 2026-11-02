@@ -458,6 +458,12 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
             (let ((default-directory georef/root-dir))
               (treemacs-add-and-display-current-project-exclusively))))
 
+;; Antigravity (agy) remote session manager para Treemacs e Dired (C-c a ...)
+(let ((agy-el (expand-file-name "../../Projects-Srcs-Desktop/fzl-emacs/main/src/lispsite/pkgconfig-antigravity.el"
+                                georef/root-dir)))
+  (when (file-exists-p agy-el)
+    (load agy-el nil 'nomessage)))
+
 
 ;;; ---------------------------------------------------------------
 ;; 13. Menu "Georef" — tarefas do projeto
@@ -516,9 +522,23 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
     "--"
     ["Servidor web local (liga/desliga)" georef/servidor-web t]))
 
+;; 13b. Antigravity (`agy') Remote Control para Treemacs (Linux & Windows)
+(let ((shared-agy "/run/media/wgn/ext4/Projects-Srcs/Projects-Srcs-Desktop/fzl-emacs/main/src/lispsite/pkgconfig-antigravity.el"))
+  (when (file-readable-p shared-agy)
+    (load shared-agy nil 'nomessage)))
+
 
 ;;; ---------------------------------------------------------------
 ;; 14. Resumo dos atalhos
+;;
+;;  Antigravity Remote Control (Treemacs e Global):
+;;    C-c a s       — inicia sessão remota na pasta do Treemacs (nome = pasta)
+;;    C-c a i       — inicia sessão remota interativa num terminal do Emacs
+;;    C-c a k       — para a sessão remota da pasta (ou escolhe da lista)
+;;    C-c a K       — para TODAS as sessões remotas
+;;    C-c a t       — alterna (start/stop) na pasta atual
+;;    C-c a l       — lista/status das sessões remotas ativas
+;;    C-c a w       — abre https://antigravity.google.com
 ;;
 ;;  Projeto (menu Georef):
 ;;    C-c g e       — exportar docs/*.org para web/docs/
