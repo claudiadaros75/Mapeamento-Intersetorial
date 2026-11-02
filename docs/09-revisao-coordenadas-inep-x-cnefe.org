@@ -267,6 +267,35 @@ geradores web rodados de novo para AM, PA e SP.
 | =nome_ajustado=  |   344 |   331 |    127 |
 | =sem_correspondencia= | 1.668 | 1.878 | 2.803 |
 
+** Escolas e pontos já casados saem das comparações seguintes (02/11/2026)
+
+*A pergunta*: uma escola casada no nível 1 não deveria mais ser
+considerada nas comparações seguintes?
+
+*O que o código fazia*: a escola já casada não era comparada de novo, mas
+*continuava contando* na regra de unicidade dos níveis 3 e 4. Se duas
+escolas do INEP tinham o mesmo nome no município e uma já tinha casado no
+nível 1, a outra era rejeitada como =nome_repetido_inep=. O mesmo do lado
+do CNEFE: um ponto já usado seguia como candidato e tornava o nome
+"repetido" (=nome_repetido_cnefe=) ou caía em =ponto_ja_usado=.
+
+*Justificativa*: o que já foi resolvido com segurança não deve impedir o
+casamento do que sobrou.
+
+*Feito*: em =estagio2_por_nome=, o índice do CNEFE deixa de fora os pontos
+já usados e a contagem do INEP só considera as escolas ainda sem
+casamento. O motivo =ponto_ja_usado= deixou de existir.
+
+*Resultado*:
+- Novos casamentos: AM 13, PA 16, SP 63; nenhum casamento anterior mudou.
+- Dos 79 novos com ponto do INEP, 57 (72%) a até 300 m e 11 a mais de
+  10 km (ex.: homônimos em São Paulo, "COLEGIO VITORIA", 32 km). Como os
+  níveis 3 e 4 usam o ponto do INEP quando existe, esses ficam como
+  =inep_divergente= e o mapa não muda.
+- Coordenada final alterada em só 13 escolas (AM 6, SP 7), que não têm
+  ponto no INEP. Escolas sem ponto: AM 1.668 -> 1.662, PA 1.878 (igual),
+  SP 2.803 -> 2.796.
+
 * Próximas etapas
 
 Ponto de partida, conforme a revisão de 02/11/2026:

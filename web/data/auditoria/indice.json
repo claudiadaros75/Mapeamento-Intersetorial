@@ -4,17 +4,17 @@
   "ufs": {
     "AM": {
       "arquivo": "data/auditoria/auditoria_AM_2024.json",
-      "tamanho_bytes": 1282926,
+      "tamanho_bytes": 1285159,
       "total_escolas": 6181,
       "por_origem": {
-        "inep_confirmado": 1201,
-        "inep_sem_cnefe": 2410,
-        "sem_correspondencia": 1668,
-        "inep_divergente": 145,
+        "inep_confirmado": 1207,
+        "inep_sem_cnefe": 2403,
+        "sem_correspondencia": 1662,
+        "inep_divergente": 146,
         "inep_proximo": 36,
         "endereco_exato": 177,
-        "nome_ajustado": 344,
-        "nome_exato": 131,
+        "nome_ajustado": 349,
+        "nome_exato": 132,
         "cep_numero": 69
       },
       "fora_do_municipio": {
@@ -25,13 +25,13 @@
     },
     "PA": {
       "arquivo": "data/auditoria/auditoria_PA_2024.json",
-      "tamanho_bytes": 2767731,
+      "tamanho_bytes": 2768685,
       "total_escolas": 11848,
       "por_origem": {
-        "inep_confirmado": 2805,
+        "inep_confirmado": 2818,
         "endereco_exato": 486,
-        "inep_sem_cnefe": 5834,
-        "inep_divergente": 241,
+        "inep_sem_cnefe": 5818,
+        "inep_divergente": 244,
         "nome_ajustado": 331,
         "sem_correspondencia": 1878,
         "inep_proximo": 83,
@@ -49,18 +49,18 @@
     },
     "SP": {
       "arquivo": "data/auditoria/auditoria_SP_2024.json",
-      "tamanho_bytes": 9184267,
+      "tamanho_bytes": 9189989,
       "total_escolas": 33863,
       "por_origem": {
-        "inep_confirmado": 3571,
-        "inep_sem_cnefe": 12511,
+        "inep_confirmado": 3609,
+        "inep_sem_cnefe": 12455,
         "endereco_exato": 13453,
-        "sem_correspondencia": 2803,
+        "sem_correspondencia": 2796,
         "cep_numero": 1150,
-        "inep_proximo": 75,
-        "inep_divergente": 106,
-        "nome_exato": 67,
-        "nome_ajustado": 127
+        "inep_proximo": 80,
+        "inep_divergente": 119,
+        "nome_exato": 68,
+        "nome_ajustado": 133
       },
       "fora_do_municipio": {
         "endereco_exato": 5,

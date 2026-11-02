@@ -77,8 +77,9 @@ conservadora: escola sem coordenada e melhor que escola no lugar errado.
     nivel 4 - nome_ajustado: a mesma regra do nivel 3, comparando o "nucleo"
              do nome (nucleo_nome: abreviacoes expandidas e palavras
              genericas como ESCOLA/MUNICIPAL/EMEF removidas).
-             Nos niveis 3 e 4 um ponto ja usado em nivel anterior nao e
-             reaproveitado.
+             Nos niveis 3 e 4, escolas e pontos ja casados em nivel
+             anterior saem da comparacao: nao sao candidatos nem contam
+             para dizer que um nome e repetido.
     sem_correspondencia - nenhum nivel resolveu; o motivo (do nivel 4, o
              ultimo) fica em MOTIVO_GEOLOCALIZACAO.
 
@@ -591,13 +592,16 @@ def estagio2_por_nome(escolas_inep: list, cnefe: list, resultado: list, usados: 
     registrar_falhas=False, quem nao casa fica sem resultado para o
     proximo estagio tentar.
     """
+    # Escolas e pontos ja casados num nivel anterior saem da comparacao: nao
+    # sao candidatos nem contam para dizer que um nome e repetido.
     idx_cnefe = {}
     for registro in cnefe:
         chave = chave_nome(registro["dsc_estabelecimento"])
-        if chave:
+        if chave and registro["cod_unico"] not in usados:
             idx_cnefe.setdefault((registro["municipio"], chave), []).append(registro)
     contagem_inep = collections.Counter(
-        (escola["CO_MUNICIPIO"], chave_nome(escola["NO_ENTIDADE"])) for escola in escolas_inep
+        (escola["CO_MUNICIPIO"], chave_nome(escola["NO_ENTIDADE"]))
+        for escola, r in zip(escolas_inep, resultado) if r is None
     )
 
     for i, escola in enumerate(escolas_inep):
@@ -613,8 +617,6 @@ def estagio2_por_nome(escolas_inep: list, cnefe: list, resultado: list, usados: 
             motivo = "nome_repetido_inep"
         elif len(candidatos) > 1:
             motivo = "nome_repetido_cnefe"
-        elif candidatos[0]["cod_unico"] in usados:
-            motivo = "ponto_ja_usado"
         else:
             resultado[i] = {"registro": candidatos[0], "status": status, "motivo": "", "alertas": [],
                             "n_candidatos": 1,

@@ -3,31 +3,31 @@
   "ufs": {
     "AM": {
       "arquivo": "data/escolas/escolas_AM_2024.json",
-      "tamanho_bytes": 937520,
+      "tamanho_bytes": 938987,
       "total_escolas": 6181,
-      "no_mapa": 4513,
+      "no_mapa": 4519,
       "por_status": {
-        "inep_confirmado": 1201,
-        "inep_sem_cnefe": 2410,
-        "sem_correspondencia": 1668,
-        "inep_divergente": 145,
+        "inep_confirmado": 1207,
+        "inep_sem_cnefe": 2403,
+        "sem_correspondencia": 1662,
+        "inep_divergente": 146,
         "inep_proximo": 36,
         "endereco_exato": 177,
-        "nome_ajustado": 344,
-        "nome_exato": 131,
+        "nome_ajustado": 349,
+        "nome_exato": 132,
         "cep_numero": 69
       }
     },
     "PA": {
       "arquivo": "data/escolas/escolas_PA_2024.json",
-      "tamanho_bytes": 2004937,
+      "tamanho_bytes": 2005383,
       "total_escolas": 11848,
       "no_mapa": 9970,
       "por_status": {
-        "inep_confirmado": 2805,
+        "inep_confirmado": 2818,
         "endereco_exato": 486,
-        "inep_sem_cnefe": 5834,
-        "inep_divergente": 241,
+        "inep_sem_cnefe": 5818,
+        "inep_divergente": 244,
         "nome_ajustado": 331,
         "sem_correspondencia": 1878,
         "inep_proximo": 83,
@@ -37,19 +37,19 @@
     },
     "SP": {
       "arquivo": "data/escolas/escolas_SP_2024.json",
-      "tamanho_bytes": 6542758,
+      "tamanho_bytes": 6545515,
       "total_escolas": 33863,
-      "no_mapa": 31060,
+      "no_mapa": 31067,
       "por_status": {
-        "inep_confirmado": 3571,
-        "inep_sem_cnefe": 12511,
+        "inep_confirmado": 3609,
+        "inep_sem_cnefe": 12455,
         "endereco_exato": 13453,
-        "sem_correspondencia": 2803,
+        "sem_correspondencia": 2796,
         "cep_numero": 1150,
-        "inep_proximo": 75,
-        "inep_divergente": 106,
-        "nome_exato": 67,
-        "nome_ajustado": 127
+        "inep_proximo": 80,
+        "inep_divergente": 119,
+        "nome_exato": 68,
+        "nome_ajustado": 133
       }
     }
   }
