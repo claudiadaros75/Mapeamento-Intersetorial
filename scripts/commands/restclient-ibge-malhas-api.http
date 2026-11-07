@@ -1,0 +1,132 @@
+# =============================================================
+# API de Malhas Geograficas do IBGE (v4) - testes em GeoJSON
+# =============================================================
+#
+# Arquivo para uso com o Emacs restclient.el:
+#   - instale restclient: M-x package-install RET restclient RET
+#   - abra este arquivo no Emacs e execute: M-x restclient-mode
+#   - envie a requisicao sob o cursor: C-c C-c
+#
+# Todas as chamadas de malha usam formato GeoJSON
+# (parametro formato=application/vnd.geo+json).
+#
+# Os identificadores usados sao reais (MMD 2024):
+#   - Cotia/SP = 3513009  |  Sao Paulo/SP = 3550308
+#   - UF SP = 35 / sigla SP
+#   - Regiao SE = 3 / sigla SE
+#   - Regiao imediata de Sao Paulo = 350001
+#   - Regiao intermediaria de Sao Paulo = 3501
+#
+# Referencia da API:
+#   https://servicodados.ibge.gov.br/api/docs/malhas?versao=4
+
+:api = https://servicodados.ibge.gov.br/api/v4/malhas
+:geojson = application/vnd.geo%2Bjson
+
+
+
+# -------------------------------------------------------------
+# 1. POR MUNICIPIO
+# -------------------------------------------------------------
+
+# Malha de um municipio (Cotia/SP) - qualidade maxima (padrao)
+GET :api/municipios/3513009?formato=:geojson
+Accept: application/vnd.geo+json
+
+# Malha de um municipio (Sao Paulo/SP) - qualidade minima
+GET :api/municipios/3550308?qualidade=minima&formato=:geojson
+Accept: application/vnd.geo+json
+
+
+
+# -------------------------------------------------------------
+# 2. POR UNIDADE DA FEDERACAO
+# -------------------------------------------------------------
+
+# Malha da UF SP (pode usar o codigo 35 ou a sigla SP),
+# subdividida por municipio
+GET :api/estados/SP?intrarregiao=municipio&formato=:geojson
+Accept: application/vnd.geo+json
+
+# Malha da UF MG (codigo 31) - somente o contorno da UF
+GET :api/estados/31?formato=:geojson
+Accept: application/vnd.geo+json
+
+
+
+# -------------------------------------------------------------
+# 3. POR PAIS
+# -------------------------------------------------------------
+
+# Malha do Brasil subdividida por municipio (malha grande,
+# cerca de 66 MB na qualidade maxima)
+GET :api/paises/BR?intrarregiao=municipio&formato=:geojson
+Accept: application/vnd.geo+json
+
+# Contorno do Brasil, apenas o limite nacional
+GET :api/paises/BR?formato=:geojson
+Accept: application/vnd.geo+json
+
+
+
+# -------------------------------------------------------------
+# 4. POR REGIAO DO BRASIL
+# -------------------------------------------------------------
+
+# Regiao Sudeste (SE), subdividida por unidade da federacao
+GET :api/regioes/SE?intrarregiao=UF&formato=:geojson
+Accept: application/vnd.geo+json
+
+# Regiao Norte (N) - contorno da regiao
+GET :api/regioes/N?formato=:geojson
+Accept: application/vnd.geo+json
+
+
+
+# -------------------------------------------------------------
+# 5. POR REGIAO GEOGRAFICA IMEDIATA
+# -------------------------------------------------------------
+
+# Regiao imediata de Sao Paulo (350001), subdividida por municipio
+GET :api/regioes-imediatas/350001?intrarregiao=municipio&formato=:geojson
+Accept: application/vnd.geo+json
+
+
+
+# -------------------------------------------------------------
+# 6. POR REGIAO GEOGRAFICA INTERMEDIARIA
+# -------------------------------------------------------------
+
+# Regiao intermediaria de Sao Paulo (3501), subdividida por municipio
+GET :api/regioes-intermediarias/3501?intrarregiao=municipio&formato=:geojson
+Accept: application/vnd.geo+json
+
+# -------------------------------------------------------------
+# 7. METADADOS (retornam JSON, nao malha)
+# -------------------------------------------------------------
+# Os endpoints de metadados descrevem a malha (CRS, ano etc.)
+# e nao aceitam o formato GeoJSON; retornam application/json.
+
+# Metadados da malha de um municipio
+GET :api/municipios/3513009/metadados
+Accept: application/json
+
+# Metadados da malha de uma UF
+GET :api/estados/SP/metadados
+Accept: application/json
+
+# Metadados da malha do Brasil
+GET :api/paises/BR/metadados
+Accept: application/json
+
+# Metadados de uma regiao
+GET :api/regioes/SE/metadados
+Accept: application/json
+
+# Metadados de uma regiao imediata
+GET :api/regioes-imediatas/350001/metadados
+Accept: application/json
+
+# Metadados de uma regiao intermediaria
+GET :api/regioes-intermediarias/3501/metadados
+Accept: application/json

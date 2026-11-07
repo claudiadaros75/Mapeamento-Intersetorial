@@ -38,3 +38,12 @@ data/ibge_malha_municipal/geojsonfiles/*_maxima.geojson
 # Sistema
 # -------------------------------------------------------------
 .DS_Store
+
+# -------------------------------------------------------------
+# Escolas: INEP (Censo/Catalogo) e IBGE CNEFE - reproduziveis pelos scripts
+# -------------------------------------------------------------
+data/inep_censo_escolar/zipfiles/
+data/ibge_cnefe/zipfiles/
+data/inep_catalogo_escolas/
+data/escolas_dados.csv
+temp/

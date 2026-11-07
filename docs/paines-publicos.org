@@ -1,0 +1,311 @@
+#+TITLE: Inventário de Portais e Bases de Dados Abertos da Educação Brasileira
+#+AUTHOR: Copilot
+#+DATE: 2026-09-03
+
+* Objetivo
+
+Este documento reúne os principais portais oficiais de dados abertos e painéis analíticos relacionados à educação brasileira.
+
+É destinado a:
+
+- Pesquisadores
+- Analistas de Dados
+- Gestores Públicos
+- Profissionais de BI
+- Especialistas em Geoprocessamento
+- Usuários de QGIS, PostgreSQL/PostGIS, Power BI e Python
+
+* 1. INEP - Dados Abertos
+
+Portal principal de dados educacionais do Brasil.
+
+Disponibiliza:
+
+- Indicadores Educacionais
+- Microdados
+- Sinopses Estatísticas
+- Inep Data
+- Bases do Censo Escolar
+- Bases do Enem
+- Bases do Enade
+- Bases do Saeb
+- Bases da Educação Superior
+
+Site:
+
+https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos
+
+Fonte:
+https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos
+
+* 2. Portal de Painéis do INEP
+
+Ambiente oficial de Business Intelligence do INEP.
+
+Permite consultas rápidas sem necessidade de baixar microdados.
+
+Contém painéis sobre:
+
+- Educação Básica
+- Educação Superior
+- Indicadores Educacionais
+- Estatísticas Oficiais
+- Censo Escolar
+
+Site:
+
+https://paineis.inep.gov.br/
+
+* 3. Microdados do INEP
+
+Portal dedicado aos microdados oficiais.
+
+Bases disponíveis:
+
+- Censo Escolar
+- Enem
+- Enade
+- Saeb
+- Censo da Educação Superior
+
+Site:
+
+https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados
+
+Uso recomendado:
+
+- QGIS
+- PostgreSQL/PostGIS
+- Python
+- R
+- Power BI
+
+* 4. Censo Escolar
+
+Principal pesquisa estatística da Educação Básica brasileira.
+
+Disponibiliza:
+
+- Resultados
+- Microdados
+- Documentação técnica
+- Instrumentos de coleta
+- Manuais
+- Publicações
+
+Site:
+
+https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar
+
+* 5. Notas Técnicas do Censo Escolar
+
+Reúne documentos metodológicos e técnicos produzidos pelo INEP.
+
+Conteúdo:
+
+- Metodologias
+- Critérios de cálculo
+- Controle de qualidade
+- Tratamento dos dados
+- Notas informativas
+
+Site:
+
+https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/outros-documentos/notas-tecnicas-e-informativas
+
+* 6. Plataforma do Censo Escolar (Educacenso)
+
+Portal de apoio operacional e técnico.
+
+Disponibiliza:
+
+- Manuais
+- Tutoriais
+- Legislação
+- Cronogramas
+- Capacitações
+
+Site:
+
+https://colabora.censoescolar.inep.gov.br/
+
+* 7. Portal de Dados Abertos do MEC
+
+Dados relacionados a programas do Ministério da Educação.
+
+Principais bases:
+
+- SISU
+- PROUNI
+- FIES
+- PRONATEC
+- Rede Federal
+- Educação Profissional
+- Formação de Professores
+
+Site:
+
+https://dadosabertos.mec.gov.br/
+
+* 8. FNDE - Dados Abertos
+
+Principal repositório de dados financeiros da educação.
+
+Disponibiliza:
+
+- FUNDEB
+- PNAE
+- PDDE
+- PNATE
+- Caminho da Escola
+- Salário-Educação
+- Obras Escolares
+- Infraestrutura Educacional
+
+Site:
+
+https://www.gov.br/fnde/pt-br/acesso-a-informacao/dados-abertos
+
+* 9. Hub de Painéis Gerenciais do FNDE
+
+Portal de inteligência e monitoramento dos programas do FNDE.
+
+Principais painéis:
+
+- FUNDEB
+- Matrículas consideradas no FUNDEB
+- Salário-Educação
+- Transporte Escolar
+- Obras e Creches
+- Execução Orçamentária
+
+Site:
+
+https://www.fnde.gov.br/hub-publico/i-index.html
+
+* 10. CAPES - Dados Abertos
+
+Portal de dados sobre pós-graduação, pesquisa e formação de professores.
+
+Disponibiliza:
+
+- Programas de Pós-Graduação
+- Bolsas CAPES
+- Produção Científica
+- Formação Docente
+- Programas de Internacionalização
+
+Site:
+
+https://dadosabertos.capes.gov.br/
+
+* 11. Portal Brasileiro de Dados Abertos
+
+Catálogo nacional de dados abertos.
+
+Permite localizar bases de:
+
+- INEP
+- MEC
+- FNDE
+- CAPES
+- Universidades Federais
+- Institutos Federais
+
+Site:
+
+https://dados.gov.br/
+
+* 12. Catálogo INEP no Dados.gov.br
+
+Localiza rapidamente os conjuntos de dados do INEP.
+
+Site:
+
+https://dados.gov.br/dados/conjuntos-dados/inep-microdados-do-censo-escolar-da-educacao-basica
+
+* 13. IBGE - Educação
+
+Fundamental para cruzamentos educacionais e territoriais.
+
+Indicadores:
+
+- Escolarização
+- Alfabetização
+- Frequência Escolar
+- PNAD Contínua
+- Censo Demográfico
+
+Site:
+
+https://www.ibge.gov.br/estatisticas/sociais/educacao.html
+
+* 14. Dados Abertos da Educação do Estado de São Paulo
+
+Portal de dados da Secretaria da Educação do Estado de São Paulo.
+
+Disponibiliza:
+
+- Escolas
+- Matrículas
+- Infraestrutura
+- Orçamento
+- Profissionais da Educação
+- Indicadores Educacionais
+
+Site:
+
+https://dados.educacao.sp.gov.br/
+
+* Recomendação para Georreferenciamento
+
+Para construir uma infraestrutura nacional de dados educacionais geográficos, recomenda-se integrar:
+
+1. Microdados do Censo Escolar (INEP)
+2. Painéis do INEP
+3. Bases do IBGE
+4. Bases do FNDE
+5. Dados.gov.br
+6. Dados do MEC
+7. Dados da CAPES
+
+Ferramentas recomendadas:
+
+- PostgreSQL
+- PostGIS
+- QGIS
+- Python
+- Power BI
+- DuckDB
+
+* Fluxo recomendado
+
+Censo Escolar
+        |
+        v
+      QGIS
+        |
+        v
+    PostGIS
+        |
+        +------ IBGE
+        |
+        +------ FNDE
+        |
+        +------ MEC
+        |
+        v
+     Power BI
+
+* Observação Final
+
+O conjunto INEP + IBGE + FNDE constitui atualmente a combinação mais importante para análises territoriais da educação brasileira, permitindo estudos sobre:
+
+- Localização de escolas
+- Matrículas
+- Docentes
+- Infraestrutura
+- Transporte escolar
+- Investimentos públicos
+- Desempenho educacional
+- Indicadores socioeconômicos
