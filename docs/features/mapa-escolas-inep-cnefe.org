@@ -5,7 +5,7 @@
 
 - *Branch:* ~feat/mapa-escolas-inep-cnefe~
 - *Início:* 2026-11-07
-- *Status:* ✅ T0–T11 concluídas (2026-11-08). Pendentes: decisões D6 e D7, T12 e commit do trabalho da sessão
+- *Status:* ✅ T0–T11 concluídas (2026-11-08). Pendentes: decisão D7 e T12
 
 Legenda de status das tarefas: ⬜ pendente · 🟡 em andamento · ✅ concluída · ⏸️ bloqueada/adiada
 
@@ -151,15 +151,15 @@ Cada registro do CNEFE só pode ser usado uma vez, ou seja, o pareamento é 1:1.
 
 * 4. Decisões em aberto
 
-| #    | Questão                                                                                                                                            | Proposta padrão                                                                                                                                         |
-|------+----------------------------------------------------------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------|
-| D1   | Usar o unificado ou os 5 regionais?                                                                                                                | ✅ *Unificado.* Os tamanhos batem com a soma dos regionais, descontando os 4 cabeçalhos extras e os BOMs                                                |
-| D2   | Incluir escolas paralisadas ou extintas ("Restrição de Atendimento")?                                                                              | ✅ Incluir todas no pareamento e permitir filtrar no mapa                                                                                               |
-| D3   | Limiar do N4 e margem de ambiguidade                                                                                                               | ✅ N4 ≥ 85, margem de 5 pontos e logradouro ≥ 85. *Regra nova no N2:* um nome específico com nota < 50 rejeita o candidato (ver T11)                    |
-| D4   | Tratar CEP genérico (terminado em ~000~) em N1/N2?                                                                                                 | ✅ N1/N2 exigem o logradouro e o N2 exige que o nome não se contradiga. A coluna ~CEP_GENERICO~ nas auditorias permite filtrar esses casos              |
-| D5   | Commitar antes o trabalho não versionado herdado do ~ibge_malhas~?                                                                                 | ✅ Feito no commit ~95ed0eb~                                                                                                                            |
-| *D6* | Versionar ~web/data/escolas/*.json~ (66 MB; SP tem 10,5 MB, ou 3,6 MB com gzip) para publicar no GitHub Pages?                                     | *Em aberto.* Cada arquivo fica abaixo do limite de 100 MB do GitHub, mas o repositório cresce. A alternativa é publicar os dados como asset de release  |
-| *D7* | Criar um nível *N5 por proximidade* para os ≈5 mil registros do CNEFE com nome genérico (~ESCOLA~, ~CRECHE~) a < 100 m de uma escola INEP sem par? | *Em aberto, desaconselhado.* Usaria a coordenada para decidir o par, o que enviesa o O2. Se for feito, precisa ficar fora das estatísticas de distância |
+| #    | Questão                                                                                                                                            | Proposta padrão                                                                                                                                                                            |
+|------+----------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| D1   | Usar o unificado ou os 5 regionais?                                                                                                                | ✅ *Unificado.* Os tamanhos batem com a soma dos regionais, descontando os 4 cabeçalhos extras e os BOMs                                                                                   |
+| D2   | Incluir escolas paralisadas ou extintas ("Restrição de Atendimento")?                                                                              | ✅ Incluir todas no pareamento e permitir filtrar no mapa                                                                                                                                  |
+| D3   | Limiar do N4 e margem de ambiguidade                                                                                                               | ✅ N4 ≥ 85, margem de 5 pontos e logradouro ≥ 85. *Regra nova no N2:* um nome específico com nota < 50 rejeita o candidato (ver T11)                                                       |
+| D4   | Tratar CEP genérico (terminado em ~000~) em N1/N2?                                                                                                 | ✅ N1/N2 exigem o logradouro e o N2 exige que o nome não se contradiga. A coluna ~CEP_GENERICO~ nas auditorias permite filtrar esses casos                                                 |
+| D5   | Commitar antes o trabalho não versionado herdado do ~ibge_malhas~?                                                                                 | ✅ Feito no commit ~95ed0eb~                                                                                                                                                               |
+| *D6* | Versionar ~web/data/escolas/*.json~ (66 MB; SP tem 10,5 MB, ou 3,6 MB com gzip) para publicar no GitHub Pages?                                     | ✅ *Versionar*, decidido em 2026-11-08 para publicar o mapa no GitHub Pages. Cada arquivo fica abaixo do limite de 100 MB do GitHub, mas o repositório cresce a cada nova versão dos dados |
+| *D7* | Criar um nível *N5 por proximidade* para os ≈5 mil registros do CNEFE com nome genérico (~ESCOLA~, ~CRECHE~) a < 100 m de uma escola INEP sem par? | *Em aberto, desaconselhado.* Usaria a coordenada para decidir o par, o que enviesa o O2. Se for feito, precisa ficar fora das estatísticas de distância                                    |
 
 * 5. Progresso — What Was Done
 
@@ -351,3 +351,8 @@ Bônus: *22.744 escolas sem coordenada no INEP* recebem a coordenada do CNEFE pe
 - *Renomeado:* ~web/js/escolas_mapa.js~ → ~web/js/escolas_inep_cnefe.js~, porque o GitHub tem outro mapa com o nome antigo.
 - *Restaurado:* ~docs/etl-georef-escolas.org~, cuja remoção estava registrada na entrada anterior. O arquivo existe no GitHub, e a ~mapeamento-intersetorial-nacional~ o alterou.
 - *Pendente:* comparar com a ~mapeamento-intersetorial-nacional~, que não entrou neste merge e tem níveis de casamento parecidos com N1–N4 (ver ~docs/09-revisao-coordenadas-inep-x-cnefe.org~ naquela branch). A T12 deve partir das versões atuais dos documentos.
+
+** 2026-11-08 — Publicação na ~main~ e no GitHub Pages
+- *Pedido do usuário:* commitar tudo, enviar a branch da feature, atualizar a ~main~ local, fazer o merge da feature na ~main~ e enviá-la, para atualizar o GitHub Pages.
+- *D6:* os dados de ~web/data/escolas/~ (27 UFs + ~index.json~, 69 MB) entraram no git, porque o mapa publicado depende deles.
+- *Fora deste merge:* os 5 commits da ~mapeamento-intersetorial-nacional~ que ainda não estão na ~main~.

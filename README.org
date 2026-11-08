@@ -30,6 +30,10 @@ abertos:
   produzir novas análises, cruzamentos e visualizações, como os mapas
   georreferenciados deste projeto.
 
+Após uma breve passagem por alguns dos painéis públicos citados, o projeto encontra-se na etapa de mapeamento das escolas utilizando a localização geográfica fornecida pelo [[https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas][cadastro escolar do inep]] e pelo [[https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html?=&t=downloads][CNEFE do IBGE]], mais específicamente, opção "Arquivos_CNEFE/UF".
+
+
+
 * Painéis de dados abertos públicos: delimitação do que será utilizado e reusado
 
 Existem muitos dados abertos disponíveis no Brasil, publicados por
@@ -39,12 +43,16 @@ só lugar.  Alguns dos mais importantes:
 
 - Portal Brasileiro de Dados Abertos — catálogo central do governo federal.
   https://dados.gov.br
+
 - Mapa das Organizações da Sociedade Civil (IPEA).
   https://mapaosc.ipea.gov.br
+
 - Dados Abertos do INEP (Censo Escolar, Enem, Saeb e outros microdados).
   https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos
+
 - Dados Abertos do TSE (eleições).
   https://dadosabertos.tse.jus.br
+
 - Dados Abertos da Câmara dos Deputados.
   https://dadosabertos.camara.leg.br
 
@@ -58,6 +66,8 @@ dados:
 
 1. *Malhas territoriais do IBGE* — a base geográfica (municípios, UFs e
    regiões) sobre a qual os demais dados são georreferenciados.
+
+2. Mapear as escolas    
 2. *Censo Escolar do INEP* — dados de escolas, matrículas e docentes da
    educação básica.
 3. *Organizações da Sociedade Civil (OSCs) do IPEA* — dados do Mapa das
