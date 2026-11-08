@@ -1,0 +1,46 @@
+# Publica a pasta web/ (mapas, dados e docs) no GitHub Pages.
+#
+# Pre-requisito (uma vez so): no repositorio, Settings > Pages > Build and
+# deployment > Source = "GitHub Actions".
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Um deploy por vez; nao cancela um deploy em andamento.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # O site e estatico: basta empacotar a pasta web/ como esta.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

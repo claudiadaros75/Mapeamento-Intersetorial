@@ -47,7 +47,7 @@ enriquecida com coordenada do CNEFE via ETL.
   scripts do projeto (=--extrair=, =--forcar=, =--listar=).
 - =scripts/commands/escolas_dados__cruzar_inep_cnefe.py= (novo, o ETL) -
   lê os dados já baixados pelos dois scripts acima (não baixa nada
-  sozinho) e produz =data/escolas_dados.csv=: uma linha por escola do
+  sozinho) e produz =data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=: uma linha por escola do
   Censo Escolar, com =LATITUDE=/=LONGITUDE= do CNEFE quando encontrada uma
   correspondência confiável.
 
@@ -157,4 +157,4 @@ Registrados com mais detalhe em
   =scripts/commands/ibge_cnefe__baixar_dados.py=,
   =scripts/commands/escolas_dados__cruzar_inep_cnefe.py= - os três scripts
   produzidos.
-- =data/escolas_dados.csv= - resultado do piloto (SP, Censo Escolar 2024).
+- =data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv= - resultado do piloto (SP, Censo Escolar 2024).

@@ -1,48 +1,56 @@
-;;; init.el --- Emacs config for artigo-revinfor (LaTeX + BibTeX)
+;;; init.el --- Configuração do Emacs para o georef-artifacts -*- lexical-binding: t -*-
 ;;
-;; Usage:
-;;   emacs -q -l /path/to/ides-configuration/emacs/init.el
+;; Projeto de estudo de georreferenciamento: documentação em Org,
+;; scripts Python (geopandas) em scripts/commands/, mapas Leaflet em
+;; web/ (HTML/CSS/JS + GeoJSON) e testes da API do IBGE em restclient.
 ;;
-;; Or define a shell alias in your shell rc:
-;;   alias emacs-revinfor='emacs -q -l ~/path/to/artigo-revinfor/ides-configuration/emacs/init.el'
+;; Uso (a partir da raiz do repositório):
+;;   emacs -q -l init.el
+;;
+;; Ou defina um alias no rc do seu shell:
+;;   alias emacs-georef='emacs -q -l ~/caminho/para/georef-artifacts/init.el'
+;;
+;; Ferramentas externas usadas (Fedora):
+;;   - pyright (servidor LSP do Python): npm install -g pyright
+;;   - hunspell + dicionário: sudo dnf install hunspell hunspell-pt-BR
+;;   - .venv do projeto: ver docs/02-ambiente-python.org
 
 
 ;;; ---------------------------------------------------------------
-;; 0a. Native compiler — silence false-positive warnings
-;;     When packages are compiled to native code for the first time,
-;;     the async compiler processes each file in isolation and cannot
-;;     resolve cross-file forward references (e.g. modus-themes-theme,
-;;     pdf-view-goto-page, ebib--update-buffers).  These warnings do
-;;     not affect runtime behavior.  Setting this variable to 'silent
-;;     keeps native compilation active while suppressing the noise.
+;; 0a. Compilador nativo — silencia avisos falsos
+;;     Na primeira compilação nativa dos pacotes, o compilador
+;;     assíncrono processa cada arquivo isoladamente e não resolve
+;;     referências entre arquivos.  Esses avisos não afetam o
+;;     funcionamento; 'silent mantém a compilação e esconde o ruído.
 ;;; ---------------------------------------------------------------
 
 (setq native-comp-async-report-warnings-errors 'silent)
 
 
 ;;; ---------------------------------------------------------------
-;; 0b. Package bootstrap (straight.el + use-package)
-;;     All packages land in a local .emacs-revinfor/ cache beside
-;;     this file, keeping the system Emacs config untouched.
+;; 0b. Bootstrap de pacotes (straight.el + use-package)
+;;     Todos os pacotes ficam num cache local .emacs-georef/ ao lado
+;;     deste arquivo (ignorado no .gitignore), sem tocar no
+;;     ~/.emacs.d do sistema.
 ;;; ---------------------------------------------------------------
 
-(defconst revinfor/config-dir
+(defconst georef/root-dir
   (file-name-directory (or load-file-name buffer-file-name))
-  "Directory that contains this init.el.")
+  "Raiz do repositório — o diretório que contém este init.el.")
 
-(defconst revinfor/cache-dir
-  (expand-file-name ".emacs-revinfor/" revinfor/config-dir)
-  "Local package cache — keeps the system ~/.emacs.d clean.")
+(defconst georef/cache-dir
+  (expand-file-name ".emacs-georef/" georef/root-dir)
+  "Cache local de pacotes — mantém o ~/.emacs.d do sistema limpo.")
 
-;; Redirect all Emacs ephemeral files into the local cache
-(setq user-emacs-directory revinfor/cache-dir)
-(setq package-user-dir (expand-file-name "elpa/" revinfor/cache-dir))
+;; Redireciona todos os arquivos efêmeros do Emacs para o cache local
+(setq user-emacs-directory georef/cache-dir)
+(setq package-user-dir (expand-file-name "elpa/" georef/cache-dir))
 
-;; Bootstrap straight.el
+;; Bootstrap do straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el"
-                         revinfor/cache-dir))
+                         georef/cache-dir))
       (bootstrap-version 7))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
@@ -59,98 +67,106 @@
 
 
 ;;; ---------------------------------------------------------------
-;; 1. Docker tool wrappers
-;;    bin/ contains docker-latexmk and docker-chktex, which proxy
-;;    the real binaries into the texlive container defined in the
-;;    Makefile.  No local TeX installation is required.
+;; 1. Ambiente virtual Python (.venv)
+;;    Equivale a um "source .venv/bin/activate" para o Emacs inteiro:
+;;    o shell interativo, o org-babel, os comandos M-x compile e os
+;;    scripts do menu Georef usam todos o Python do projeto (com
+;;    geopandas etc.), não o do sistema.
 ;;; ---------------------------------------------------------------
 
-(let ((bin-dir (expand-file-name "bin/" revinfor/config-dir)))
-  (add-to-list 'exec-path bin-dir)
-  (setenv "PATH" (concat bin-dir ":" (getenv "PATH"))))
+(defconst georef/venv-dir
+  (expand-file-name ".venv/" georef/root-dir)
+  "Ambiente virtual Python do projeto (ver docs/02-ambiente-python.org).")
+
+(defconst georef/venv-python
+  (expand-file-name "bin/python" georef/venv-dir)
+  "Interpretador Python do .venv.")
+
+(if (file-executable-p georef/venv-python)
+    (let ((bin-dir (expand-file-name "bin/" georef/venv-dir)))
+      (add-to-list 'exec-path bin-dir)
+      (setenv "PATH" (concat bin-dir ":" (getenv "PATH")))
+      (setenv "VIRTUAL_ENV" (directory-file-name georef/venv-dir)))
+  (message "Georef: %s não encontrado — crie o .venv (docs/02-ambiente-python.org)"
+           georef/venv-python))
 
 
 ;;; ---------------------------------------------------------------
-;; 2. Core UI / UX
+;; 2. Interface e comportamento geral
 ;;; ---------------------------------------------------------------
 
 (setq inhibit-startup-screen t
       initial-scratch-message nil
       ring-bell-function 'ignore)
 
-(menu-bar-mode   1)    ; on, to host the "Revinfor" build menu (section 16)
+(menu-bar-mode   1)    ; ligado para exibir o menu "Georef" (seção 13)
 (tool-bar-mode   -1)
 (scroll-bar-mode -1)
 (column-number-mode 1)
 (global-display-line-numbers-mode 1)
 (show-paren-mode 1)
+(global-auto-revert-mode 1)  ; os scripts regravam CSV/GeoJSON/HTML no disco
 
-;; Sensible defaults
+;; Os GeoJSON de web/data/ são uma única linha de vários MB.  O
+;; so-long-mode detecta linhas gigantes e desliga o que travaria o
+;; Emacs (realce, números de linha, LSP) ao abrir esses arquivos.
+(global-so-long-mode 1)
+
+;; Padrões sensatos
 (setq-default indent-tabs-mode nil
               fill-column 80)
 (setq sentence-end-double-space nil
       require-final-newline t)
 
-;; Keep backup and auto-save files out of the project tree
+;; Backups e auto-saves fora da árvore do projeto
 (setq backup-directory-alist
-      `(("." . ,(expand-file-name "backups/" revinfor/cache-dir)))
+      `(("." . ,(expand-file-name "backups/" georef/cache-dir)))
       auto-save-file-name-transforms
-      `((".*" ,(expand-file-name "auto-save/" revinfor/cache-dir) t)))
+      `((".*" ,(expand-file-name "auto-save/" georef/cache-dir) t)))
 
-;; Unlike backup-directory-alist, Emacs does not auto-create the
-;; auto-save directory, so it must be created explicitly here.
-(make-directory (expand-file-name "auto-save/" revinfor/cache-dir) t)
+;; Ao contrário de backup-directory-alist, o Emacs não cria o
+;; diretório de auto-save sozinho.
+(make-directory (expand-file-name "auto-save/" georef/cache-dir) t)
 
 
 ;;; ---------------------------------------------------------------
-;; 3. Fonts — buffer and UI text only
-;;    Tries a list of fonts commonly unpacked by hand into
-;;    ~/.local/share/fonts, falling back to DejaVu Sans Mono, which
-;;    ships with Fedora.
-;;
-;;    None of these are packaged in Fedora's repositories (only
-;;    cascadia-*-nf-fonts are), so each has to be unpacked by hand from
-;;    its nerd-fonts release zip; on a machine where that was never
-;;    done the list simply falls through to DejaVu.
-;;
-;;    Whichever one wins is purely cosmetic and has no bearing on
-;;    treemacs' icons: those are drawn in a separate symbols-only font,
-;;    installed independently — see section 14.
+;; 3. Fontes — texto dos buffers e da interface
+;;    Tenta Nerd Fonts instaladas à mão em ~/.local/share/fonts e
+;;    cai para a DejaVu Sans Mono, que vem com o Fedora.  Os ícones
+;;    do treemacs usam outra fonte (ver seção 12).
 ;;; ---------------------------------------------------------------
 
-(defun revinfor/set-font ()
-  "Set the default and fixed-pitch face to the first available font."
+(defun georef/set-font ()
+  "Aplica a primeira fonte disponível às faces default e fixed-pitch."
   (let ((font (seq-find (lambda (f) (member f (font-family-list)))
                          '("FiraCode Nerd Font Mono"
                            "JetBrainsMono Nerd Font Mono"
                            "Hack Nerd Font Mono"
                            "CaskaydiaCove Nerd Font Mono"
-                           ;; Fedora's cascadia-mono-nf-fonts ships
-                           ;; Microsoft's own CascadiaMonoNF-*.otf, a
-                           ;; different build from the nerd-fonts
-                           ;; project's "Caskaydia*" patch above, and it
-                           ;; registers under its own family name.
                            "Cascadia Mono NF"
                            "DejaVu Sans Mono"))))
     (when font
       (set-face-attribute 'default nil :family font :height 110)
       (set-face-attribute 'fixed-pitch nil :family font :height 110))))
 
-(add-hook 'after-init-hook #'revinfor/set-font)
+;; Com "emacs -q -l init.el" este arquivo é carregado *depois* do
+;; after-init-hook já ter rodado, então a fonte é aplicada na hora.
+(if after-init-time
+    (georef/set-font)
+  (add-hook 'after-init-hook #'georef/set-font))
 
 
 ;;; ---------------------------------------------------------------
-;; 4. Theme
+;; 4. Tema
 ;;; ---------------------------------------------------------------
 
 (use-package modus-themes
   :config
-  (modus-themes-load-theme 'modus-operandi))   ; light theme, easy on the eyes
-                                                ; swap for 'modus-vivendi for dark
+  (modus-themes-load-theme 'modus-operandi))   ; claro; 'modus-vivendi para escuro
 
 
 ;;; ---------------------------------------------------------------
-;; 5. Completion framework (Vertico + Orderless + Marginalia)
+;; 5. Completion no minibuffer (Vertico + Orderless + Marginalia)
 ;;; ---------------------------------------------------------------
 
 (use-package vertico
@@ -166,22 +182,11 @@
 
 
 ;;; ---------------------------------------------------------------
-;; 5b. In-buffer completion popup (Corfu + Cape)
-;;
-;;     Section 5 above only covers the *minibuffer*.  This section is
-;;     what makes completion behave like an IDE: a popup that appears
-;;     at point while you type, with no keystroke to trigger it.
-;;
-;;     Corfu is only the front-end.  It renders whatever Emacs'
-;;     standard `completion-at-point-functions' offers, and AUCTeX 14
-;;     already fills that hook in every LaTeX buffer — macros and
-;;     environment names via `TeX--completion-at-point', macro
-;;     arguments (package names, class names, ...) via
-;;     `LaTeX--arguments-completion-at-point'.  So Corfu alone is
-;;     enough to surface everything C-M-i used to hide behind a
-;;     keystroke.  Cape then adds the source AUCTeX has no reason to
-;;     provide: completion of ordinary words, which is what actually
-;;     helps while writing the prose of an article.
+;; 5b. Popup de completion no buffer (Corfu + Cape)
+;;     Corfu só desenha o popup; as sugestões vêm de
+;;     `completion-at-point-functions' — do eglot (pyright) no
+;;     Python e, via Cape, de palavras dos buffers abertos e de
+;;     caminhos de arquivo no Org/Markdown.
 ;;; ---------------------------------------------------------------
 
 (use-package corfu
@@ -189,22 +194,18 @@
   (global-corfu-mode 1)
   :custom
   (corfu-cycle t)
-  (corfu-quit-no-match t)      ; get out of the way as soon as nothing matches
-  (corfu-on-exact-match nil)   ; typing a complete word must not self-expand
-  ;; The first candidate is highlighted straight away, so accepting it
-  ;; is a single TAB — the behaviour every IDE has.  This is only safe
-  ;; because RET is unbound below: in a prose-heavy LaTeX buffer the
-  ;; popup is on screen most of the time, and were RET still bound to
-  ;; `corfu-insert', every Enter would silently complete a word.
+  (corfu-quit-no-match t)
+  (corfu-on-exact-match nil)
+  ;; O primeiro candidato já vem selecionado: aceitar é um TAB.  Isso
+  ;; só é seguro porque o RET foi desligado no corfu-map abaixo —
+  ;; senão todo Enter em texto corrido completaria uma palavra.
   (corfu-preselect 'first)
-  ;; Upstream's default ('insert) writes the highlighted candidate into
-  ;; the buffer as a preview.  Turned off here: the buffer must not
-  ;; change until TAB is pressed, otherwise the text flickers under the
-  ;; cursor while typing and flyspell keeps re-checking half-words.
+  ;; Não escreve o candidato no buffer antes do TAB (evita o texto
+  ;; "piscando" sob o cursor e o flyspell checando meias-palavras).
   (corfu-preview-current nil)
   :bind
   (:map corfu-map
-        ("RET"    . nil)       ; Enter stays Enter, popup or no popup
+        ("RET"    . nil)
         ([return] . nil)
         ("TAB"    . corfu-insert)
         ([tab]    . corfu-insert)
@@ -212,398 +213,212 @@
         ("C-p"    . corfu-previous)
         ("C-g"    . corfu-quit))
   :config
-  ;; Since Corfu 2.8 the auto-completion engine is a separate file, and
-  ;; `corfu-mode' only pulls it in when `corfu-auto' is already non-nil
-  ;; (see the (when corfu-auto (require 'corfu-auto)) in corfu-mode).
-  ;; Requiring it here is what brings the three variables below into
-  ;; existence — setting them beforehand would just be setting symbols
-  ;; nothing reads yet.
+  ;; Desde o Corfu 2.8 o auto-completion fica em corfu-auto.el, que
+  ;; precisa ser carregado antes de se ajustar as variáveis abaixo.
   (require 'corfu-auto)
-  (setq corfu-auto t                ; the entire point: no C-M-i needed
-        ;; Upstream warns that a short delay or a prefix below 2 puts
-        ;; real load on Emacs, since every keystroke re-runs the Capf.
-        ;; These stay at sane values because the trigger characters
-        ;; below already give instant feedback where it matters.
+  (setq corfu-auto t
         corfu-auto-delay 0.2
         corfu-auto-prefix 3
-        ;; A trigger character bypasses `corfu-auto-prefix' completely:
-        ;; the popup opens on the very next keystroke.  "\" and "{" are
-        ;; precisely the two spots where a LaTeX author wants the list
-        ;; immediately — starting a macro, and opening a macro argument
-        ;; such as the package name in \usepackage{}.  Prose keeps the
-        ;; calmer 3-character behaviour.
-        corfu-auto-trigger "\\{")
+        ;; "." abre o popup na hora: atributos e métodos no Python
+        ;; (gdf.to_crs, pd.read_csv...).
+        corfu-auto-trigger ".")
 
-  ;; Side panel showing the docstring of the highlighted candidate —
-  ;; for LaTeX that is AUCTeX's own help text for the macro.  Lives in
-  ;; corfu's extensions/ subdirectory, which straight.el installs too.
+  ;; Painel lateral com a documentação do candidato (docstrings vindas
+  ;; do pyright no Python).
   (require 'corfu-popupinfo)
   (corfu-popupinfo-mode 1)
   (setq corfu-popupinfo-delay '(0.5 . 0.3)))
 
-;; NOTE: Corfu draws its popup in a child frame.  On this Emacs (30.2)
-;; child frames are graphical-only, so under `emacs -nw' the popup
-;; silently never appears — the fix there is the corfu-terminal
-;; package, left out on purpose since this config is launched
-;; graphically.  Emacs 31 gains TTY child frames and drops the need.
+;; NOTA: o popup do Corfu é um child frame, que só existe no modo
+;; gráfico até o Emacs 30; em "emacs -nw" ele não aparece.
 
 (use-package cape
-  ;; Loaded eagerly on purpose.  The options below are plain defcustoms
-  ;; that spring into existence only when cape.el itself is loaded, so
-  ;; deferring the package (`:after', `:defer') would leave them unset
-  ;; and silently fall back to the defaults.
+  ;; Carregado de imediato: as opções abaixo são defcustoms que só
+  ;; passam a existir quando cape.el é carregado.
   :demand t
   :init
-  (defun revinfor/latex-capf-setup ()
-    "Add prose and file-path completion sources to the current LaTeX buffer.
-Appended with a high depth so they sit *after* AUCTeX's own entries:
-a \"\\\" prefix must always complete as a macro, never as some word
-picked up from the running text."
+  (defun georef/prose-capf-setup ()
+    "Acrescenta palavras dos buffers abertos e caminhos de arquivo.
+Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
     (add-hook 'completion-at-point-functions #'cape-file    90 t)
     (add-hook 'completion-at-point-functions #'cape-dabbrev 95 t))
-  (add-hook 'LaTeX-mode-hook #'revinfor/latex-capf-setup)
+  (add-hook 'org-mode-hook      #'georef/prose-capf-setup)
+  (add-hook 'markdown-mode-hook #'georef/prose-capf-setup)
   :custom
-  ;; Long Portuguese terms and author surnames get retyped constantly
-  ;; across an article's .tex files, so candidates are gathered from
-  ;; every open LaTeX buffer, not just the current one.  How *early*
-  ;; those candidates are offered is not set here — that is Corfu's
-  ;; `corfu-auto-prefix' above.
+  ;; Termos longos (Censo Escolar, CNEFE, malha municipal...) se
+  ;; repetem entre os .org, então as palavras vêm de todos os buffers
+  ;; do mesmo modo, não só do atual.
   (cape-dabbrev-buffer-function #'cape-same-mode-buffers)
-  ;; Kept on so `cape-file' stays quiet in prose: with no "file:"
-  ;; prefix typed, it only offers itself once the text at point holds a
-  ;; "/" whose parent directory actually exists.  That is exactly the
-  ;; \includegraphics{imagens/...} case, and never an ordinary word.
+  ;; cape-file só se oferece quando há um "/" com diretório existente
+  ;; antes do cursor (ex.: data/ibge_malha_municipal/...).
   (cape-file-directory-must-exist t))
 
 
 ;;; ---------------------------------------------------------------
-;; 5c. Revinfor build-flavor tables — shared between the AUCTeX
-;;     commands (section 6) and the pdf-tools completion hook
-;;     (section 7). Each flavor's docker-latexmk run gets its own
-;;     -jobname so the two builds don't overwrite the same main.pdf.
+;; 6. Python — python-mode + eglot (pyright)
+;;    O pyright resolve os imports (geopandas, pandas, shapely...)
+;;    pelo Python do .venv, informado em `eglot-workspace-configuration'.
 ;;; ---------------------------------------------------------------
 
-(defconst revinfor/flavor-image-alist
-  '(("abnt"     . "artigo-revinfor-latex:latest")
-    ("overleaf" . "artigo-revinfor-overleaf:latest"))
-  "Maps each Makefile FLAVOR to its Docker image name.")
-
-(defconst revinfor/flavor-tex-command-alist
-  '(("abnt"     . "docker-latexmk-abnt")
-    ("overleaf" . "docker-latexmk-overleaf"))
-  "Maps each Makefile FLAVOR to its TeX-command-list entry name.")
-
-(defconst revinfor/flavor-pdf-alist
-  '(("abnt"     . "main-abnt.pdf")
-    ("overleaf" . "main-overleaf.pdf"))
-  "Maps each Makefile FLAVOR to the PDF filename its -jobname flag
-produces (see the docker-latexmk-* entries in section 6). AUCTeX's
-own `TeX-active-master' has no notion of a custom jobname — it always
-resolves to the plain master name — so this table is what the
-Revinfor build/view commands and the completion hook use instead.")
-
-(defvar revinfor/current-build-flavor nil
-  "Flavor of the most recently started Revinfor docker-latexmk build.
-Read by the completion-message hook in section 7, since AUCTeX's own
-hook argument doesn't account for the custom jobname.")
-
-
-;;; ---------------------------------------------------------------
-;; 6. AUCTeX — LaTeX editing (all compilation via Docker)
-;;; ---------------------------------------------------------------
-
-;; :straight auctex installs the package; :package-name tex tells
-;; use-package to (require 'tex), where TeX-command-list is defined.
-;; Using (use-package auctex ...) would run :config before tex.el loads,
-;; leaving TeX-command-list void.
-(use-package tex
-  :straight auctex
-  :mode ("\\.tex\\'" . LaTeX-mode)
-  :hook
-  (LaTeX-mode . visual-line-mode)
-  (LaTeX-mode . flyspell-mode)
-  (LaTeX-mode . LaTeX-math-mode)
-  (LaTeX-mode . turn-on-reftex)
-  (LaTeX-mode . flymake-mode)     ; real-time syntax via docker-chktex
-  :custom
-  (TeX-auto-save t)
-  (TeX-parse-self t)
-  (TeX-save-query nil)
-  (TeX-source-correlate-mode t)
-  (TeX-source-correlate-method 'synctex)
-  (TeX-engine 'default)             ; 'default = pdflatex in modern AUCTeX
-  (TeX-chktex-program "docker-chktex")
-  :config
-  ;; Two TeX-command-list entries mirror the Makefile's FLAVOR=abnt|overleaf
-  ;; choice (see section 1's docker-latexmk wrapper): both call the same
-  ;; script, but the overleaf one overrides REVINFOR_LATEX_IMAGE so it runs
-  ;; against the Overleaf-compatible container instead. Each also sets its
-  ;; own -jobname (see revinfor/flavor-pdf-alist, section 5c) so an ABNT
-  ;; build and an Overleaf build never overwrite each other's PDF.
-  (add-to-list 'TeX-command-list
-               '("docker-latexmk-abnt"
-                 "docker-latexmk -pdf -interaction=nonstopmode -jobname=main-abnt %t"
-                 TeX-run-command nil t
-                 :help "Run latexmk inside the ABNT texlive Docker container"))
-  (add-to-list 'TeX-command-list
-               '("docker-latexmk-overleaf"
-                 "REVINFOR_LATEX_IMAGE=artigo-revinfor-overleaf:latest docker-latexmk -pdf -interaction=nonstopmode -jobname=main-overleaf %t"
-                 TeX-run-command nil t
-                 :help "Run latexmk inside the Overleaf-compatible texlive Docker container"))
-  (setq TeX-command-default "docker-latexmk-abnt")
-  (setq-default TeX-master nil)   ; prompts once, then caches in .dir-locals
-
-  ;; "Revinfor" menu — one-click Build/View Final PDF entries per flavor,
-  ;; so the docker-latexmk pipeline above doesn't require going through
-  ;; C-c C-c and selecting the command by name every time.
-  (defun revinfor/run-docker-latexmk (flavor)
-    "Kick off the docker-latexmk TeX-command for FLAVOR with a heads-up message.
-Each run starts a fresh container and can do several latexmk passes
-(pdflatex/bibtex), so AUCTeX's single \"Running...\" echo can otherwise
-read as a hang. `sit-for' holds this message on screen briefly so it
-isn't instantly overwritten by that echo."
-    (setq revinfor/current-build-flavor flavor)
-    (message "Revinfor: compiling via docker-latexmk (%s) → %s — a full build (container start + multiple latexmk passes) can take up to a minute; it is not stuck. Press C-c C-l to watch live output."
-             flavor (alist-get flavor revinfor/flavor-pdf-alist nil nil #'string=))
-    (sit-for 1.5)
-    (TeX-command (alist-get flavor revinfor/flavor-tex-command-alist nil nil #'string=)
-                 #'TeX-master-file (if TeX-save-query 0 1)))
-
-  (defun revinfor/build-pdf (flavor)
-    "Compile the current article's master file via docker-latexmk.
-FLAVOR is \"abnt\" or \"overleaf\" (see the Makefile). Builds that
-flavor's Docker image first if it isn't present locally yet."
-    (let ((image (alist-get flavor revinfor/flavor-image-alist nil nil #'string=)))
-      (if (zerop (call-process "docker" nil nil nil "image" "inspect" image))
-          (revinfor/run-docker-latexmk flavor)
-        (let* ((tex-buffer (current-buffer))
-               (default-directory (expand-file-name "../../" revinfor/config-dir))
-               (buf (get-buffer-create (format "*Revinfor Docker Build (%s)*" flavor))))
-          (message "Revinfor: %s image not found — building it now (first run, a few minutes)..." image)
-          (pop-to-buffer buf)
-          (make-process
-           :name (format "revinfor-docker-build-%s" flavor)
-           :buffer buf
-           :command (list "make" "docker-build" (format "FLAVOR=%s" flavor))
-           :sentinel
-           (lambda (proc _event)
-             (when (memq (process-status proc) '(exit signal))
-               (if (zerop (process-exit-status proc))
-                   (if (buffer-live-p tex-buffer)
-                       (with-current-buffer tex-buffer
-                         (message "Revinfor: Docker image built — starting PDF build.")
-                         (revinfor/run-docker-latexmk flavor))
-                     (message "Revinfor: Docker image built — re-run Build Final PDF."))
-                 (message "Revinfor: docker-build failed — see %s buffer" (buffer-name buf))))))))))
-
-  (defun revinfor/build-pdf-abnt ()
-    "Build the final PDF using the ABNT flavor Docker image."
-    (interactive)
-    (revinfor/build-pdf "abnt"))
-
-  (defun revinfor/build-pdf-overleaf ()
-    "Build the final PDF using the Overleaf-compatible flavor Docker image."
-    (interactive)
-    (revinfor/build-pdf "overleaf"))
-
-  (defun revinfor/view-pdf (flavor)
-    "Open FLAVOR's built PDF for the current article in pdf-view-mode.
-Bypasses AUCTeX's own C-c C-v / TeX-view, which always looks for the
-plain master name and would never find a jobname'd main-<flavor>.pdf."
-    (let* ((pdf-name (alist-get flavor revinfor/flavor-pdf-alist nil nil #'string=))
-           (pdf-file (expand-file-name pdf-name (TeX-master-directory))))
-      (if (file-exists-p pdf-file)
-          (find-file-other-window pdf-file)
-        (user-error "Revinfor: %s not found yet — build it first" pdf-name))))
-
-  (defun revinfor/view-pdf-abnt ()
-    "View the current article's ABNT flavor PDF."
-    (interactive)
-    (revinfor/view-pdf "abnt"))
-
-  (defun revinfor/view-pdf-overleaf ()
-    "View the current article's Overleaf flavor PDF."
-    (interactive)
-    (revinfor/view-pdf "overleaf"))
-
-  ;; LaTeX-mode-map lives in latex.el, not tex.el, and AUCTeX only
-  ;; loads latex.el when a .tex file is actually opened — so defining
-  ;; the menu here directly would fail with a void-variable error.
-  (with-eval-after-load 'latex
-    (easy-menu-define revinfor/latex-menu LaTeX-mode-map "Revinfor build commands."
-      '("Revinfor"
-        ["Build Final PDF (ABNT)" revinfor/build-pdf-abnt t]
-        ["View PDF (ABNT)" revinfor/view-pdf-abnt t]
-        "--"
-        ["Build Final PDF (Overleaf)" revinfor/build-pdf-overleaf t]
-        ["View PDF (Overleaf)" revinfor/view-pdf-overleaf t]))))
-
-
-;;; ---------------------------------------------------------------
-;; 7. PDF viewer — pdf-tools (in-Emacs viewer with SyncTeX support)
-;;; ---------------------------------------------------------------
-
-(use-package pdf-tools
-  :magic ("%PDF" . pdf-view-mode)
-  :config
-  (pdf-tools-install :no-query)
-  (setq pdf-view-display-size 'fit-width)
-  ;; Wire SyncTeX: C-c C-v in LaTeX-mode jumps to the matching PDF spot
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools")))
-  (setq TeX-view-program-list
-        '(("PDF Tools" TeX-pdf-tools-sync-view)))
-  ;; Bookends the "not stuck" message from revinfor/run-docker-latexmk
-  ;; (section 6) with a clear end-of-build signal, and reverts an
-  ;; already-open pdf-view buffer on the just-built flavor's PDF.
-  ;; AUCTeX's stock TeX-revert-document-buffer isn't used here: its
-  ;; hook argument is `TeX-active-master', which stays the plain
-  ;; master name and never resolves to a -jobname'd main-<flavor>.pdf
-  ;; (see revinfor/flavor-pdf-alist, section 5b), so it would always
-  ;; look for a main.pdf buffer that these builds never produce.
-  (add-hook 'TeX-after-compilation-finished-functions
-            (lambda (_file)
-              (let* ((flavor revinfor/current-build-flavor)
-                     (pdf-name (and flavor (alist-get flavor revinfor/flavor-pdf-alist
-                                                       nil nil #'string=))))
-                (when pdf-name
-                  (let* ((pdf-file (expand-file-name pdf-name (TeX-master-directory)))
-                         (buf (get-file-buffer pdf-file)))
-                    (when buf (with-current-buffer buf (revert-buffer t t t)))))
-                (message "Revinfor: PDF build finished (%s)."
-                         (or pdf-name (file-name-nondirectory _file)))))))
-
-
-;;; ---------------------------------------------------------------
-;; 8. BibTeX / ebib — bibliography manager
-;;    ebib is the closest Linux equivalent to BibDesk.
-;;; ---------------------------------------------------------------
-
-(use-package ebib
-  :bind
-  ("C-c e" . ebib)               ; open ebib from anywhere
-  :custom
-  ;; Point ebib at the project's bibliography files
-  (ebib-bib-search-dirs
-   (list (expand-file-name "../../" revinfor/config-dir)           ; repo root
-         (expand-file-name "../../common-shared/bib/" revinfor/config-dir)
-         (expand-file-name "../../artigo_modelo_revista_infor/" revinfor/config-dir)
-         (expand-file-name "../../artigo_curso_defectologia_vigostky/" revinfor/config-dir)))
-  (ebib-preload-bib-files
-   '("artigo_modelo_revista_infor/references.bib"
-     "artigo_curso_defectologia_vigostky/references.bib"
-     "common-shared/bib/abntex2-modelo-references.bib"))
-  (ebib-index-default-sort '("Author" . ascend))
-  (ebib-use-timestamp t)
-  :config
-  ;; Insert ABNT-style citation with \citeonline{key} via C-c C-e c
-  (defun revinfor/ebib-insert-citeonline ()
-    "Insert \\citeonline{KEY} at point using the current ebib entry."
-    (interactive)
-    (ebib-push-bibtex-key)
-    (save-excursion
-      (search-backward "{")
-      (insert "\\citeonline"))))
-
-
-;;; ---------------------------------------------------------------
-;; 9. RefTeX — cross-references, citations, labels
-;;    Works alongside AUCTeX; aware of abntex2 cite commands.
-;;; ---------------------------------------------------------------
-
-(use-package reftex
-  :straight nil                  ; built into Emacs
-  :after tex
-  :custom
-  (reftex-plug-into-AUCTeX t)
-  ;; Teach RefTeX about the ABNT citation commands used in this project
-  (reftex-cite-format
-   '((?\C-m . "\\cite{%l}")
-     (?o    . "\\citeonline{%l}")
-     (?a    . "\\citeauthor{%l}")
-     (?y    . "\\citeyear{%l}")
-     (?f    . "\\citefullauthor{%l}")))
-  (reftex-bibliography-commands '("bibliography" "nobibliography" "addbibresource")))
-
-
-;;; ---------------------------------------------------------------
-;; 10. Flyspell — spell checking (Brazilian Portuguese)
-;;    hunspell is the only tool that still needs a local install;
-;;    it checks natural language, not LaTeX, so Docker is not useful here.
-;;    Install: sudo dnf install hunspell hunspell-pt-BR
-;;; ---------------------------------------------------------------
-
-(use-package flyspell
+(use-package python
   :straight nil
-  :hook (LaTeX-mode . flyspell-mode)
   :custom
-  (ispell-program-name "hunspell")
-  (ispell-dictionary "pt_BR")   ; hunspell-pt-BR on Fedora registers as "pt_BR"
-                                 ; switch with M-x ispell-change-dictionary
+  (python-shell-interpreter georef/venv-python)
+  (python-shell-virtualenv-root georef/venv-dir)
+  (python-indent-guess-indent-offset-verbose nil))
+
+(use-package eglot
+  :straight nil
+  :hook (python-mode . eglot-ensure)
+  :custom
+  (eglot-autoshutdown t)          ; encerra o servidor ao fechar o último buffer
+  (eglot-events-buffer-config '(:size 0 :format full))  ; sem log, mais leve
   :config
-  ;; Flyspell only marks a word when point moves onto it (its checking is
-  ;; driven by post-command-hook, not a scan of the whole buffer) — text
-  ;; already on disk stays unmarked until you happen to visit each word.
-  ;; Force a full check right when the mode turns on so every misspelling
-  ;; is already visible while just scrolling, without touching point.
-  (add-hook 'flyspell-mode-hook
-            (lambda ()
-              (when flyspell-mode
-                (flyspell-buffer)))))
+  ;; O eglot tenta o pylsp antes do pyright; aqui fixamos o pyright.
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode) "pyright-langserver" "--stdio"))
+  (setq-default eglot-workspace-configuration
+                `(:python (:pythonPath ,georef/venv-python
+                           :analysis (:typeCheckingMode "basic"))))
+  :bind
+  (:map eglot-mode-map
+        ("C-c l r" . eglot-rename)
+        ("C-c l a" . eglot-code-actions)
+        ("C-c l f" . eglot-format-buffer)
+        ("C-c l d" . eldoc-doc-buffer)))
 
 
 ;;; ---------------------------------------------------------------
-;; 11. Org-mode tweaks (for README.org / PROJECT_ANALYSIS.org)
+;; 7. Org-mode — documentação (README, docs/, analises/)
+;;    Os blocos #+begin_src python/sh rodam com C-c C-c usando o
+;;    Python do .venv.  A publicação em web/docs/ continua sendo feita
+;;    pelo script exportar_docs_org_para_html.sh (menu Georef).
 ;;; ---------------------------------------------------------------
 
 (use-package org
   :straight nil
   :mode ("\\.org\\'" . org-mode)
+  :hook (org-mode . visual-line-mode)
   :custom
   (org-startup-folded 'content)
   (org-hide-leading-stars t)
   (org-src-fontify-natively t)
-  (org-src-tab-acts-natively t))
+  (org-src-tab-acts-natively t)
+  (org-src-preserve-indentation t)   ; Python é sensível à indentação
+  (org-edit-src-content-indentation 0)
+  (org-babel-python-command georef/venv-python)
+  (org-export-with-sub-superscripts '{})  ; nomes_com_underscore não viram subscrito
+  (org-html-validation-link nil)
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python     . t)
+     (shell      . t))))
+
+;; Realce de sintaxe dos blocos de código no export HTML (C-c C-e h h)
+(use-package htmlize)
 
 
 ;;; ---------------------------------------------------------------
-;; 12. Project navigation — project.el pointing at the repo root
+;; 8. Web — mapas Leaflet em web/ (HTML, CSS, JS, GeoJSON)
+;;    HTML, CSS e JS usam os modos nativos do Emacs (mhtml-mode,
+;;    css-mode, js-mode).  GeoJSON é JSON; os arquivos grandes caem
+;;    no so-long-mode (seção 2).
+;;; ---------------------------------------------------------------
+
+(use-package js
+  :straight nil
+  :mode ("\\.geojson\\'" . js-json-mode)
+  :custom
+  (js-indent-level 2))
+
+(use-package css-mode
+  :straight nil
+  :custom
+  (css-indent-offset 2))
+
+
+;;; ---------------------------------------------------------------
+;; 9. Outros formatos — Markdown, YAML, CSV
+;;; ---------------------------------------------------------------
+
+;; Análises em .md na raiz do repositório
+(use-package markdown-mode
+  :mode ("\\.md\\'" . gfm-mode)
+  :hook (markdown-mode . visual-line-mode))
+
+;; .github/workflows/pages.yml
+(use-package yaml-mode
+  :mode ("\\.ya?ml\\'" . yaml-mode))
+
+;; CSVs das análises e dos dados do INEP/CNEFE.
+;; C-c C-a alinha as colunas, C-c C-s ordena, C-c C-t transpõe.
+(use-package csv-mode
+  :mode ("\\.csv\\'" . csv-mode)
+  :hook (csv-mode . csv-guess-set-separator))  ; detecta "," ou ";" (padrão do INEP)
+
+
+;;; ---------------------------------------------------------------
+;; 10. Restclient — testes da API de Malhas do IBGE
+;;     Abre scripts/restclient-ibge-malhas-api.http em restclient-mode;
+;;     C-c C-c envia a requisição sob o cursor.
+;;; ---------------------------------------------------------------
+
+(use-package restclient
+  :mode ("\\.http\\'" . restclient-mode))
+
+
+;;; ---------------------------------------------------------------
+;; 11. Flyspell — correção ortográfica (português do Brasil)
+;;     Texto corrido (Org, Markdown) é checado por inteiro; no Python
+;;     e no shell, só comentários e strings.  JSON, CSV e GeoJSON
+;;     ficam de fora de propósito.
+;;     Instalar: sudo dnf install hunspell hunspell-pt-BR
+;;; ---------------------------------------------------------------
+
+(use-package flyspell
+  :straight nil
+  :hook
+  (org-mode      . flyspell-mode)
+  (markdown-mode . flyspell-mode)
+  (python-mode   . flyspell-prog-mode)
+  (sh-mode       . flyspell-prog-mode)
+  :custom
+  (ispell-program-name "hunspell")
+  (ispell-dictionary "pt_BR")   ; troque com M-x ispell-change-dictionary
+  :config
+  ;; O flyspell só marca uma palavra quando o cursor passa por ela.
+  ;; Força a checagem do buffer inteiro ao ligar o modo de texto, para
+  ;; os erros já aparecerem ao rolar a página.
+  (add-hook 'flyspell-mode-hook
+            (lambda ()
+              (when (and flyspell-mode (not (derived-mode-p 'prog-mode)))
+                (flyspell-buffer)))))
+
+
+;;; ---------------------------------------------------------------
+;; 12. Navegação — project.el, Magit e Treemacs
 ;;; ---------------------------------------------------------------
 
 (use-package project
   :straight nil
   :config
-  ;; Register the repo root directly as a Git project.
-  ;; project-remember-projects-under searches *inside* a directory for
-  ;; sub-projects and won't register the directory itself.
-  (let ((root (expand-file-name "../../" revinfor/config-dir)))
-    (when (file-directory-p (expand-file-name ".git" root))
-      (project-remember-project `(vc Git ,root)))))
-
-
-;;; ---------------------------------------------------------------
-;; 13. Magit — Git porcelain
-;;; ---------------------------------------------------------------
+  ;; Registra a raiz do repositório diretamente como projeto Git.
+  (when (file-directory-p (expand-file-name ".git" georef/root-dir))
+    (project-remember-project `(vc Git ,georef/root-dir))))
 
 (use-package magit
   :bind
   ("C-x g" . magit-status))
 
-
-;;; ---------------------------------------------------------------
-;; 14. Treemacs — file/directory sidebar
-;;; ---------------------------------------------------------------
-
 (use-package treemacs
   :bind
-  (("<f8>"    . treemacs-select-window)  ; C-c C-o was requested, but AUCTeX
-                                          ; (TeX-fold prefix) and org-mode
-                                          ; (org-open-at-point) already claim
-                                          ; it in .tex/.org buffers, so it
-                                          ; would silently do nothing there.
-   ("M-0"     . treemacs-select-window)
-   ("C-x t t" . treemacs)
-   ("C-x t d" . treemacs-select-directory)
-   ("C-x t B" . treemacs-bookmark)
+  (("<f8>"      . treemacs-select-window)
+   ("M-0"       . treemacs-select-window)
+   ("C-x t t"   . treemacs)
+   ("C-x t d"   . treemacs-select-directory)
+   ("C-x t B"   . treemacs-bookmark)
    ("C-x t C-t" . treemacs-find-file)
    ("C-x t M-t" . treemacs-find-tag))
   :custom
@@ -614,92 +429,140 @@ plain master name and would never find a jobname'd main-<flavor>.pdf."
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode 'always)
-  (treemacs-git-mode 'deferred))
+  (treemacs-git-mode 'deferred)
+  ;; .venv/, venv/ e __pycache__ só poluem a árvore
+  (add-to-list 'treemacs-ignored-file-predicates
+               (lambda (file _path)
+                 (member file '(".venv" "venv" "__pycache__" ".emacs-georef")))))
 
 (use-package treemacs-nerd-icons
   :after treemacs
   :config
-  ;; Treemacs' icons are NOT drawn in the editing font from section 3.
-  ;; nerd-icons renders every glyph in `nerd-icons-font-family', which
-  ;; defaults to "Symbols Nerd Font Mono" — a symbols-only font shipped
-  ;; separately from any patched programming font, and absent from
-  ;; Fedora's repositories.  Without it the whole sidebar degrades to
-  ;; empty boxes, no matter which Nerd Font the buffer text uses; and
-  ;; conversely it is enough on its own, even with plain DejaVu text.
-  ;;
-  ;; Install it once with M-x nerd-icons-install-fonts, which downloads
-  ;; NFM.ttf into ~/.local/share/fonts and refreshes the font cache.
-  ;; Until that exists, stay on treemacs' built-in theme rather than
-  ;; filling the sidebar with tofu.
+  ;; Os ícones usam `nerd-icons-font-family' ("Symbols Nerd Font
+  ;; Mono"), que não está nos repositórios do Fedora.  Instale uma vez
+  ;; com M-x nerd-icons-install-fonts; até lá, fica o tema padrão do
+  ;; treemacs em vez de quadradinhos vazios.
   (cond
-   ;; Without a graphical display `find-font' has nothing to query, and
-   ;; whether the glyphs show up is down to the terminal's own font
-   ;; rather than to Emacs.  Load the theme and let the terminal decide.
    ((not (display-graphic-p))
     (treemacs-load-theme "nerd-icons"))
    ((find-font (font-spec :family nerd-icons-font-family))
     (treemacs-load-theme "nerd-icons"))
    (t
-    (message "Treemacs: font %S not installed — run M-x nerd-icons-install-fonts to get icons"
+    (message "Treemacs: fonte %S não instalada — rode M-x nerd-icons-install-fonts"
              nerd-icons-font-family))))
 
-;; Open treemacs automatically at startup, pointed at the repo root.
-;; `treemacs-add-and-display-current-project-exclusively' resolves the
-;; project via project.el (registered in section 12) without ever
-;; prompting — unlike plain `treemacs', which asks for a root path
-;; interactively the first time the workspace is empty.
-;; default-directory at launch is the invoking shell's cwd, not the repo,
-;; so it's bound locally just for this call.
+;; Abre o treemacs na inicialização, já apontado para a raiz do
+;; repositório (sem perguntar o caminho, como faria o `treemacs' puro).
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (let ((default-directory (expand-file-name "../../" revinfor/config-dir)))
+            (let ((default-directory georef/root-dir))
               (treemacs-add-and-display-current-project-exclusively))))
 
 
 ;;; ---------------------------------------------------------------
-;; 15. Useful keybindings summary
+;; 13. Menu "Georef" — tarefas do projeto
+;;     - exportar a documentação Org para web/docs/
+;;     - rodar um script de scripts/commands/ com o Python do .venv
+;;     - servir web/ em http://localhost:8000 (o Leaflet carrega os
+;;       GeoJSON via fetch, que não funciona abrindo o HTML como file://)
+;;; ---------------------------------------------------------------
+
+(defconst georef/web-port 8000
+  "Porta do servidor local de web/ (a mesma de docs/04-leaflet-explicado.org).")
+
+(defun georef/exportar-docs ()
+  "Exporta docs/*.org para web/docs/ via exportar_docs_org_para_html.sh."
+  (interactive)
+  (let ((default-directory georef/root-dir))
+    (compile "./scripts/commands/exportar_docs_org_para_html.sh")))
+
+(defun georef/rodar-script (script)
+  "Roda SCRIPT de scripts/commands/ com o Python do .venv, num buffer *compilation*."
+  (interactive
+   (list (completing-read
+          "Script: "
+          (directory-files (expand-file-name "scripts/commands/" georef/root-dir)
+                           nil "\\.py\\'")
+          nil t)))
+  (let ((default-directory georef/root-dir))
+    (compile (format "%s scripts/commands/%s"
+                     (shell-quote-argument georef/venv-python)
+                     (shell-quote-argument script)))))
+
+(defun georef/servidor-web ()
+  "Liga ou desliga o servidor HTTP local de web/ e abre o navegador."
+  (interactive)
+  (let ((proc (get-process "georef-servidor-web")))
+    (if (process-live-p proc)
+        (progn (delete-process proc)
+               (message "Georef: servidor web parado."))
+      (let ((default-directory georef/root-dir))
+        (start-process "georef-servidor-web" "*georef-servidor-web*"
+                       "python3" "-m" "http.server"
+                       (number-to-string georef/web-port) "--directory" "web"))
+      (message "Georef: servindo web/ em http://localhost:%d (rode de novo para parar)"
+               georef/web-port)
+      (run-at-time 1 nil #'browse-url
+                   (format "http://localhost:%d" georef/web-port)))))
+
+(keymap-global-set "C-c g e" #'georef/exportar-docs)
+(keymap-global-set "C-c g r" #'georef/rodar-script)
+(keymap-global-set "C-c g s" #'georef/servidor-web)
+
+(easy-menu-define georef/menu global-map "Tarefas do projeto georef-artifacts."
+  '("Georef"
+    ["Exportar docs Org → web/docs/" georef/exportar-docs t]
+    ["Rodar script de scripts/commands/..." georef/rodar-script t]
+    "--"
+    ["Servidor web local (liga/desliga)" georef/servidor-web t]))
+
+
+;;; ---------------------------------------------------------------
+;; 14. Resumo dos atalhos
 ;;
-;;  LaTeX editing (LaTeX-mode):
-;;    Revinfor menu — Build/View Final PDF (ABNT) / (Overleaf), no prompt
-;;                    outputs: main-abnt.pdf / main-overleaf.pdf
-;;    C-c C-c       — compile via docker-latexmk (pick abnt/overleaf; default: abnt)
-;;    C-c C-v       — NOT wired for these: AUCTeX's view always looks for the
-;;                    plain master name, not a -jobname'd file. Use the
-;;                    Revinfor menu's View PDF items instead.
-;;    C-c C-e       — insert environment
-;;    C-c C-s       — insert section
-;;    C-c [         — insert \cite via RefTeX   (also C-c C-e o for \citeonline)
-;;    C-c (         — insert \label via RefTeX
-;;    C-c )         — insert \ref   via RefTeX
-;;    C-c e         — open ebib bibliography manager
-;;    (flymake)     — docker-chktex runs automatically; errors shown inline
+;;  Projeto (menu Georef):
+;;    C-c g e       — exportar docs/*.org para web/docs/
+;;    C-c g r       — rodar um script de scripts/commands/ com o .venv
+;;    C-c g s       — liga/desliga http://localhost:8000 servindo web/
 ;;
-;;  Autocomplete popup (Corfu — appears by itself while typing):
-;;    TAB           — accept the highlighted candidate
-;;    C-n / C-p     — next / previous candidate (arrow keys work too)
-;;    RET           — deliberately NOT completion; inserts a newline
-;;    C-g           — dismiss the popup
-;;    C-M-i         — force the popup open before the auto-delay elapses
-;;    M-t           — toggle the documentation panel for the candidate
-;;    M-PgDn/M-PgUp — scroll that documentation panel
-;;    Completes: \macros, \begin{env}, macro arguments (AUCTeX), plus
-;;    words from open buffers and file paths (Cape).
+;;  Python (eglot + pyright):
+;;    M-.  / M-,    — ir para a definição / voltar
+;;    C-c l r       — renomear símbolo
+;;    C-c l a       — code actions (ex.: adicionar import)
+;;    C-c l f       — formatar o buffer
+;;    C-c l d       — documentação do símbolo sob o cursor
+;;    C-c C-p       — abrir o shell Python (do .venv)
+;;    C-c C-c       — enviar o buffer para o shell
+;;    M-g n / M-g p — próximo / anterior erro (flymake)
 ;;
-;;  PDF viewer (pdf-view-mode):
-;;    C-c C-g       — SyncTeX backward search (jump to .tex source)
-;;    n / p         — next / previous page
-;;    + / -         — zoom in / out
-;;    s w           — fit to window width
+;;  Org:
+;;    C-c C-c       — rodar o bloco #+begin_src sob o cursor
+;;    C-c '         — editar o bloco de código em buffer próprio
+;;    C-c C-e h o   — exportar para HTML e abrir no navegador
 ;;
-;;  Treemacs (file/directory sidebar, opens automatically at startup):
-;;    <f8> / M-0    — jump to the treemacs window
-;;    C-x t t       — open/close treemacs
-;;    C-x t d       — open treemacs for a chosen directory
-;;    C-x t B       — treemacs bookmark
-;;    C-x t C-t     — find current file in treemacs
+;;  Restclient (arquivos .http):
+;;    C-c C-c       — enviar a requisição sob o cursor
+;;    C-c C-n / C-p — próxima / anterior requisição
 ;;
-;;  Magit (Git porcelain):
-;;    C-x g         — open magit-status
+;;  CSV:
+;;    C-c C-a       — alinhar colunas    C-c C-u — desalinhar
+;;    C-c C-s       — ordenar por coluna
+;;
+;;  Popup de completion (Corfu — aparece sozinho ao digitar):
+;;    TAB           — aceitar o candidato destacado
+;;    C-n / C-p     — próximo / anterior candidato
+;;    RET           — de propósito NÃO completa; insere nova linha
+;;    C-g           — fechar o popup
+;;    C-M-i         — forçar o popup
+;;    M-t           — liga/desliga o painel de documentação
+;;
+;;  Treemacs (abre sozinho na inicialização):
+;;    <f8> / M-0    — ir para a janela do treemacs
+;;    C-x t t       — abrir/fechar o treemacs
+;;    C-x t C-t     — localizar o arquivo atual no treemacs
+;;
+;;  Magit:
+;;    C-x g         — magit-status
 ;;; ---------------------------------------------------------------
 
 (provide 'init)

@@ -339,3 +339,15 @@ Bônus: *22.744 escolas sem coordenada no INEP* recebem a coordenada do CNEFE pe
 - *Removidos:* o ~.md~, depois de conferir que o texto era o mesmo, e ~docs/etl-georef-escolas.org~, cópia byte a byte de ~07-relatorio-etl-escolas-piloto-sp.org~ sem nenhuma referência no repositório.
 - *Referências:* os comentários de quatro scripts em ~scripts/commands/~ agora apontam para o ~.org~.
 - *Tarefa nova:* T12, atualização dos documentos 05, 06 e 07 ao final do trabalho.
+
+** 2026-11-08 — Merge da ~ibge_malhas~ do GitHub ✅
+- *Causa:* este clone não tinha remoto, e a ~ibge_malhas~ local estava 14 commits atrás da do GitHub. A feature partiu dessa cópia antiga.
+- *Remoto:* ~origin~ = ~git@github.com:claudiadaros75/Mapeamento-Intersetorial.git~.
+- *Ponto de restauração:* tag local ~backup/antes-merge-ibge-malhas~, com todo o trabalho antes do merge.
+- *Conflitos:*
+  - Versão do GitHub: ~README.org~, docs 05, 06, 07 e ~etl-georef-escolas.org~, e ~escolas_dados__cruzar_inep_cnefe.py~, por serem mais novos.
+  - Nossa versão: ~analises/matriculas_tempo_integral.org~ (a do GitHub tem o erro "Escolxoar") e ~ibge_cnefe__baixar_dados.py~ (timeout).
+  - As duas: os dois cards em ~web/index.html~.
+- *Renomeado:* ~web/js/escolas_mapa.js~ → ~web/js/escolas_inep_cnefe.js~, porque o GitHub tem outro mapa com o nome antigo.
+- *Restaurado:* ~docs/etl-georef-escolas.org~, cuja remoção estava registrada na entrada anterior. O arquivo existe no GitHub, e a ~mapeamento-intersetorial-nacional~ o alterou.
+- *Pendente:* comparar com a ~mapeamento-intersetorial-nacional~, que não entrou neste merge e tem níveis de casamento parecidos com N1–N4 (ver ~docs/09-revisao-coordenadas-inep-x-cnefe.org~ naquela branch). A T12 deve partir das versões atuais dos documentos.

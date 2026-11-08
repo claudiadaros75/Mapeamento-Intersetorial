@@ -1,0 +1,69 @@
+/* Estilos exclusivos de escolas_mapa.html (camada de escolas) */
+
+.escolas-filtro-grupo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin: 0.4rem 0;
+}
+
+.escolas-filtro-grupo .checkbox-label {
+  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.escolas-filtro-titulo {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 0.6rem;
+}
+
+.escolas-uf-meta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* Cluster: círculo com o número de escolas (a cor varia com a densidade) */
+.escolas-cluster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+}
+
+.escolas-popup table {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.escolas-popup td {
+  padding: 0.15rem 0.4rem 0.15rem 0;
+  vertical-align: top;
+}
+
+.escolas-popup td.label {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.escolas-popup h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.92rem;
+}
+
+.escolas-popup .links a {
+  margin-right: 0.75rem;
+}

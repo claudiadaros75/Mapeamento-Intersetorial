@@ -1,0 +1,157 @@
+#+TITLE: Painéis públicos disponíveis de dados abertos
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:nil
+#+STARTUP: overview
+
+* Sobre esta lista
+
+O Brasil tem uma quantidade muito grande de dados abertos publicados
+por órgãos federais, estaduais, municipais e por organizações da
+sociedade civil.  Esta lista reúne alguns dos principais portais e
+painéis, agrupados por tema, como ponto de partida para quem quer
+*utilizar* (consultar os painéis) e *reusar* (baixar e manipular os
+microdados) esses dados.
+
+Os itens marcados com *[delimitação]* são as fontes efetivamente
+adotadas por este projeto (veja a seção de delimitação no
+[[./README.org][README.org]]).  O inventário detalhado da área de educação está em
+[[./docs/paines-publicos.org][docs/paines-publicos.org]].
+
+* Agregadores e portais gerais
+
+- Portal Brasileiro de Dados Abertos (dados.gov.br) — catálogo central
+  dos conjuntos de dados do governo federal.
+  https://dados.gov.br
+- Portal da Transparência (CGU) — gastos, transferências, servidores e
+  contratos do governo federal, com download dos dados.
+  https://portaldatransparencia.gov.br/download-de-dados
+- Base dos Dados — iniciativa da sociedade civil que trata e publica
+  bases públicas brasileiras prontas para consulta em SQL e Python.
+  https://basedosdados.org
+
+* Educação
+
+- *[delimitação]* Censo Escolar (INEP) — levantamento anual de escolas,
+  matrículas, turmas e docentes da educação básica.
+  https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar
+- Microdados do INEP — Censo Escolar, Enem, Saeb, Censo da Educação
+  Superior, Enade e outros.
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados
+- INEP Data — painéis e consultas interativas aos dados do INEP.
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data
+- INEP — Dados Abertos (indicadores educacionais, sinopses estatísticas).
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos
+- FNDE — Dados Abertos (PNAE, PNLD, transporte escolar, repasses).
+  https://www.gov.br/fnde/pt-br/acesso-a-informacao/dados-abertos
+- CAPES — Dados Abertos (pós-graduação, bolsas, avaliação).
+  https://dadosabertos.capes.gov.br
+- Plataforma Nilo Peçanha (MEC) — estatísticas da Rede Federal de
+  Educação Profissional, Científica e Tecnológica.
+  https://www.gov.br/mec/pt-br/pnp
+- QEdu — painéis por escola, município e estado com dados do INEP.
+  https://qedu.org.br
+- Todos Pela Educação — indicadores e acompanhamento de metas educacionais.
+  https://www.todospelaeducacao.org.br
+- Dados Abertos da Educação do Estado de São Paulo (Seduc-SP).
+  https://dados.educacao.sp.gov.br
+
+* Território e população (IBGE)
+
+- *[delimitação]* Malhas territoriais do IBGE — limites de municípios,
+  UFs, regiões e recortes regionais.
+  https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas
+- API de serviços de dados do IBGE — malhas, localidades, agregados.
+  https://servicodados.ibge.gov.br/api/docs
+- SIDRA — Sistema IBGE de Recuperação Automática (tabelas de pesquisas).
+  https://sidra.ibge.gov.br
+- IBGE Cidades — painel com indicadores de cada município.
+  https://cidades.ibge.gov.br
+- Panorama do Censo Demográfico 2022.
+  https://censo2022.ibge.gov.br/panorama
+- INDE — Infraestrutura Nacional de Dados Espaciais.
+  https://inde.gov.br
+
+* Sociedade civil e desenvolvimento social (IPEA e outros)
+
+- *[delimitação]* Mapa das Organizações da Sociedade Civil (IPEA) —
+  OSCs de todo o país, com localização, área de atuação e parcerias.
+  https://mapaosc.ipea.gov.br
+- Ipeadata — séries econômicas, regionais e sociais do IPEA.
+  http://www.ipeadata.gov.br
+- Atlas da Violência (IPEA/FBSP).
+  https://www.ipea.gov.br/atlasviolencia
+- Atlas da Vulnerabilidade Social — IVS (IPEA).
+  http://ivs.ipea.gov.br
+- Atlas do Desenvolvimento Humano no Brasil (PNUD/IPEA/FJP).
+  http://www.atlasbrasil.org.br
+- VIS Data (MDS) — painéis de programas sociais (Bolsa Família,
+  Cadastro Único, assistência social).
+  https://aplicacoes.mds.gov.br/sagi/vis/data3/
+
+* Saúde
+
+- DATASUS — TabNet (informações de saúde, nascimentos, óbitos,
+  internações).
+  https://datasus.saude.gov.br/informacoes-de-saude-tabnet/
+- OpenDataSUS — dados abertos do Ministério da Saúde.
+  https://opendatasus.saude.gov.br
+
+* Segurança e justiça
+
+- Fórum Brasileiro de Segurança Pública — Anuário Brasileiro de
+  Segurança Pública.
+  https://forumseguranca.org.br/anuario-brasileiro-seguranca-publica/
+- Justiça em Números (CNJ) — painel estatístico do Poder Judiciário.
+  https://justica-em-numeros.cnj.jus.br
+
+* Eleições e Legislativo
+
+- TSE — Dados Abertos (candidaturas, resultados, eleitorado, prestação
+  de contas).
+  https://dadosabertos.tse.jus.br
+- Câmara dos Deputados — Dados Abertos (proposições, votações,
+  despesas).
+  https://dadosabertos.camara.leg.br
+- Senado Federal — Dados Abertos.
+  https://www12.senado.leg.br/dados-abertos
+
+* Economia e finanças públicas
+
+- Banco Central — Dados Abertos.
+  https://dadosabertos.bcb.gov.br
+- Tesouro Transparente (Tesouro Nacional).
+  https://www.tesourotransparente.gov.br
+- Siconfi — contas anuais e relatórios fiscais de estados e municípios.
+  https://siconfi.tesouro.gov.br
+- Receita Federal — Dados públicos do CNPJ.
+  https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/consultas/dados-publicos-cnpj
+
+* Meio ambiente
+
+- TerraBrasilis (INPE) — desmatamento (PRODES, DETER).
+  https://terrabrasilis.dpi.inpe.br
+- MapBiomas — cobertura e uso da terra.
+  https://brasil.mapbiomas.org
+- Hidroweb (ANA/SNIRH) — séries hidrológicas.
+  https://www.snirh.gov.br/hidroweb
+
+* Infraestrutura e serviços
+
+- ANEEL — Dados Abertos (energia elétrica).
+  https://dadosabertos.aneel.gov.br
+- Anatel — Dados Abertos (telecomunicações, banda larga).
+  https://www.gov.br/anatel/pt-br/dados/dados-abertos
+- ANTT — Dados Abertos (transportes terrestres).
+  https://dados.antt.gov.br
+
+* Estados e municípios
+
+- Portal de Dados Abertos do Estado de São Paulo.
+  https://dadosabertos.sp.gov.br
+- Fundação Seade (SP) — estatísticas socioeconômicas paulistas.
+  https://www.seade.gov.br
+- GeoSampa (Prefeitura de São Paulo) — mapa digital da cidade.
+  https://geosampa.prefeitura.sp.gov.br
+- Data.Rio (Prefeitura do Rio de Janeiro).
+  https://www.data.rio

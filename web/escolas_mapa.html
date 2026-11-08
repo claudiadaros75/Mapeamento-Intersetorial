@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Escolas Georreferenciadas (Censo Escolar 2024 + CNEFE 2022) - Leaflet</title>
+
+  <!-- ========================================================= -->
+  <!-- PASSO 1: Importar CSS do Leaflet (CDN)                   -->
+  <!-- ========================================================= -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <!-- Folha de estilos da nossa aplicação -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Estilos exclusivos do mapa de escolas (não altera o explorador de malhas) -->
+  <link rel="stylesheet" href="css/escolas_mapa.css">
+</head>
+<body>
+
+  <!-- Barra de cabeçalho -->
+  <header class="app-header">
+    <div class="header-title">
+      <a href="index.html" class="btn-home-link" title="Voltar à Página Inicial de Mapas">🏠 Início</a>
+      <h1>🏫 Mapa de Escolas Georreferenciadas (Censo Escolar 2024)</h1>
+      <span class="badge">Leaflet + GeoJSON</span>
+    </div>
+    <div class="header-controls">
+      <!-- Seletor de Mapa Base (TileLayer) -->
+      <div class="control-group">
+        <label for="basemap-select">🗺️ Mapa Base:</label>
+        <select id="basemap-select">
+          <option value="carto-light" selected>CartoDB Positron (Claro)</option>
+          <option value="carto-dark">CartoDB Dark Matter (Escuro)</option>
+          <option value="osm">OpenStreetMap (Padrão)</option>
+          <option value="esri-satellite">Esri World Imagery (Satélite)</option>
+          <option value="opentopo">OpenTopoMap (Topográfico)</option>
+        </select>
+      </div>
+
+      <!-- Alternador da Grade de Tiles (Debug) -->
+      <div class="control-group">
+        <label for="toggle-grid" class="checkbox-label">
+          <input type="checkbox" id="toggle-grid">
+          🔍 Grade de Tiles (Z/X/Y)
+        </label>
+      </div>
+
+      <!-- Indicador de carregamento -->
+      <span id="loading-indicator" class="loading hidden">Carregando malha...</span>
+    </div>
+  </header>
+
+  <!-- Container principal do layout -->
+  <div class="main-container">
+    
+    <!-- Painel Lateral de Informações -->
+    <aside class="sidebar">
+
+      <!-- Escolas do Censo Escolar georreferenciadas com o CNEFE -->
+      <details class="accordion-item escolas-accordion" open>
+        <summary class="accordion-header" title="Clique para recolher esta seção">🏫 Escolas (Censo Escolar 2024 + CNEFE 2022)</summary>
+        <div class="accordion-body">
+          <p class="instruction">Escolas agrupadas em clusters; aproxime o zoom (ou clique no cluster) para vê-las uma a uma.</p>
+
+          <h3>UFs</h3>
+          <div id="escolas-ufs" class="escolas-filtro-grupo">
+            <div class="empty-state">Carregando índice...</div>
+          </div>
+
+          <h3 class="mt-2">Colorir por</h3>
+          <div class="escolas-filtro-grupo">
+            <label class="checkbox-label"><input type="radio" name="escolas-cor" value="rede" checked> Rede de ensino</label>
+            <label class="checkbox-label"><input type="radio" name="escolas-cor" value="confianca"> Confiança da coordenada</label>
+          </div>
+          <ul id="escolas-legenda" class="legend-list"></ul>
+
+          <h3 class="mt-2">Filtros</h3>
+          <div id="escolas-filtros"></div>
+
+          <div id="escolas-resumo" class="tile-math-box mt-2"></div>
+        </div>
+      </details>
+
+      <!-- Camadas do Mapa (IBGE) — acordeão especial com filtro por checkbox -->
+      <details class="accordion-item layers-accordion" open>
+        <summary class="accordion-header" title="Clique para recolher esta seção">📐 Camadas do Mapa (IBGE)</summary>
+        <div class="accordion-body">
+          <p class="instruction">Marque uma ou mais malhas para combiná-las no mapa.</p>
+          <p class="instruction color-legend-hint">
+            🎨 <strong>Cores:</strong> Regiões usam cor fixa por região · UFs usam tons da cor da sua região · Municípios usam uma paleta própria para contrastar com a UF por baixo. O contorno da UF fica mais grosso e escuro para continuar visível mesmo com os Municípios ligados.
+          </p>
+
+          <!-- Alternador de Nível Automático por Zoom -->
+          <div class="auto-lod-toggle">
+            <label class="checkbox-label" for="toggle-auto-lod">
+              <input type="checkbox" id="toggle-auto-lod" checked>
+              🎯 <strong>Auto-Recorte por Zoom (LOD)</strong>
+            </label>
+            <span class="lod-hint">Alterna País (Z≤3) → Regiões (Z=4) → UFs (Z=5..7) → Municípios (Z≥8). Marcar uma malha manualmente desativa o auto-recorte.</span>
+          </div>
+
+          <div class="layer-checkbox-list">
+            <label class="layer-checkbox-row">
+              <input type="checkbox" id="chk-layer-pais" data-layer-key="pais">
+              <span class="layer-row-text">
+                <span class="layer-row-name">🇧🇷 Contorno do País (Brasil)</span>
+                <span class="layer-row-meta">1 feição · ~15 KB</span>
+              </span>
+            </label>
+            <label class="layer-checkbox-row">
+              <input type="checkbox" id="chk-layer-regioes" data-layer-key="regioes">
+              <span class="layer-row-text">
+                <span class="layer-row-name">🎨 Grandes Regiões (5)</span>
+                <span class="layer-row-meta">5 feições · ~33 KB</span>
+              </span>
+            </label>
+            <label class="layer-checkbox-row">
+              <input type="checkbox" id="chk-layer-uf" data-layer-key="uf">
+              <span class="layer-row-text">
+                <span class="layer-row-name">🗺️ Unidades da Federação (27)</span>
+                <span class="layer-row-meta">27 feições · ~117 KB</span>
+              </span>
+            </label>
+            <label class="layer-checkbox-row">
+              <input type="checkbox" id="chk-layer-municipios" data-layer-key="municipios">
+              <span class="layer-row-text">
+                <span class="layer-row-name">🏙️ Municípios do Brasil (5.571)</span>
+                <span class="layer-row-meta">5.571 feições · ~5.3 MB (pesado)</span>
+              </span>
+            </label>
+          </div>
+
+          <h3 class="mt-2">Malhas Ativas</h3>
+          <div id="active-layers-panel" class="active-layers-panel">
+            <div class="empty-state">Nenhuma malha selecionada</div>
+          </div>
+
+          <div class="tile-math-box mt-2">
+            <div class="math-row">
+              <span class="math-label">Tiles na Tela (Viewport):</span>
+              <span class="math-value highlight-coords" id="info-visible-tiles">Calculando...</span>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Inspetor de Zoom e Pirâmide de Tiles -->
+      <details class="accordion-item zoom-accordion">
+        <summary class="accordion-header" title="Clique para expandir esta seção">🔍 Inspetor de Zoom (Pirâmide de Tiles)</summary>
+        <div class="accordion-body">
+          <p class="instruction">Altere o zoom inteiro para ver a grade de tiles se subdividir.</p>
+
+          <div class="zoom-slider-container">
+            <div class="zoom-display">
+              <span>Nível de Zoom (Z):</span>
+              <strong id="zoom-display-value">4</strong>
+            </div>
+            <input type="range" id="zoom-slider" min="0" max="18" value="4" step="1">
+          </div>
+
+          <div class="zoom-presets">
+            <button class="btn-preset" data-zoom="0">Mundo (0)</button>
+            <button class="btn-preset" data-zoom="3">América (3)</button>
+            <button class="btn-preset active" data-zoom="4">Brasil (4)</button>
+            <button class="btn-preset" data-zoom="7">Estado (7)</button>
+            <button class="btn-preset" data-zoom="11">Cidade (11)</button>
+            <button class="btn-preset" data-zoom="15">Rua (15)</button>
+          </div>
+
+          <div class="tile-math-box">
+            <div class="math-row">
+              <span class="math-label">Dimensão da grade:</span>
+              <span class="math-value" id="math-grid-dim">16 × 16</span>
+            </div>
+            <div class="math-row">
+              <span class="math-label">Total de tiles no planeta:</span>
+              <span class="math-value" id="math-total-tiles">256 tiles</span>
+            </div>
+            <div class="math-row">
+              <span class="math-label">Tile central visível:</span>
+              <span class="math-value highlight-coords" id="math-center-tile">Z: 4 | X: 6 | Y: 9</span>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Informações da Feição GeoJSON -->
+      <details class="accordion-item">
+        <summary class="accordion-header" title="Clique para expandir esta seção">ℹ️ Detalhes da Feição</summary>
+        <div class="accordion-body">
+          <p class="instruction">Passe o mouse ou clique em uma área ou escola do mapa para ver seus dados.</p>
+
+          <div id="feature-details" class="details-content">
+            <div class="empty-state">Nenhuma área selecionada</div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Legenda de Regiões -->
+      <details class="accordion-item" id="legend-card">
+        <summary class="accordion-header" title="Clique para expandir esta seção">🎨 Regiões do Brasil</summary>
+        <div class="accordion-body">
+          <ul class="legend-list">
+            <li><span class="legend-color" style="background: #2b83ba;"></span> Norte (N)</li>
+            <li><span class="legend-color" style="background: #abdda4;"></span> Nordeste (NE)</li>
+            <li><span class="legend-color" style="background: #ffffbf;"></span> Centro-Oeste (CO)</li>
+            <li><span class="legend-color" style="background: #fdae61;"></span> Sudeste (SE)</li>
+            <li><span class="legend-color" style="background: #d7191c;"></span> Sul (S)</li>
+          </ul>
+        </div>
+      </details>
+
+      <!-- Informações do TileLayer Ativo -->
+      <details class="accordion-item" id="basemap-info-card">
+        <summary class="accordion-header" title="Clique para expandir esta seção">🌐 TileLayer Ativo</summary>
+        <div class="accordion-body">
+          <p id="basemap-desc" class="basemap-description">
+            <strong>CartoDB Positron:</strong> Fundo claro e minimalista, ideal para destacar mapas temáticos e polígonos.
+          </p>
+          <div class="url-template-box">
+            <span class="url-label">Template URL:</span>
+            <code id="basemap-url">https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png</code>
+          </div>
+          <div class="url-template-box mt-2">
+            <span class="url-label">URL do Tile Central:</span>
+            <code id="basemap-sample-url" class="sample-url">https://a.basemaps.cartocdn.com/light_all/4/6/9.png</code>
+          </div>
+        </div>
+      </details>
+
+      <!-- Resumo didático -->
+      <details class="accordion-item didactic-card">
+        <summary class="accordion-header" title="Clique para expandir esta seção">💡 Como a Pirâmide de Tiles funciona</summary>
+        <div class="accordion-body">
+          <ol class="steps-list">
+            <li><strong>Zoom Z:</strong> O mundo é dividido em <code>2^Z × 2^Z</code> blocos quadrados.</li>
+            <li><strong>Cada Bloco:</strong> Tem exatamente <code>256 × 256 pixels</code>.</li>
+            <li><strong>Coordenadas X/Y:</strong> Numeradas de <code>0</code> a <code>2^Z - 1</code>.</li>
+            <li><strong>Economia:</strong> O navegador baixa apenas os ~15 blocos visíveis na tela!</li>
+          </ol>
+        </div>
+      </details>
+    </aside>
+
+    <!-- ========================================================= -->
+    <!-- PASSO 2: Container DOM onde o Leaflet irá desenhar o mapa -->
+    <!-- ========================================================= -->
+    <main id="map" class="map-container"></main>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- PASSO 3: Importar JavaScript do Leaflet (CDN)             -->
+  <!-- ========================================================= -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- Supercluster: agrupamento de pontos rápido o bastante para as ~180 mil escolas do Brasil -->
+  <script src="https://unpkg.com/supercluster@8.0.1/dist/supercluster.min.js"></script>
+
+  <!-- Script principal da nossa aplicação -->
+  <script src="js/escolas_mapa.js"></script>
+</body>
+</html>

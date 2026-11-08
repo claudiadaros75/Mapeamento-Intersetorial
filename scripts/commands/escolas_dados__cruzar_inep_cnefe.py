@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ETL: cruza o Censo Escolar do INEP com o CNEFE do IBGE e gera escolas_dados.csv.
+"""ETL: cruza o Censo Escolar do INEP com o CNEFE do IBGE e gera escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv.
 
 Le os dados ja baixados por inep_censo_escolar__baixar_dados.py e por
 ibge_cnefe__baixar_dados.py (script separado deste - o download nao faz
@@ -16,20 +16,41 @@ como sinal principal e nome so para desempate:
 
     alta   - CO_MUNICIPIO+CO_CEP+NU_ENDERECO (INEP) bate exato com
              COD_MUNICIPIO+CEP+NUM_ENDERECO (CNEFE). Candidato unico e
-             aceito direto; mais de um candidato no mesmo endereco e
-             desempatado por similaridade de nome.
+             aceito direto; mais de um candidato no mesmo endereco usa o
+             mais parecido por nome so para decidir QUAL escola e - a
+             posicao ja esta certa de qualquer forma (mesmo endereco), por
+             isso esta camada nunca fica "ambigua".
     media  - so CO_MUNICIPIO+CO_CEP bate (numero ausente ou divergente).
-             Mesma logica de desempate por nome quando ha mais de um
-             candidato.
-    baixa  - nenhum candidato por CEP: cai para similaridade de nome
-             dentro do mesmo municipio (a estrategia mais fraca, usada so
-             como ultimo recurso).
-    ambiguo            - o desempate por nome (em qualquer camada acima)
-                          nao decidiu com confianca (dois candidatos com
-                          nota muito parecida).
-    sem_correspondencia - nenhum candidato em nenhuma camada, ou o unico
-                          candidato do fallback por nome ficou abaixo do
-                          limiar minimo.
+             Candidato unico e aceito direto, mesmo com CEP generico (ver
+             abaixo) - sem outro candidato, nao ha ambiguidade possivel.
+             Mais de um candidato desempata por nome, a nao ser que o CEP
+             seja generico (nesse caso a cesta e pouco discriminativa
+             demais para confiar - cai para "baixa" em vez de arriscar).
+    baixa  - nenhum candidato por CEP, ou CEP generico com varios
+             candidatos: cai para similaridade de nome dentro do mesmo
+             municipio.
+    aproximado_cep - so roda com --geocodificar-cep-fallback: para quem
+             sobrou sem nenhuma correspondencia no CNEFE, consulta uma API
+             gratuita de CEP (AwesomeAPI) para uma coordenada aproximada
+             (nivel do CEP, nao do predio - ver docs/06-georeferenciamento-escolas.org).
+    ambiguo              - o desempate por nome nas camadas media/baixa
+                           nao decidiu com confianca (dois candidatos com
+                           nota muito parecida).
+    sem_correspondencia  - nenhum candidato em nenhuma camada, ou o unico
+                           candidato do fallback por nome ficou abaixo do
+                           limiar minimo, e o fallback de CEP (se pedido)
+                           tambem nao resolveu.
+
+CEP generico: alguns municipios usam um CEP-base (terminado em "000") para
+varias escolas ao mesmo tempo, em vez do CEP real do logradouro - quando
+isso gera mais de um candidato na camada "media", a cesta fica grande e
+pouco discriminativa (achado real do piloto em SP, ver
+docs/06-georeferenciamento-escolas.org). Por isso so desconfiamos do CEP
+generico quando ha mais de um candidato; com candidato unico, ele e aceito
+normalmente - uma primeira versao desta logica desconfiava do CEP
+generico mesmo com candidato unico, o que so piorou a cobertura (mais
+escolas empurradas para a camada "baixa", mais cara e mais ambigua) sem
+reduzir a ambiguidade de verdade.
 
 Escolas em ambiguo/sem_correspondencia continuam no CSV de saida (o Censo
 Escolar do INEP e a lista mestra - nunca perdemos uma escola por falta de
@@ -46,20 +67,25 @@ enquanto o cruzamento so funciona com o ano de 2024.
 Uso:
     .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py
     .venv/bin/python ... sp
+    .venv/bin/python ... sp --geocodificar-cep-fallback
     .venv/bin/python ... --listar
 """
 
 import argparse
 import csv
 import difflib
+import json
 import re
+import time
 import unicodedata
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
 DIR_INEP = RAIZ / "data" / "inep_censo_escolar" / "zipfiles"
 DIR_CNEFE = RAIZ / "data" / "ibge_cnefe" / "zipfiles"
-SAIDA_PADRAO = RAIZ / "data" / "escolas_dados.csv"
+SAIDA_PADRAO = RAIZ / "data" / "escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv"
 
 ANO_CENSO_ESCOLAR = "2024"
 
@@ -81,6 +107,13 @@ CODIGO_PARA_SIGLA = {codigo: sigla for sigla, codigo in UFS.items()}
 LIMIAR_NOME_FALLBACK = 0.5
 MARGEM_AMBIGUO = 0.05
 
+# API de CEP gratuita, sem chave, usada so como ultimo recurso (--geocodificar-cep-fallback)
+# - devolve a coordenada do CEP (nivel de rua/quadra, nao do predio), sem SLA
+# nem limite de taxa documentado (ver docs/06-georeferenciamento-escolas.org).
+# Um intervalo entre chamadas evita sobrecarregar um servico comunitario gratuito.
+URL_API_CEP = "https://cep.awesomeapi.com.br/json/{}"
+INTERVALO_API_CEP_SEGUNDOS = 0.3
+
 COLUNAS_NOVAS = [
     "LATITUDE",
     "LONGITUDE",
@@ -89,6 +122,33 @@ COLUNAS_NOVAS = [
     "STATUS_GEOLOCALIZACAO",
     "CONFIANCA_NOME",
 ]
+
+
+def cep_generico(cep: str) -> bool:
+    """CEPs terminados em "000" costumam ser o CEP-base do municipio, nao do logradouro.
+
+    Achado real do piloto em SP (ver docs/06-georeferenciamento-escolas.org):
+    varias escolas do mesmo municipio compartilhando esse CEP tornam a
+    camada "media" uma cesta grande e pouco discriminativa.
+    """
+    return bool(cep) and cep.endswith("000")
+
+
+def geocodificar_por_cep(cep: str):
+    """Consulta a AwesomeAPI de CEP (gratuita, sem chave) e devolve lat/lon, ou None se falhar.
+
+    So chamada quando --geocodificar-cep-fallback e pedido e nenhuma outra
+    camada resolveu a escola. Erros de rede/CEP invalido nao interrompem o
+    ETL - a escola so continua sem coordenada.
+    """
+    try:
+        with urllib.request.urlopen(URL_API_CEP.format(cep), timeout=10) as resposta:
+            dados = json.loads(resposta.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, ValueError):
+        return None
+    if not dados.get("lat") or not dados.get("lng"):
+        return None
+    return {"latitude": dados["lat"], "longitude": dados["lng"], "nv_geo_coord": "", "dsc_estabelecimento": ""}
 
 
 def normalizar_nome(texto: str) -> str:
@@ -111,19 +171,22 @@ def normalizar_numero(texto: str) -> str:
     return digitos.lstrip("0") or ("0" if digitos else "")
 
 
-def escolher_por_nome(candidatos: list, nome_escola: str, limiar: float):
+def escolher_por_nome(candidatos: list, nome_escola: str, limiar: float, permitir_ambiguo: bool = True):
     """Escolhe o candidato mais parecido por nome, ou sinaliza ambiguidade.
 
     Devolve (candidato_ou_None, melhor_nota, ambiguo). Ambiguo quando o
     segundo colocado fica a menos de MARGEM_AMBIGUO do primeiro - nesse
     caso nao escolhemos nenhum, mesmo que o primeiro passe do limiar.
+    Com permitir_ambiguo=False (camada "alta": todos os candidatos ja
+    estao no mesmo endereco exato), a posicao esta certa de qualquer
+    forma, entao sempre devolvemos o melhor por nome em vez de bloquear.
     """
     pontuados = sorted(
         ((similaridade_nome(nome_escola, c["dsc_estabelecimento"]), c) for c in candidatos),
         key=lambda par: -par[0],
     )
     melhor_nota, melhor = pontuados[0]
-    if len(pontuados) > 1 and (melhor_nota - pontuados[1][0]) < MARGEM_AMBIGUO:
+    if permitir_ambiguo and len(pontuados) > 1 and (melhor_nota - pontuados[1][0]) < MARGEM_AMBIGUO:
         return None, melhor_nota, True
     if melhor_nota < limiar:
         return None, melhor_nota, False
@@ -228,20 +291,26 @@ def geolocalizar_escola(escola: dict, idx_exato: dict, idx_cep: dict, idx_munici
         if candidatos:
             if len(candidatos) == 1:
                 return candidatos[0], "alta", None
-            escolhido, nota, ambiguo = escolher_por_nome(candidatos, nome, limiar=0.0)
-            if ambiguo:
-                return None, "ambiguo", nota
+            # Mesmo endereco exato para todos - a posicao ja esta certa,
+            # entao nunca bloqueia por ambiguidade de nome aqui.
+            escolhido, nota, _ = escolher_por_nome(candidatos, nome, limiar=0.0, permitir_ambiguo=False)
             return escolhido, "alta", nota
 
     if cep:
         candidatos = idx_cep.get((municipio, cep))
         if candidatos:
             if len(candidatos) == 1:
+                # Candidato unico: nao importa se o CEP e generico, nao ha
+                # ambiguidade possivel para desconfiar.
                 return candidatos[0], "media", None
-            escolhido, nota, ambiguo = escolher_por_nome(candidatos, nome, limiar=0.0)
-            if ambiguo:
-                return None, "ambiguo", nota
-            return escolhido, "media", nota
+            if not cep_generico(cep):
+                escolhido, nota, ambiguo = escolher_por_nome(candidatos, nome, limiar=0.0)
+                if ambiguo:
+                    return None, "ambiguo", nota
+                return escolhido, "media", nota
+            # CEP generico com varios candidatos: cesta pouco discriminativa
+            # (achado do piloto) - nao confiar nela, cai para o fallback por
+            # nome no municipio inteiro abaixo.
 
     candidatos = idx_municipio.get(municipio)
     if candidatos:
@@ -255,7 +324,7 @@ def geolocalizar_escola(escola: dict, idx_exato: dict, idx_cep: dict, idx_munici
     return None, "sem_correspondencia", None
 
 
-def processar_uf(uf_sigla: str, escolas_inep: list, escritor: csv.DictWriter) -> dict:
+def processar_uf(uf_sigla: str, escolas_inep: list, escritor: csv.DictWriter, geocodificar_cep_fallback: bool) -> dict:
     """Geolocaliza as escolas de uma UF e grava as linhas no CSV de saida. Devolve as contagens por status."""
     uf_codigo = UFS[uf_sigla]
     print("[{}] {} escolas no Censo Escolar {}".format(uf_sigla, len(escolas_inep), ANO_CENSO_ESCOLAR))
@@ -265,9 +334,18 @@ def processar_uf(uf_sigla: str, escolas_inep: list, escritor: csv.DictWriter) ->
     print("    {} estabelecimentos de ensino no CNEFE".format(len(cnefe)))
     idx_exato, idx_cep, idx_municipio = indexar_cnefe(cnefe)
 
-    contagens = {"alta": 0, "media": 0, "baixa": 0, "ambiguo": 0, "sem_correspondencia": 0}
+    contagens = {"alta": 0, "media": 0, "baixa": 0, "aproximado_cep": 0, "ambiguo": 0, "sem_correspondencia": 0}
     for escola in escolas_inep:
         registro, status, nota = geolocalizar_escola(escola, idx_exato, idx_cep, idx_municipio)
+
+        if registro is None and geocodificar_cep_fallback:
+            cep = (escola["CO_CEP"] or "").zfill(8) if escola["CO_CEP"] else ""
+            if cep:
+                time.sleep(INTERVALO_API_CEP_SEGUNDOS)
+                aproximado = geocodificar_por_cep(cep)
+                if aproximado is not None:
+                    registro, status, nota = aproximado, "aproximado_cep", None
+
         contagens[status] += 1
 
         linha = dict(escola)
@@ -314,6 +392,15 @@ def principal() -> None:
         help="caminho do CSV de saida (padrao: {})".format(SAIDA_PADRAO),
     )
     analisador.add_argument("--listar", action="store_true", help="lista as UFs com CNEFE ja baixado e sai")
+    analisador.add_argument(
+        "--geocodificar-cep-fallback",
+        action="store_true",
+        help=(
+            "para quem sobrar sem correspondencia no CNEFE, consulta a AwesomeAPI de CEP "
+            "(gratuita, sem chave, sem SLA) para uma coordenada aproximada do CEP - faz uma "
+            "chamada de rede por escola nessa situacao, com pausa entre chamadas"
+        ),
+    )
     argumentos = analisador.parse_args()
 
     if argumentos.listar:
@@ -337,12 +424,16 @@ def principal() -> None:
     escolas_por_uf, colunas_inep = carregar_escolas_inep(caminho_inep, codigos_uf)
 
     argumentos.saida.parent.mkdir(parents=True, exist_ok=True)
-    contagens_totais = {"alta": 0, "media": 0, "baixa": 0, "ambiguo": 0, "sem_correspondencia": 0}
+    contagens_totais = {
+        "alta": 0, "media": 0, "baixa": 0, "aproximado_cep": 0, "ambiguo": 0, "sem_correspondencia": 0
+    }
     with open(argumentos.saida, "w", encoding="utf-8", newline="") as arquivo:
         escritor = csv.DictWriter(arquivo, fieldnames=list(colunas_inep) + COLUNAS_NOVAS, delimiter=";")
         escritor.writeheader()
         for uf in ufs_pedidas:
-            contagens = processar_uf(uf, escolas_por_uf[UFS[uf]], escritor)
+            contagens = processar_uf(
+                uf, escolas_por_uf[UFS[uf]], escritor, argumentos.geocodificar_cep_fallback
+            )
             for status, quantidade in contagens.items():
                 contagens_totais[status] += quantidade
 

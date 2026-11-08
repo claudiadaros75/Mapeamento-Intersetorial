@@ -41,15 +41,43 @@ Este é um documento *vivo*, mantido entre sessões de trabalho:
   =scripts/commands/ibge_cnefe__baixar_dados.py= (CNEFE, por UF).
 - Feito: ETL =scripts/commands/escolas_dados__cruzar_inep_cnefe.py=
   rodado com sucesso no piloto de SP - *81,1%* das 33.863 escolas do Censo
-  Escolar 2024 em SP ganharam coordenada (=data/escolas_dados.csv=).
+  Escolar 2024 em SP ganharam coordenada (=data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=).
   Achados e pendências (ambiguidade por CEP genérico, desempenho a
   otimizar antes do Brasil inteiro) em
   [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
   Relatório completo desta etapa em
   [[file:07-relatorio-etl-escolas-piloto-sp.org][07-relatorio-etl-escolas-piloto-sp.org]].
-- Próxima ação concreta: resolver os dois problemas encontrados no piloto
-  (ambiguidade por CEP genérico e desempenho) antes de rodar o ETL para o
-  Brasil inteiro.
+- Feito: pesquisa de recursos gratuitos de geocodificação (CNEFE ampliado,
+  AwesomeAPI CEP, CEP Aberto, Nominatim) e implementação de 3 correções no
+  ETL (camada "alta" nunca mais fica ambígua; CEP genérico só é
+  desconfiado com múltiplos candidatos - uma primeira tentativa mais
+  agressiva piorou o resultado, foi corrigida; fallback opcional
+  =--geocodificar-cep-fallback= via AwesomeAPI). Detalhes em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]].
+- Feito (2026-09-18): mapa web de escolas =web/escolas_mapa.html= (cópia do
+  explorador de malhas, que ficou intocado, com script próprio
+  =web/js/escolas_mapa.js= e CSS próprio =web/css/escolas_mapa.css=).
+  Dados leves por UF gerados por
+  =scripts/commands/escolas_mapa__gerar_dados_web.py= em
+  =web/data/escolas/= (SP: 27.324 escolas com coordenada, 5,2 MB). Decisões:
+  clusters com *Supercluster* + escolas individuais em *canvas* (a partir de
+  Z=14), para escalar até as ~180 mil escolas do Brasil; filtro padrão só
+  "Em atividade"; cores por rede de ensino ou por confiança; as 6.539
+  escolas sem coordenada (ambiguo/sem_correspondencia) aparecem como
+  contagem na barra lateral. Pendências: acrescentar ao ETL o endereço do
+  CNEFE (hoje o popup só mostra o nome do estabelecimento no CNEFE) e
+  conferir no dicionário oficial o significado de =NV_GEO_COORD= usado no
+  popup.
+- *PAUSADO AQUI - próxima ação ao retomar*: a última rodada do ETL em SP
+  (com as 3 correções acima) estava rodando em segundo plano quando a
+  sessão foi pausada, sem o resultado conferido ainda. Primeiro passo da
+  próxima sessão: rodar (ou conferir o resultado, se ainda estiver
+  disponível) =scripts/commands/escolas_dados__cruzar_inep_cnefe.py sp= e
+  atualizar a tabela de cobertura em
+  [[file:06-georeferenciamento-escolas.org][06-georeferenciamento-escolas.org]]
+  (seção "Segunda rodada"). Só depois disso: testar o fallback de CEP,
+  implementar a camada de =ref:INEP= do OpenStreetMap, otimizar
+  desempenho, e então baixar o CNEFE das outras 26 UFs.
 
 * Decisões tomadas
 
@@ -84,7 +112,7 @@ conhecidas em
 Com isso, a estratégia muda:
 
 - Em vez de agregar por município, o objetivo agora é montar uma base
-  =escolas_dados.csv= com *uma linha por escola* do Censo Escolar (INEP),
+  =escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv= com *uma linha por escola* do Censo Escolar (INEP),
   enriquecida com =LATITUDE=/=LONGITUDE= vindas do CNEFE. Nome de escola
   sozinho não é chave confiável entre as duas bases (nenhuma tem um ID em
   comum); testamos com dados reais de SP e endereço (CEP + número) é uma
