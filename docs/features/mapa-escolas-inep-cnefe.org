@@ -1,0 +1,358 @@
+#+TITLE: Mapa nacional de escolas: INEP (Catálogo de Escolas) × CNEFE (IBGE)
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:nil ^:{}
+#+STARTUP: overview
+
+- *Branch:* ~feat/mapa-escolas-inep-cnefe~
+- *Início:* 2026-11-07
+- *Status:* ✅ T0–T11 concluídas (2026-11-08). Pendentes: decisão D7 e T12
+
+Legenda de status das tarefas: ⬜ pendente · 🟡 em andamento · ✅ concluída · ⏸️ bloqueada/adiada
+
+* 1. Objetivo (Goal)
+
+Montar *um mapa do Brasil inteiro* com *dois conjuntos de pontos sobrepostos*:
+
+1. todas as escolas do *Catálogo de Escolas do INEP*, usando a latitude e a longitude que o próprio INEP publica;
+2. todos os estabelecimentos de ensino do *CNEFE/IBGE* (~COD_ESPECIE = 4~), usando a coordenada do CNEFE.
+
+A partir disso, responder três perguntas:
+
+| #  | Pergunta                                                          | Entregável                                                               |
+|----+-------------------------------------------------------------------+--------------------------------------------------------------------------|
+| O1 | Quais escolas são *a mesma* nas duas bases?                       | Pareamento INEP↔CNEFE em 4 níveis de confiança (abaixo)                  |
+| O2 | Qual a *distância* entre as duas coordenadas de uma mesma escola? | Coluna ~DISTANCIA_M~ (haversine) em cada par + estatísticas por nível/UF |
+| O3 | Como *auditar* cada nível?                                        | Um CSV de auditoria por nível, além dos não pareados e dos ambíguos      |
+
+** Níveis de pareamento (definidos pelo usuário)
+
+Os níveis são aplicados *em cascata*: uma escola do INEP pareada num nível não volta a ser testada nos seguintes.
+
+Cada registro do CNEFE só pode ser usado uma vez, ou seja, o pareamento é 1:1.
+
+
+| Nível | Chave de comparação (sempre dentro do mesmo município)                                                                                 |
+|-------+----------------------------------------------------------------------------------------------------------------------------------------|
+| *N1*  | CEP + número + logradouro (normalizados)                                                                                               |
+| *N2*  | CEP + logradouro (o número é ignorado)                                                                                                 |
+| *N3*  | Nome da escola *exato*, depois de normalizado (sem acento, pontuação ou diferença de caixa)                                            |
+| *N4*  | Nome da escola *ajustado*: abreviações expandidas (EE, EMEF, EMEI, PROF…), stopwords removidas e similaridade fuzzy acima de um limiar |
+
+#+begin_quote
+*Nota.* O ETL atual (~escolas_dados__cruzar_inep_cnefe.py~) usa outras camadas: alta = CEP+número, média = só CEP, baixa = nome fuzzy. Ele *não compara o texto do logradouro* e parte dos microdados do Censo, que não têm coordenada. Os níveis N1–N4 acima substituem essas camadas neste trabalho. O script antigo fica como está, como referência.
+#+end_quote
+
+* 2. Escopo (Scope)
+
+** Dentro do escopo
+- Ingestão do ~catalogo-escolas-unificado.csv~ (Drive, 85 MB) com coordenada INEP.
+- Download e filtragem do CNEFE das *27 UFs* (hoje só SP está baixado).
+- Parser do campo ~Endereço~ do catálogo, que vem em texto único: ~"LOGRADOURO, NUM BAIRRO. CEP Município - UF."~.
+- Pareamento N1–N4, distância haversine e CSVs de auditoria.
+- Mapa web Leaflet com as duas camadas, os pares ligados por uma linha e filtro por nível e por UF.
+- Documentação dos resultados (cobertura por nível e distribuição das distâncias).
+
+** Fora do escopo (por ora)
+- Corrigir ou "escolher" a coordenada certa entre as duas fontes. Aqui só medimos a divergência.
+- Microdados históricos do Censo Escolar (1995–2025).
+- Publicação em GitHub Pages dos arquivos completos. Decidimos depois de medir o tamanho (ver T9).
+
+** Fontes de dados
+
+| Fonte                    | Onde                                                                         | Observações                                                                                                                                                                                      |
+|--------------------------+------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Catálogo de Escolas INEP | Drive ~1AYJVIYVhhOqzrMwedxFlHoe6Mj5cQEvr~ (~catalogo-escolas-unificado.csv~) | CSV UTF-8, separador ~,~. Colunas: Restrição de Atendimento, Escola, Código INEP, UF, Município, Localização, …, Endereço, …, Latitude, Longitude                                                |
+| Catálogo por região      | Drive (5 arquivos ~…Detalhado-<regiao>.csv~)                                 | Parecem ser partes do unificado (mesmo cabeçalho, com BOM). Confirmar em T1                                                                                                                      |
+| CNEFE 2022               | FTP IBGE, via ~ibge_cnefe__baixar_dados.py~                                  | Separador ~;~, latin-1. Colunas usadas: COD_MUNICIPIO, CEP, NOM_TIPO_SEGLOGR, NOM_TITULO_SEGLOGR, NOM_SEGLOGR, NUM_ENDERECO, DSC_ESTABELECIMENTO, LATITUDE, LONGITUDE, NV_GEO_COORD, COD_ESPECIE |
+
+* 3. Quebra em tarefas (Task Breakdown)
+
+** T0 — Branch e documento de plano ✅
+- *Justificativa:* isolar o trabalho do branch ~ibge_malhas~ e ter um lugar único para registrar decisões e progresso ao longo da sessão.
+
+** T1 — Baixar e inspecionar o Catálogo de Escolas do INEP ✅
+- Baixar ~catalogo-escolas-unificado.csv~ para ~data/inep_catalogo_escolas/~ e incluir no ~.gitignore~.
+- Medir: total de linhas, escolas sem coordenada, coordenadas fora do Brasil ou zeradas, distribuição de "Restrição de Atendimento" e Código INEP duplicado.
+- Confirmar que unificado = soma dos 5 regionais.
+- *Justificativa:* é a lista mestra do lado INEP e a única fonte de coordenada INEP. Antes de parear, precisamos saber quantas escolas existem e quantas trazem coordenada válida, senão os percentuais finais ficam sem denominador confiável.
+
+** T2 — Script de download reprodutível do catálogo ✅
+- ~scripts/commands/inep_catalogo_escolas__baixar_dados.py~, no mesmo padrão dos outros scripts ~__baixar_dados~.
+- *Justificativa:* o projeto mantém ~data/~ reproduzível por scripts e fora do git. Sem o script, ninguém consegue refazer o mapa a partir do repositório.
+
+** T3 — Parser de endereço do catálogo ✅
+- Separar ~Endereço~ em ~LOGRADOURO~, ~NUMERO~, ~BAIRRO~, ~CEP~ e ~MUNICIPIO_UF~. Tratar ~SN~ / ~S/N~, KM, complementos e endereços rurais sem CEP.
+- Mapear ~Município~ + ~UF~ para o código IBGE de 7 dígitos, usando a malha municipal já baixada, para casar com ~COD_MUNICIPIO~ do CNEFE.
+- Relatório da taxa de parse bem-sucedido por campo.
+- *Justificativa:* N1 e N2 dependem de CEP, número e logradouro *separados*, mas o catálogo entrega tudo num único texto. O nome do município também precisa virar código, porque nomes têm grafias diferentes entre as bases.
+
+** T4 — Baixar o CNEFE das 27 UFs e extrair só as escolas ✅
+- Rodar ~ibge_cnefe__baixar_dados.py~ para todas as UFs.
+- Novo passo que lê cada CSV *uma vez* e grava ~data/ibge_cnefe/escolas/cnefe_escolas_<UF>.csv~ (só ~COD_ESPECIE=4~, só as colunas usadas).
+- *Justificativa:* SP sozinho tem 3,8 GB descompactado e o piloto levou cerca de 28 min, quase tudo lendo o CNEFE. Extrair as escolas uma única vez reduz cada rodada de pareamento de horas para segundos e permite iterar nos níveis N1–N4.
+- *Atenção:* só há *≈12 GB livres* em ~/home~ (verificado em 2026-11-07, 96% de uso) e SP sozinho ocupa ≈4,6 GB entre zip e CSV extraído. *Restrição de projeto:* processar uma UF por vez, *lendo o CSV de dentro do zip em streaming, sem extrair*, gravar só o recorte de escolas e apagar o zip antes de baixar a próxima UF (o zip pode ser rebaixado pelo script).
+
+** T5 — Normalizadores compartilhados ✅
+- ~normalizar_cep~, ~normalizar_numero~, ~normalizar_logradouro~ (expandir R→RUA, AV→AVENIDA, remover tipo e título quando necessário), ~normalizar_nome~ e ~ajustar_nome_escola~ (tabela de abreviações para N4).
+- Testes unitários simples com casos reais tirados de T1 e T4.
+- *Justificativa:* os quatro níveis dependem de as duas bases serem normalizadas *da mesma forma*. Uma diferença de normalização vira falso "não pareado" que nenhum nível corrige. Concentrar isso num módulo testado evita esse erro silencioso.
+
+** T6 — Motor de pareamento N1→N4 ✅
+- ~scripts/commands/escolas__parear_inep_cnefe.py~, processando por UF e indexando o CNEFE por (município, CEP, número, logradouro) etc.
+- Em cada nível: candidato único → par. Vários candidatos → desempate por similaridade de nome. Empate dentro da margem → ~AMBIGUO~.
+- *Não usar a distância como critério de desempate.*
+- Fuzzy do N4 com ~rapidfuzz~ (nova dependência) e candidatos podados por município.
+- *Justificativa:* é o núcleo do objetivo O1. A regra de não desempatar pela distância existe porque a distância é a *medida* do objetivo O2. Usá-la para decidir o par enviesaria o resultado, já que os pares pareceriam mais próximos do que são. ~rapidfuzz~ resolve o gargalo de desempenho do ~difflib~ visto no piloto.
+
+** T7 — Distância entre coordenadas ✅
+- ~DISTANCIA_M~ por haversine para cada par, com faixas (<50 m, 50–200 m, 200 m–1 km, 1–5 km, >5 km).
+- Sinalizar pares com uma das coordenadas inválida.
+- Estatísticas por nível e por UF: mediana, p90 e máximo.
+- *Justificativa:* atende ao objetivo O2. As faixas também servem de controle de qualidade do pareamento: um par N1 a 30 km de distância indica erro de pareamento ou de coordenada e deve aparecer na auditoria.
+
+** T8 — CSVs de auditoria ✅
+- Em ~data/escolas_pareamento/~:
+  - ~auditoria_N1_cep_numero_logradouro.csv~
+  - ~auditoria_N2_cep_logradouro.csv~
+  - ~auditoria_N3_nome_exato.csv~
+  - ~auditoria_N4_nome_ajustado.csv~
+  - ~ambiguos.csv~, com os candidatos empatados
+  - ~inep_sem_par.csv~
+  - ~cnefe_sem_par.csv~
+  - ~resumo_por_uf.csv~
+- Cada linha traz lado a lado: código INEP, nome INEP, endereço INEP, nome CNEFE, endereço CNEFE, as chaves normalizadas que casaram, a nota de similaridade, as duas coordenadas e ~DISTANCIA_M~.
+- *Justificativa:* atende ao objetivo O3. Mostrar as chaves normalizadas que casaram permite a um revisor humano entender *por que* o par foi feito e validar uma amostra de cada nível sem rodar código.
+
+** T9 — Dados para o mapa ✅
+- GeoJSON ou CSV leve *por UF*: pontos INEP, pontos CNEFE e linhas INEP↔CNEFE com nível e distância.
+- Medir o tamanho total. Se passar do limite viável para o GitHub Pages, gerar também uma versão nacional agregada.
+- *Justificativa:* são cerca de 200 mil escolas INEP mais as do CNEFE, centenas de milhares de pontos ao todo. Um único arquivo nacional travaria o navegador. Separar por UF permite carregar sob demanda.
+
+** T10 — Mapa web (Leaflet) ✅
+- ~web/escolas_inep_cnefe.html~, linkado no portal ~web/index.html~.
+- Camadas: INEP (uma cor), CNEFE (outra cor) e linhas de pareamento coloridas por nível.
+- Renderização em canvas com clustering (~Leaflet.markercluster~).
+- Filtros por UF, por nível e por faixa de distância.
+- Popup com os dados dos dois lados e a distância.
+- Contorno da UF reutilizando as malhas já existentes.
+- *Justificativa:* é o entregável visual pedido. Clustering e canvas são necessários porque marcadores DOM comuns não aguentam essa quantidade de pontos.
+
+** T11 — Validação por amostragem e relatório de resultados ✅
+- Sortear cerca de 30 pares por nível e conferir manualmente, para estimar a precisão de cada nível.
+- Registrar aqui e em ~docs/~ a cobertura por nível, a distribuição das distâncias, problemas encontrados (CEP genérico etc.) e os limiares finais.
+- *Justificativa:* sem a validação amostral não sabemos se N3 e N4 estão pareando escolas diferentes com nome parecido. A taxa de acerto por nível é o que dá credibilidade aos números do mapa.
+
+** T12 — Atualizar os documentos anteriores ao terminar o trabalho ⬜
+- ~06-georeferenciamento-escolas.org~: marcar como superada a afirmação de que o Catálogo de Escolas não publica coordenadas e fechar as pendências resolvidas aqui. A leitura do dicionário oficial do CNEFE continua aberta.
+- ~05-plano-marcadores-escolas-inep.org~: atualizar o estado atual e a próxima ação.
+- ~07-relatorio-etl-escolas-piloto-sp.org~: só um aviso no topo, com link para este documento, preservando o retrato do piloto.
+- Nos três, usar um resumo curto com link para cá, sem copiar os números finais.
+- *Justificativa:* o ~06~ hoje afirma algo que este trabalho desmentiu, e o ~05~ aponta uma próxima ação que já foi tratada. Manter os números só neste documento evita ter de corrigi-los em vários arquivos a cada rodada. A tarefa fica para o final porque D6 e D7 ainda podem mudar o texto.
+
+* 4. Decisões em aberto
+
+| #    | Questão                                                                                                                                            | Proposta padrão                                                                                                                                                                            |
+|------+----------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| D1   | Usar o unificado ou os 5 regionais?                                                                                                                | ✅ *Unificado.* Os tamanhos batem com a soma dos regionais, descontando os 4 cabeçalhos extras e os BOMs                                                                                   |
+| D2   | Incluir escolas paralisadas ou extintas ("Restrição de Atendimento")?                                                                              | ✅ Incluir todas no pareamento e permitir filtrar no mapa                                                                                                                                  |
+| D3   | Limiar do N4 e margem de ambiguidade                                                                                                               | ✅ N4 ≥ 85, margem de 5 pontos e logradouro ≥ 85. *Regra nova no N2:* um nome específico com nota < 50 rejeita o candidato (ver T11)                                                       |
+| D4   | Tratar CEP genérico (terminado em ~000~) em N1/N2?                                                                                                 | ✅ N1/N2 exigem o logradouro e o N2 exige que o nome não se contradiga. A coluna ~CEP_GENERICO~ nas auditorias permite filtrar esses casos                                                 |
+| D5   | Commitar antes o trabalho não versionado herdado do ~ibge_malhas~?                                                                                 | ✅ Feito no commit ~95ed0eb~                                                                                                                                                               |
+| *D6* | Versionar ~web/data/escolas/*.json~ (66 MB; SP tem 10,5 MB, ou 3,6 MB com gzip) para publicar no GitHub Pages?                                     | ✅ *Versionar*, decidido em 2026-11-08 para publicar o mapa no GitHub Pages. Cada arquivo fica abaixo do limite de 100 MB do GitHub, mas o repositório cresce a cada nova versão dos dados |
+| *D7* | Criar um nível *N5 por proximidade* para os ≈5 mil registros do CNEFE com nome genérico (~ESCOLA~, ~CRECHE~) a < 100 m de uma escola INEP sem par? | *Em aberto, desaconselhado.* Usaria a coordenada para decidir o par, o que enviesa o O2. Se for feito, precisa ficar fora das estatísticas de distância                                    |
+
+* 5. Progresso — What Was Done
+
+** 2026-11-07 — T0 ✅
+- *Comando:* ~git switch -c feat/mapa-escolas-inep-cnefe~ (a partir de ~ibge_malhas~ @ ~4d02884~).
+- *Arquivo criado:* ~docs/features/mapa-escolas-inep-cnefe.md~ (migrado para ~.org~ em 2026-11-08).
+- *Verificação:* a pasta do Drive foi listada e contém ~catalogo-escolas-unificado.csv~ (85,6 MB) e 5 CSVs regionais (centro-oeste 4,9 MB, nordeste 29,7 MB, norte 10,2 MB, sudeste 29,2 MB, sul 11,7 MB). Os primeiros bytes do unificado, baixados por HTTP sem autenticação, confirmaram o cabeçalho com ~Latitude,Longitude~ e o ~Endereço~ em texto único (ex.: ~"RUA PORTO CARREIRO, 1956 AEROPORTO. 79332-090 Corumbá - MS."~).
+- *Estado local:* o CNEFE só está baixado para SP (~data/ibge_cnefe/zipfiles/35_SP~).
+
+** 2026-11-07 — D5 ✅ (commit do trabalho herdado)
+- ~.gitignore~ agora ignora: ~data/inep_censo_escolar/zipfiles/~, ~data/ibge_cnefe/zipfiles/~, ~data/inep_catalogo_escolas/~, ~data/escolas_dados.csv~ e ~temp/~.
+- *Commit ~95ed0eb~:* ETL piloto, scripts de download, docs 05–07, ~analises/~ e ~README.org~. Os dados brutos ficaram fora.
+
+** 2026-11-07 — T1 ✅
+- *Download:* ~curl -sSL -o data/inep_catalogo_escolas/catalogo-escolas-unificado.csv "https://drive.usercontent.google.com/download?id=1AYJVIYVhhOqzrMwedxFlHoe6Mj5cQEvr&export=download&confirm=t"~. O link é público e não pede autenticação. O arquivo tem 85.660.100 bytes, idêntico ao Drive, em UTF-8 com BOM e separador ~,~.
+- *Perfil:* feito com scripts descartáveis de inspeção (~perfil_catalogo.py~, ~perfil2.py~, só biblioteca padrão) rodados com ~python3 -I~.
+
+| Métrica                                                          | Valor                                                                                        |
+|------------------------------------------------------------------+----------------------------------------------------------------------------------------------|
+| Escolas (linhas)                                                 | *212.386*, todos os Código INEP únicos, 27 UFs                                               |
+| Com coordenada                                                   | *158.182 (74,5%)*                                                                            |
+| Sem coordenada (lat/lon vazias)                                  | *54.204 (25,5%)*: 32.036 em funcionamento, 21.656 paralisadas; 29.025 urbanas, 25.179 rurais |
+| Coordenadas zeradas ou fora do Brasil                            | 0                                                                                            |
+| Endereço com CEP ~NNNNN-NNN~                                     | 212.386 (100%)                                                                               |
+| Endereço ~S/N~                                                   | 50.772                                                                                       |
+| Endereço no formato ~LOGRADOURO, NUM RESTO. CEP Município - UF.~ | 196.735 (92,6%)                                                                              |
+
+| Restrição de Atendimento              |    Qtde |
+|---------------------------------------+---------|
+| Em funcionamento, sem restrição       | 177.803 |
+| Paralisada                            |  31.321 |
+| Exclusivamente alunos com deficiência |   1.652 |
+| Exclusiva de AEE                      |     917 |
+| Exclusiva de atividade complementar   |     693 |
+
+*Achados que afetam o plano:*
+1. *Escolas sem coordenada INEP* (25,5%) ainda podem ser pareadas, porque N1–N4 não usam coordenada. Para elas não há ~DISTANCIA_M~, mas o mapa pode mostrar a coordenada do CNEFE como *ganho de cobertura*, um bônus fora dos objetivos O1–O3. Elas entram em T7 com a marca ~SEM_COORD_INEP~.
+2. *Endereço em formato variável:* os 7,4% fora do padrão são, em geral, endereços *sem número* (~AV JOAO PEDRO FERNANDES, 79150-000 Maracaju - MS.~) ou rurais (~ALDEIA ...~, ~ZONA RURAL~, ~ESTRADA ... KM 16~). O complemento e o bairro vêm entre o número e o CEP, separados por ~.~, por exemplo ~RUA X, 6395 RUA DR JUVENAL. VALE DO GAVIAO. 64069-125 ...~. A T3 precisa tratar os dois formatos.
+3. *CEP genérico do município* (~78350-000~) é muito frequente nos endereços rurais e sem número. Isso reforça a D4: o CEP sozinho não identifica a escola.
+
+** 2026-11-07 — T2 ✅
+- *Criado:* ~scripts/commands/inep_catalogo_escolas__baixar_dados.py~. Baixa para ~.part~ e só renomeia depois de validar o cabeçalho e o tamanho. O Drive pode devolver uma página HTML no lugar do CSV, e essa validação pega esse caso.
+- *Verificação:* ~python3 scripts/commands/inep_catalogo_escolas__baixar_dados.py~ → ~ja baixado: ... (85660100 bytes)~.
+
+** 2026-11-07 — T4 🟡
+- *Criado:* ~scripts/commands/ibge_cnefe__extrair_escolas.py~. Lê o CSV de dentro do zip em streaming, grava ~data/ibge_cnefe/escolas/cnefe_escolas_<NN_UF>.csv~ (14 colunas, UTF-8, ~;~) e apaga o zip. Reusa ~baixar_uf()~ de ~ibge_cnefe__baixar_dados.py~. Se a UF já tiver o CSV extraído, como SP no piloto, lê esse CSV e não apaga nada.
+- *Verificação (RR):* 260.515 endereços lidos → 1.055 estabelecimentos de ensino em 1 s; zip de 4,3 MB apagado.
+- *Em andamento:* as 27 UFs rodam em segundo plano. Até agora RO 1.893, AC 1.881, AM 7.052, RR 1.055, PA 14.150, AP 1.112, TO 2.351, MA 14.444, PI 7.410, CE 13.850, RN 5.010 e PB 7.605 estabelecimentos.
+- ~.gitignore~ também passou a ignorar ~data/ibge_cnefe/escolas/~ e ~data/escolas_pareamento/~, ambos derivados e reproduzíveis.
+
+** 2026-11-07 — T3 + T5 ✅
+- *Criado:* ~scripts/commands/escolas_normalizacao.py~ (módulo).
+  - ~parse_endereco_inep~
+  - ~normalizar_cep~ e ~cep_generico~
+  - ~normalizar_numero~, em que ~S/N~, ~SN~ e ~0~ viram vazio
+  - ~normalizar_logradouro~ e ~logradouro_cnefe~: tiram o tipo (RUA, AV…), expandem títulos (PROF, DR…) e removem stopwords
+  - ~nome_escola_exato~ para N3
+  - ~nome_escola_nucleo~ para N4: expande EE, EMEF, CMEI… e remove termos genéricos como ESCOLA, MUNICIPAL, ENSINO
+  - ~haversine_m~ e ~faixa_distancia~
+- *Criado:* ~scripts/commands/test_escolas_normalizacao.py~, com 19 testes de casos reais. Resultado: ~.venv/bin/python -m unittest scripts/commands/test_escolas_normalizacao.py~ → ~Ran 19 tests ... OK~.
+- *Bugs que os testes pegaram e já foram corrigidos:*
+1. As stopwords apagavam ruas de loteamento como "RUA D" e "RUA E".
+2. As abreviações de uma letra (S→SÃO, N→NOSSA, D→DOM) desfiguravam essas mesmas ruas e foram removidas da tabela de logradouro.
+3. Os números romanos eram descartados como termo genérico, e "D PEDRO I" ficava igual a "D PEDRO II".
+- *Município → código IBGE:* feito pelo nome normalizado na malha ~BR_municipios_2024_minima.geojson~, com um fallback fuzzy dentro da UF. No teste com 4 UFs, 4.933 de 4.933 casaram de forma exata.
+- *Dependência nova:* ~rapidfuzz==3.14.3~ (adicionada ao ~requirements.txt~). Observação de ambiente: o ~.venv~ foi movido de ~~/mnt/ext4/...~ e ~.venv/bin/pip~ ficou com o shebang quebrado. Use ~.venv/bin/python -m pip~.
+
+** 2026-11-07 — T6/T7/T8 🟡 (implementado; falta rodar no Brasil inteiro)
+- *Criado:* ~scripts/commands/escolas__parear_inep_cnefe.py~. Faz a cascata N1→N4 por UF.
+  - O desempate usa a nota do nome (~token_sort_ratio~ dos núcleos). Uma diferença menor que 5 pontos entre os dois melhores marca a escola como ~ambiguo~ naquele nível, e ela segue para o próximo.
+  - O pareamento é 1:1: a proposta de maior nota fica com o registro do CNEFE.
+  - *A distância não entra na decisão.*
+  - O logradouro é aceito quando a similaridade é ≥ 85.
+- *Saídas em ~data/escolas_pareamento/~:* ~pares.csv~, ~auditoria_N1…N4~, ~ambiguos.csv~ (até 5 candidatos com nota), ~inep_sem_par.csv~, ~cnefe_sem_par.csv~, ~resumo_por_uf.csv~ (com a linha BR) e ~resumo_distancias.csv~ (mediana, p90, máximo e % por faixa, por UF × nível).
+- *Primeiro teste (RR, AC, AP, RO; 4.933 escolas INEP; 3 s):*
+
+| Nível   |           Pares | Mediana dist. | p90   | < 50 m | > 5 km |
+|---------+-----------------+---------------+-------+--------+--------|
+| N1      |             556 | 26 m          | 72 m  | 81,0%  | 0,6%   |
+| N2      |             881 | 30 m          | 633 m | 71,3%  | 5,0%   |
+| N3      |             153 | 19 m          | 142 m | 80,6%  | 1,6%   |
+| N4      |           1.077 | 27 m          | 311 m | 76,9%  | 4,5%   |
+| *Total* | *2.667 (54,1%)* | 28 m          | 252 m | 76,1%  | 3,5%   |
+
+Ambíguas: 132. INEP sem par: 2.134. CNEFE sem par: 3.274.
+- *Por que só 54% no Norte (amostra de AC):* as escolas não pareadas são, na maioria, rurais, indígenas ou ribeirinhas, com endereço em texto livre (~SERINGAL ESPIRITO SANTO, S/N~, ~COMUNIDADE BAHIA - IGARAPE CUMPRIDO~) e CEP genérico do município. Do lado do CNEFE, muitos nomes são genéricos (~ESCOLA MUNICIPAL~, ~ESCOLA~) ou nem são escolas (~IGREJA CATOLICA~, ~CLARETIANO~). Isso parece limitação dos dados, não do método. A rodada nacional vai dizer se o padrão se repete fora do Norte.
+
+** 2026-11-07 — T4 ✅
+- *Problema:* um download do FTP do IBGE travou por 40 min (AL), porque o ~urlopen~ não tinha timeout, e o de PE caiu em 105 de 151 MB.
+- *Correções:*
+  - ~ibge_cnefe__baixar_dados.py~ ganhou ~TIMEOUT_S = 60~.
+  - ~ibge_cnefe__extrair_escolas.py~ ganhou ~baixar_com_retentativas()~: 6 tentativas com espera crescente, cada uma retomando do ~.part~.
+  - O log passou a usar ~stdbuf -oL~, porque o ~tr~ segurava a saída em buffer e escondia o erro.
+- *Resultado:* as 27 UFs foram extraídas, com 3 quedas recuperadas automaticamente. São *264.445 estabelecimentos de ensino*, num total de 31 MB. SP deu 40.746, idêntico ao piloto.
+
+** 2026-11-07/08 — T6/T7/T8 ✅ (três rodadas: v1 → v2 → v3)
+Cada rodada nacional (27 UFs) leva cerca de 2,5–3,5 min. O piloto levava cerca de 28 min só para SP.
+
+| Versão | O que mudou                                                         | Pareadas          |     N1 |     N2 |    N3 |     N4 | Ambíguas | N2 p90  |
+|--------+---------------------------------------------------------------------+-------------------+--------+--------+-------+--------+----------+---------|
+| v1     | Regras iniciais                                                     | 125.346 (59,0%)   | 40.048 | 49.780 | 8.601 | 26.917 |    6.141 | 485 m   |
+| v2     | Normalização de nome (abaixo) e ~token_set_ratio~                   | 136.169 (64,1%)   | 39.992 | 49.884 | 8.662 | 37.631 |    8.847 | 492 m   |
+| *v3*   | N2 rejeita nome específico contraditório; siglas em lista explícita | *130.694 (61,5%)* | 39.995 | 41.571 | 9.258 | 39.870 |    7.218 | *151 m* |
+
+*v2 — causas de perda achadas no diagnóstico* (INEP sem par × CNEFE sem par a < 100 m, usado só para entender as perdas):
+- Sigla com espaços (~E M E I WALDENIZE~): sequências de letras soltas passam a ser juntadas.
+- Código numérico no nome (~0918611 CM MARIO LOMBARDI~): tokens com 5 ou mais dígitos saem do núcleo.
+- Siglas de tipo fora da tabela (~EEIEF~, ~CEIM~, ~CM~ …): entram numa lista explícita de 65 siglas com 30 ou mais ocorrências no catálogo. A primeira tentativa, com regex, apagava nomes que *são* siglas (~CETES~) e palavras reais (~CRESCER~, ~CURUMIM~), e foi descartada.
+- Nome contido no outro (~MARIA GUEDES~ × ~MARIA GUEDES LIMA~): passa a valer o ~token_set_ratio~ quando os dois nomes têm 2 ou mais palavras.
+- DF: o CNEFE grava o número como ~0~ em todos os endereços e usa o tipo ~EDF~ / ~NUCLEO~. ~EDF~, ~EDIFICIO~, ~NUCLEO~, ~ST~ e ~Q~ entraram nos tipos de logradouro. O N1 continua impossível no DF (34,2% pareadas, a pior UF).
+- *Não corrigível por nome:* cerca de 5 mil registros do CNEFE têm nome genérico (~ESCOLA~ 2.453, ~ESCOLA MUNICIPAL~ 1.066, ~CRECHE~ 586…). Ver D7.
+
+*v3 — regra de contradição no N2:* ver T11.
+
+*Testes:* 26 testes em ~test_escolas_normalizacao.py~, todos OK.
+
+** 2026-11-08 — T11 ✅ Validação amostral
+- *Amostra manual da v2:* 25 pares por nível, semente 20261107.
+
+| Nível | Corretos | Erros e dúvidas                                                                                                                                                             |
+|-------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| N1    | ≈24/25   | Endereço com número é chave forte. Casou ~CNSP~ = Colégio N. S. dos Prazeres mesmo com nota de nome 23                                                                      |
+| N2    | *≈18/25* | 6 erros, *todos com nota de nome < 50*: ~CE CORONEL…~ × ~IGREJA ADVENTISTA~ (4,7 km), ~COLEGIO ALFA~ × ~EM OCTAVIO FRIAS~, ~CMEI SANTA TERE…~ × ~EE SANTA BARBARA~ (28 km)… |
+| N3    | 25/25    | Nome idêntico. Alguns pares a 16–22 km: coordenada deslocada numa das bases ou escolas homônimas                                                                            |
+| N4    | ≈24/25   | Uma dúvida: ~EMEF~ × ~ESCOLA ESTADUAL~ com o mesmo nome                                                                                                                     |
+
+- *Conferência agregada no N2 (v2):*
+
+| Nome do CNEFE / nota   |  Pares | Mediana | > 1 km  |
+|------------------------+--------+---------+---------|
+| genérico               | 10.122 | 32 m    | 8,5%    |
+| específico, nota < 50  |  7.429 | *120 m* | *20,3%* |
+| específico, nota 50–84 |  4.197 | 26 m    | 7,8%    |
+| específico, nota ≥ 85  | 28.136 | 22 m    | 3,3%    |
+
+Daí veio a regra v3 (~LIMIAR_NOME_N2 = 50~, com nome genérico isento). *Ressalva metodológica:* a distância agregada serviu para *confirmar* um limiar escolhido na amostra manual. Ela nunca decide um par individual.
+- *Reamostragem do N2 na v3* (semente 777): cerca de 24/25 corretos. A dúvida é ~CETEP~ × ~CRECHE~, que tem nome genérico.
+
+** Resultado final (v3) — O1, O2, O3
+
+*O1 — mesmas escolas:* 130.694 de 212.386 escolas do INEP pareadas (61,5%). Também há 7.218 ambíguas e 74.474 sem par. Do lado do CNEFE, 133.751 registros ficaram sem par.
+- Melhores UFs: PB e SE (69,5%) e MS (68,6%).
+- Piores: DF (34,2%) e AM (52,5%).
+- Das escolas INEP sem par, 21,3 mil estão paralisadas e 30 mil não têm coordenada no INEP.
+
+*O2 — distância entre as coordenadas do mesmo par* (107.950 pares com as duas coordenadas):
+
+| Nível   | Pares c/ dist. | Mediana | p90     | < 50 m  | > 5 km |
+|---------+----------------+---------+---------+---------+--------|
+| N1      |         33.923 | 24 m    | 87 m    | 79,4%   | 0,3%   |
+| N2      |         34.772 | 24 m    | 151 m   | 78,1%   | 2,5%   |
+| N3      |          7.116 | 22 m    | 222 m   | 79,2%   | 3,4%   |
+| N4      |         32.139 | 23 m    | 290 m   | 77,3%   | 4,4%   |
+| *Todos* |      *107.950* | *24 m*  | *133 m* | *78,3%* | *2,4%* |
+
+Bônus: *22.744 escolas sem coordenada no INEP* recebem a coordenada do CNEFE pelo par.
+
+*O3 — auditoria:* os CSVs estão em ~data/escolas_pareamento/~: ~auditoria_N1…N4~, ~ambiguos~, ~inep_sem_par~, ~cnefe_sem_par~, ~resumo_por_uf~ e ~resumo_distancias~. Cada par traz as chaves normalizadas que casaram e as notas de logradouro e de nome.
+
+** 2026-11-08 — T9 ✅
+- *Criado:* ~scripts/commands/escolas__gerar_dados_mapa.py~ → ~web/data/escolas/<UF>.json~ (linhas em arrays compactos) + ~index.json~ (resumos).
+- *Tamanho:* 66 MB no total; SP tem 10,5 MB, ou 3,6 MB com gzip. Ver D6.
+
+** 2026-11-08 — T10 ✅
+- *Criados:* ~web/escolas_inep_cnefe.html~ e ~web/js/escolas_mapa.js~. Card adicionado em ~web/index.html~.
+- *Camada de canvas própria:* projeta cada ponto uma vez no zoom 0 e só escala e translada a cada redesenho. Assim o Brasil inteiro (476.831 pontos) fica navegável.
+- *Desenho:* INEP em círculos coloridos por nível (vazados quando só há coordenada do CNEFE); CNEFE em quadrados (cheios quando pareados, vazados quando sem par); linhas do par coloridas por nível a partir do zoom 11.
+- *Filtros:* nível, faixa de distância, situação da escola e camada do CNEFE.
+- *Busca:* por código INEP ou nome.
+- *Popup:* mostra os dois lados, a distância e um link para o Google Maps.
+- *Outros recursos:* base de satélite Esri, para conferir qual das coordenadas está certa; vista compartilhável por ~?uf=SP&lat=..&lon=..&z=..~.
+- *Achado:* os tiles do CARTO passaram a exigir chave de API (marca d'água "API KEY REQUIRED"). O padrão aqui virou OSM. *O mapa antigo ~ibge_malhas.html~ usa o CARTO como base padrão e provavelmente está afetado.*
+- *Verificação:* a extensão Claude in Chrome conectou no navegador do Windows, que não alcança o ~127.0.0.1~ do Linux. A verificação foi feita com o ~google-chrome --headless --screenshot~ local, em três vistas: RO inteira, Porto Velho em z14 com as linhas e Brasil inteiro. Os cliques e popups não foram testados de forma automatizada.
+
+** 2026-11-08 — Documento migrado para Org ✅
+- *Convertido:* ~mapa-escolas-inep-cnefe.md~ → ~mapa-escolas-inep-cnefe.org~, que passa a ser o documento de acompanhamento desta feature.
+- *Removidos:* o ~.md~, depois de conferir que o texto era o mesmo, e ~docs/etl-georef-escolas.org~, cópia byte a byte de ~07-relatorio-etl-escolas-piloto-sp.org~ sem nenhuma referência no repositório.
+- *Referências:* os comentários de quatro scripts em ~scripts/commands/~ agora apontam para o ~.org~.
+- *Tarefa nova:* T12, atualização dos documentos 05, 06 e 07 ao final do trabalho.
+
+** 2026-11-08 — Merge da ~ibge_malhas~ do GitHub ✅
+- *Causa:* este clone não tinha remoto, e a ~ibge_malhas~ local estava 14 commits atrás da do GitHub. A feature partiu dessa cópia antiga.
+- *Remoto:* ~origin~ = ~git@github.com:claudiadaros75/Mapeamento-Intersetorial.git~.
+- *Ponto de restauração:* tag local ~backup/antes-merge-ibge-malhas~, com todo o trabalho antes do merge.
+- *Conflitos:*
+  - Versão do GitHub: ~README.org~, docs 05, 06, 07 e ~etl-georef-escolas.org~, e ~escolas_dados__cruzar_inep_cnefe.py~, por serem mais novos.
+  - Nossa versão: ~analises/matriculas_tempo_integral.org~ (a do GitHub tem o erro "Escolxoar") e ~ibge_cnefe__baixar_dados.py~ (timeout).
+  - As duas: os dois cards em ~web/index.html~.
+- *Renomeado:* ~web/js/escolas_mapa.js~ → ~web/js/escolas_inep_cnefe.js~, porque o GitHub tem outro mapa com o nome antigo.
+- *Restaurado:* ~docs/etl-georef-escolas.org~, cuja remoção estava registrada na entrada anterior. O arquivo existe no GitHub, e a ~mapeamento-intersetorial-nacional~ o alterou.
+- *Pendente:* comparar com a ~mapeamento-intersetorial-nacional~, que não entrou neste merge e tem níveis de casamento parecidos com N1–N4 (ver ~docs/09-revisao-coordenadas-inep-x-cnefe.org~ naquela branch). A T12 deve partir das versões atuais dos documentos.
+
+** 2026-11-08 — Publicação na ~main~ e no GitHub Pages
+- *Pedido do usuário:* commitar tudo, enviar a branch da feature, atualizar a ~main~ local, fazer o merge da feature na ~main~ e enviá-la, para atualizar o GitHub Pages.
+- *D6:* os dados de ~web/data/escolas/~ (27 UFs + ~index.json~, 69 MB) entraram no git, porque o mapa publicado depende deles.
+- *Fora deste merge:* os 5 commits da ~mapeamento-intersetorial-nacional~ que ainda não estão na ~main~.

@@ -1,7 +1,7 @@
 #+Title: Análise Matrículas Tempo Integral
 EDUCAÇÃO EM TEMPO INTEGRAL NO BRASIL: ANÁLISES
 
-* MICRODADOS 2025 Censo Escolxoar
+* MICRODADOS 2025 Censo Escolar
 Baixei no computador: https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/resultados
 
 QT_MAT_BAS_INT >= 1.

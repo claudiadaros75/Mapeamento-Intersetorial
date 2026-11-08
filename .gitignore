@@ -10,6 +10,7 @@ __pycache__/
 # -------------------------------------------------------------
 # Pacotes do straight.el (~200 MB, reconstruidos pelo init.el)
 .emacs-georef/
+.emacs-revinfor/
 *~
 \#*\#
 .\#*
@@ -58,3 +59,14 @@ temp/
 # Sistema
 # -------------------------------------------------------------
 .DS_Store
+
+# -------------------------------------------------------------
+# Escolas: INEP (Censo/Catalogo) e IBGE CNEFE - reproduziveis pelos scripts
+# -------------------------------------------------------------
+data/inep_censo_escolar/zipfiles/
+data/ibge_cnefe/zipfiles/
+data/inep_catalogo_escolas/
+data/escolas_dados.csv
+temp/
+data/ibge_cnefe/escolas/
+data/escolas_pareamento/

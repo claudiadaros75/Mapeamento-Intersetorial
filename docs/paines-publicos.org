@@ -53,7 +53,6 @@ Contém painéis sobre:
 - Censo Escolar
 
 Site:
-
 https://paineis.inep.gov.br/
 
 * 3. Microdados do INEP
@@ -257,6 +256,16 @@ Site:
 
 https://dados.educacao.sp.gov.br/
 
+* 15. IBGE links úteis
+      https://www.ibge.gov.br/estatisticas/downloads-estatisticas.html
+* 16. INEP links úteis
+
+      https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar
+
+      https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
+
+      https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data
+      
 * Recomendação para Georreferenciamento
 
 Para construir uma infraestrutura nacional de dados educacionais geográficos, recomenda-se integrar:

@@ -34,6 +34,11 @@ DESTINO = Path(__file__).resolve().parent.parent.parent / "data" / "ibge_cnefe" 
 
 BLOCO = 1024 * 1024
 
+# Sem timeout, uma conexao parada com o FTP do IBGE trava o download para
+# sempre (visto em 2026-11-07: 40 min parado no AL). Com ele, o read levanta
+# erro e quem chamou pode retomar do .part.
+TIMEOUT_S = 60
+
 # sigla (minuscula, usada na linha de comando) -> nome do pacote no FTP
 UFS = {
     "ro": "11_RO",
@@ -78,7 +83,7 @@ def tamanho_remoto(url: str) -> int:
     """Devolve o Content-Length do arquivo remoto, ou 0 se indisponivel."""
     try:
         requisicao = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(requisicao) as resposta:
+        with urllib.request.urlopen(requisicao, timeout=TIMEOUT_S) as resposta:
             return int(resposta.headers.get("Content-Length") or 0)
     except (urllib.error.URLError, ValueError):
         return 0
@@ -105,7 +110,7 @@ def baixar(url: str, destino: Path) -> None:
     cabecalho = {"Range": "bytes={}-".format(ja_baixado)} if ja_baixado else {}
     requisicao = urllib.request.Request(url, headers=cabecalho)
 
-    with urllib.request.urlopen(requisicao) as resposta:
+    with urllib.request.urlopen(requisicao, timeout=TIMEOUT_S) as resposta:
         # Se pedimos a retomada mas o servidor devolveu 200, ele ignorou o
         # Range e esta mandando o arquivo inteiro: recomecar, nao acrescentar.
         retomando = resposta.status == 206
