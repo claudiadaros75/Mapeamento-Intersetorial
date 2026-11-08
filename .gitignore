@@ -47,3 +47,5 @@ data/ibge_cnefe/zipfiles/
 data/inep_catalogo_escolas/
 data/escolas_dados.csv
 temp/
+data/ibge_cnefe/escolas/
+data/escolas_pareamento/

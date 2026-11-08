@@ -7,14 +7,7 @@
 
 * Sobre o projeto
 
-Este projeto é um espaço de estudo sobre georeferenciamento e análise
-geoespacial, tendo como material de partida as Malhas Municipais Digitais
-(MMD) do IBGE, na edição de 2024.
-
-O objetivo é aprender na prática conceitos fundamentais de cartografia,
-sistemas de coordenadas, projeções e manipulação de dados geoespaciais,
-documentando todo o aprendizado em arquivos Org (formato *org-mode* do
-Emacs)
+Este projeto é um esforço 
 
 * Decisões iniciais
 
