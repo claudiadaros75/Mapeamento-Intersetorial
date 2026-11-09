@@ -10,6 +10,7 @@
 - O *CNEFE* (IBGE) lista endereços percorridos por recenseadores em 2022. Um deles pode ser classificado como estabelecimento de ensino.
 - As duas bases respondem a perguntas diferentes, então *seus totais não devem coincidir*: não há como tratar uma delas como erro da outra só por isso.
 - A nossa cópia do *Catálogo de Escolas* corresponde ao *Censo Escolar 2024*, não ao de 2025 (seção [[*De qual censo é o Catálogo de Escolas?][abaixo]]).
+- Das 214.192 escolas do *Censo 2025*, 57.376 (26,8%) não têm coordenada do INEP na nossa cópia do catálogo ([[*Censo 2025: quais escolas ficam sem coordenada?][detalhes]]).
 
 * De qual censo é o Catálogo de Escolas?
 
@@ -44,6 +45,84 @@ Os microdados de 2025 (=Tabela_Escola_2025_V2.csv=) não têm latitude e longitu
 ** Outra safra no projeto
 
 O doc [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08]] usa o cadastro de 2023 redistribuído pelo pacote geobr, do Ipea. Ele vem da mesma fonte, mas é de outro ano, e por isso os números dos dois trabalhos não se comparam diretamente.
+
+* Censo 2025: quais escolas ficam sem coordenada?
+
+*Sim, muitas.* Das 214.192 escolas do Censo 2025, *57.376 (26,8%)* não têm coordenada do INEP na nossa cópia do catálogo. Os microdados de 2024 e 2025 não têm coordenada, então o catálogo é a única fonte do próprio INEP.
+
+| Situação em relação ao catálogo | Escolas | %     | Como ler                             |
+|---------------------------------+---------+-------+--------------------------------------|
+| No catálogo, com coordenada     | 156.816 | 73,2% | Têm coordenada do INEP               |
+| No catálogo, sem coordenada     |  52.391 | 24,5% | Sem coordenada na nossa cópia        |
+| Fora da nossa cópia do catálogo |   4.985 | 2,3%  | Não sabemos: a cópia é do Censo 2024 |
+
+*Atenção à safra:* este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391. Só uma exportação nova do catálogo fecha a resposta.
+
+** Quem são essas escolas
+
+Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% das 180.540 em atividade em 2025.
+
+| Situação em 2025 | Escolas | Sem coordenada | %     |
+|------------------+---------+----------------+-------|
+| Em atividade     | 180.540 |         34.806 | 19,3% |
+| Paralisada       |  29.780 |         20.098 | 67,5% |
+| Extinta          |   3.872 |          2.472 | 63,8% |
+
+| Localização | Escolas | Sem coordenada | %     |
+|-------------+---------+----------------+-------|
+| Urbana      | 144.217 |         31.513 | 21,9% |
+| Rural       |  69.975 |         25.863 | 37,0% |
+
+| Rede      | Escolas | Sem coordenada | %     |
+|-----------+---------+----------------+-------|
+| Federal   |     728 |             64 | 8,8%  |
+| Estadual  |  33.561 |          6.187 | 18,4% |
+| Municipal | 128.145 |         31.192 | 24,3% |
+| Privada   |  51.758 |         19.933 | 38,5% |
+
+** Por UF
+
+| UF | Escolas | Com coordenada | Sem coordenada | Fora do catálogo | % sem coordenada do INEP |
+|----+---------+----------------+----------------+------------------+--------------------------|
+| AC |   1.678 |            539 |          1.115 |               24 | 67,9%                    |
+| MT |   3.241 |          1.635 |          1.484 |              122 | 49,6%                    |
+| BA |  19.604 |         10.743 |          8.021 |              840 | 45,2%                    |
+| MG |  24.069 |         15.349 |          8.194 |              526 | 36,2%                    |
+| RN |   4.708 |          3.013 |          1.664 |               31 | 36,0%                    |
+| AM |   6.104 |          3.946 |          2.066 |               92 | 35,4%                    |
+| RS |  11.046 |          7.158 |          3.695 |              193 | 35,2%                    |
+| CE |  10.122 |          6.772 |          3.085 |              265 | 33,1%                    |
+| PI |   5.325 |          3.714 |          1.512 |               99 | 30,3%                    |
+| RR |     969 |            677 |            279 |               13 | 30,1%                    |
+| RJ |  13.035 |          9.184 |          3.383 |              468 | 29,5%                    |
+| AL |   3.322 |          2.345 |            881 |               96 | 29,4%                    |
+| PE |   9.957 |          7.237 |          2.574 |              146 | 27,3%                    |
+| PB |   5.641 |          4.175 |          1.052 |              414 | 26,0%                    |
+| TO |   2.217 |          1.681 |            501 |               35 | 24,2%                    |
+| DF |   1.471 |          1.140 |            156 |              175 | 22,5%                    |
+| PA |  11.817 |          9.337 |          2.275 |              205 | 21,0%                    |
+| AP |     944 |            763 |            168 |               13 | 19,2%                    |
+| RO |   1.393 |          1.132 |            243 |               18 | 18,7%                    |
+| ES |   3.847 |          3.156 |            659 |               32 | 18,0%                    |
+| SC |   7.463 |          6.156 |          1.167 |              140 | 17,5%                    |
+| MA |  13.226 |         10.994 |          2.100 |              132 | 16,9%                    |
+| GO |   5.007 |          4.224 |            625 |              158 | 15,6%                    |
+| SP |  33.616 |         28.526 |          4.526 |              564 | 15,1%                    |
+| SE |   2.430 |          2.088 |            315 |               27 | 14,1%                    |
+| MS |   1.965 |          1.761 |            163 |               41 | 10,4%                    |
+| PR |   9.975 |          9.371 |            488 |              116 | 6,1%                     |
+
+** O CNEFE ajuda, mas não substitui
+
+Das 57.376 escolas, 21.956 têm um par no CNEFE, que oferece uma posição, mas não uma coordenada do INEP. Sobram *35.420 escolas sem nenhuma posição conhecida*, das quais 17.446 em atividade.
+
+O par foi calculado com os endereços do catálogo, então as 4.985 escolas fora da cópia ainda não têm como ter par. Parear essas escolas exigiria um endereço que os microdados de 2025 não trazem.
+
+** Um registro incompleto
+
+A escola =43145833= vem sem =SG_UF= e sem nome de município nos microdados de 2025, embora tenha 237 colunas preenchidas. O script recupera a UF (RS) pelo código do município, em vez de descartá-la.
+
+Para refazer os números: =.venv/bin/python scripts/commands/censo_escolar_2025__cruzar_catalogo.py=. A tabela confere com o MD5 publicado dentro do zip do INEP.
 
 * Comparação teórica entre as bases
 
