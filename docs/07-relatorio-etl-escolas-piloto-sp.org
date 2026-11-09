@@ -4,6 +4,10 @@
 #+OPTIONS: toc:2 num:t
 #+STARTUP: overview
 
+#+begin_quote
+Este relatório é o retrato do piloto de SP. O trabalho nacional posterior está no [[file:10-mapa-nacional-censo-cnefe.org][doc 10]].
+#+end_quote
+
 * Objetivo deste relatório
 
 Fechar o ciclo de trabalho desta sessão: sair de "não temos coordenada de

@@ -273,11 +273,53 @@
         </a>
       </div>
 
+      <!-- Card: Censo Escolar 2025 georreferenciado (Ativo) -->
+      <div class="map-card featured">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora</span>
+          <h3>Escolas do Censo Escolar 2025</h3>
+          <p>
+            Todas as escolas do Censo 2025, localizadas primeiro pelo Catálogo de Escolas do INEP e depois pelas regras de
+            pareamento com o CNEFE. As que não puderam ser localizadas estão em uma tabela e em um CSV.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">Canvas</span>
+            <span class="tech-tag">Censo 2025</span>
+            <span class="tech-tag">CNEFE 2022</span>
+          </div>
+        </div>
+        <a href="escolas_censo_2025.html" class="btn-open-map">
+          Explorar Mapa do Censo 2025 →
+        </a>
+      </div>
+
+      <!-- Card: Mapa nacional Censo Escolar x CNEFE (Ativo) -->
+      <div class="map-card featured">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora</span>
+          <h3>Escolas do Brasil: Censo Escolar × CNEFE</h3>
+          <p>
+            As escolas do Censo Escolar 2024 e os estabelecimentos de ensino do CNEFE 2022 sobrepostos no mapa do país,
+            em um arquivo leve. Mostra também quantas escolas ficam de fora por não terem coordenada.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">Canvas</span>
+            <span class="tech-tag">INEP</span>
+            <span class="tech-tag">CNEFE 2022</span>
+          </div>
+        </div>
+        <a href="escolas_brasil_censo_cnefe.html" class="btn-open-map">
+          Explorar Mapa Nacional →
+        </a>
+      </div>
+
       <!-- Card: Escolas INEP x CNEFE (Ativo) -->
       <div class="map-card featured">
         <div>
           <span class="card-badge badge-active">● Disponível Agora</span>
-          <h3>Escolas do Brasil: INEP × CNEFE</h3>
+          <h3>Pareamento de Escolas: INEP × CNEFE</h3>
           <p>
             As 212 mil escolas do Catálogo do INEP e os 264 mil estabelecimentos de ensino do CNEFE/IBGE no mesmo mapa.
             Pareamento em 4 níveis (CEP + número + logradouro → CEP + logradouro → nome exato → nome ajustado),
@@ -293,6 +335,28 @@
         </div>
         <a href="escolas_inep_cnefe.html" class="btn-open-map">
           Explorar Mapa de Escolas →
+        </a>
+      </div>
+
+      <!-- Card: Catalogo + CNEFE + Censo 2025 (Ativo) -->
+      <div class="map-card featured">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora</span>
+          <h3>Catálogo + CNEFE 2022 + Censo 2025</h3>
+          <p>
+            As coordenadas do Catálogo do INEP comparadas às do CNEFE, com as cores pela situação de cada escola no Censo 2025.
+            Listas e CSV das escolas que estão em só uma das bases ou que não têm coordenada no Catálogo.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">Canvas</span>
+            <span class="tech-tag">INEP</span>
+            <span class="tech-tag">CNEFE 2022</span>
+            <span class="tech-tag">Censo 2025</span>
+          </div>
+        </div>
+        <a href="escolas_catalogo_cnefe_censo.html" class="btn-open-map">
+          Explorar Comparação com o Censo →
         </a>
       </div>
 
@@ -399,6 +463,38 @@
       <a href="docs/04-leaflet-explicado.html" class="doc-item">
         <strong>04. Leaflet Explicado ↗</strong>
         <span>Guia completo sobre Leaflet.js, pirâmide de tiles do Slippy Map, fórmulas matemáticas (Z, X, Y) e estratégia LOD.</span>
+      </a>
+      <a href="docs/05-plano-marcadores-escolas-inep.html" class="doc-item">
+        <strong>05. Plano dos Marcadores de Escolas ↗</strong>
+        <span>Fases, decisões e achados do plano para colocar as escolas do Censo Escolar no mapa.</span>
+      </a>
+      <a href="docs/06-georeferenciamento-escolas.html" class="doc-item">
+        <strong>06. Georreferenciamento de Escolas ↗</strong>
+        <span>Panorama das fontes oficiais pesquisadas e a estratégia de cruzamento entre INEP e CNEFE.</span>
+      </a>
+      <a href="docs/07-relatorio-etl-escolas-piloto-sp.html" class="doc-item">
+        <strong>07. Relatório do Piloto de SP ↗</strong>
+        <span>Resultados e problemas do primeiro cruzamento, feito com as escolas de São Paulo.</span>
+      </a>
+      <a href="docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.html" class="doc-item">
+        <strong>08. Diagnóstico da Região Norte ↗</strong>
+        <span>Casamento em estágios, auditoria e as coordenadas do INEP redistribuídas pelo geobr.</span>
+      </a>
+      <a href="docs/09-revisao-coordenadas-inep-x-cnefe.html" class="doc-item">
+        <strong>09. Revisão das Coordenadas: Catálogo × CNEFE ↗</strong>
+        <span>A decisão de usar a coordenada do Catálogo, compará-la ao CNEFE e usar o Censo 2025 só como informação.</span>
+      </a>
+      <a href="docs/10-mapa-nacional-censo-cnefe.html" class="doc-item">
+        <strong>10. Mapa Nacional: INEP e CNEFE ↗</strong>
+        <span>Como pareamos as escolas das 27 UFs em 4 níveis, os resultados, a validação e os problemas encontrados.</span>
+      </a>
+      <a href="docs/11-censo-escolar-x-cnefe.html" class="doc-item">
+        <strong>11. Censo Escolar × CNEFE ↗</strong>
+        <span>De qual censo é o Catálogo de Escolas e uma comparação teórica entre as duas bases.</span>
+      </a>
+      <a href="docs/12-censo-2025-georreferenciado.html" class="doc-item">
+        <strong>12. Censo 2025 Georreferenciado ↗</strong>
+        <span>Como localizamos as escolas de 2025 em cascata, até onde confiar e quais ficaram sem localização.</span>
       </a>
     </div>
 

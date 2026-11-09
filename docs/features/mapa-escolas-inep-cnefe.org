@@ -5,7 +5,7 @@
 
 - *Branch:* ~feat/mapa-escolas-inep-cnefe~
 - *Início:* 2026-11-07
-- *Status:* ✅ T0–T11 concluídas (2026-11-08). Pendentes: decisão D7 e T12
+- *Status:* ✅ T0–T11 concluídas (2026-11-08). Pendentes: decisão D7
 
 Legenda de status das tarefas: ⬜ pendente · 🟡 em andamento · ✅ concluída · ⏸️ bloqueada/adiada
 
@@ -142,7 +142,7 @@ Cada registro do CNEFE só pode ser usado uma vez, ou seja, o pareamento é 1:1.
 - Registrar aqui e em ~docs/~ a cobertura por nível, a distribuição das distâncias, problemas encontrados (CEP genérico etc.) e os limiares finais.
 - *Justificativa:* sem a validação amostral não sabemos se N3 e N4 estão pareando escolas diferentes com nome parecido. A taxa de acerto por nível é o que dá credibilidade aos números do mapa.
 
-** T12 — Atualizar os documentos anteriores ao terminar o trabalho ⬜
+** T12 — Atualizar os documentos anteriores ao terminar o trabalho ✅
 - ~06-georeferenciamento-escolas.org~: marcar como superada a afirmação de que o Catálogo de Escolas não publica coordenadas e fechar as pendências resolvidas aqui. A leitura do dicionário oficial do CNEFE continua aberta.
 - ~05-plano-marcadores-escolas-inep.org~: atualizar o estado atual e a próxima ação.
 - ~07-relatorio-etl-escolas-piloto-sp.org~: só um aviso no topo, com link para este documento, preservando o retrato do piloto.
@@ -356,3 +356,9 @@ Bônus: *22.744 escolas sem coordenada no INEP* recebem a coordenada do CNEFE pe
 - *Pedido do usuário:* commitar tudo, enviar a branch da feature, atualizar a ~main~ local, fazer o merge da feature na ~main~ e enviá-la, para atualizar o GitHub Pages.
 - *D6:* os dados de ~web/data/escolas/~ (27 UFs + ~index.json~, 69 MB) entraram no git, porque o mapa publicado depende deles.
 - *Fora deste merge:* os 5 commits da ~mapeamento-intersetorial-nacional~ que ainda não estão na ~main~.
+
+** 2026-11-08 — T12 ✅ e novos achados
+- *T12:* docs 05, 06 e 07 atualizados, com link para os novos docs 10 e 11. A ~main~ já tinha corrigido a afirmação do doc 06 sobre as coordenadas do catálogo em 25/10.
+- *Ano do catálogo:* a nossa cópia corresponde ao Censo Escolar 2024 (detalhes no doc 11). Até aqui, este documento só dizia "catálogo".
+- *Dicionário do CNEFE:* lido; ~COD_ESPECIE = 4~ é mesmo "Estabelecimento de ensino".
+- *Continuação:* ver ~docs/features/documentacao-censo-cnefe-mapa-nacional.org~.

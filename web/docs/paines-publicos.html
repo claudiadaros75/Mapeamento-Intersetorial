@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- 2026-11-08 dom 21:58 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inventário de Portais e Bases de Dados Abertos da Educação Brasileira</title>
+<meta name="author" content="Copilot" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Inventário de Portais e Bases de Dados Abertos da Educação Brasileira</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org08f4cef">1. Objetivo</a></li>
+<li><a href="#orgb1780ce">2. 1. INEP - Dados Abertos</a></li>
+<li><a href="#orgf1973b3">3. 2. Portal de Painéis do INEP</a></li>
+<li><a href="#orgcfdd9e0">4. 3. Microdados do INEP</a></li>
+<li><a href="#org81baace">5. 4. Censo Escolar</a></li>
+<li><a href="#orgbc9bb70">6. 5. Notas Técnicas do Censo Escolar</a></li>
+<li><a href="#orgcc0926e">7. 6. Plataforma do Censo Escolar (Educacenso)</a></li>
+<li><a href="#orgdc25a84">8. 7. Portal de Dados Abertos do MEC</a></li>
+<li><a href="#org84aa59a">9. 8. FNDE - Dados Abertos</a></li>
+<li><a href="#orgfe91751">10. 9. Hub de Painéis Gerenciais do FNDE</a></li>
+<li><a href="#org5295456">11. 10. CAPES - Dados Abertos</a></li>
+<li><a href="#orgb9183c9">12. 11. Portal Brasileiro de Dados Abertos</a></li>
+<li><a href="#org7f89021">13. 12. Catálogo INEP no Dados.gov.br</a></li>
+<li><a href="#org2543d53">14. 13. IBGE - Educação</a></li>
+<li><a href="#org8dc6bf4">15. 14. Dados Abertos da Educação do Estado de São Paulo</a></li>
+<li><a href="#org26a3484">16. 15. IBGE links úteis</a></li>
+<li><a href="#org52fdf69">17. 16. INEP links úteis</a></li>
+<li><a href="#org335ca0d">18. Recomendação para Georreferenciamento</a></li>
+<li><a href="#orgdf4d7c8">19. Fluxo recomendado</a></li>
+<li><a href="#org4390d2f">20. Observação Final</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-org08f4cef" class="outline-2">
+<h2 id="org08f4cef"><span class="section-number-2">1.</span> Objetivo</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Este documento reúne os principais portais oficiais de dados abertos e painéis analíticos relacionados à educação brasileira.
+</p>
+
+<p>
+É destinado a:
+</p>
+
+<ul class="org-ul">
+<li>Pesquisadores</li>
+<li>Analistas de Dados</li>
+<li>Gestores Públicos</li>
+<li>Profissionais de BI</li>
+<li>Especialistas em Geoprocessamento</li>
+<li>Usuários de QGIS, PostgreSQL/PostGIS, Power BI e Python</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb1780ce" class="outline-2">
+<h2 id="orgb1780ce"><span class="section-number-2">2.</span> 1. INEP - Dados Abertos</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Portal principal de dados educacionais do Brasil.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>Indicadores Educacionais</li>
+<li>Microdados</li>
+<li>Sinopses Estatísticas</li>
+<li>Inep Data</li>
+<li>Bases do Censo Escolar</li>
+<li>Bases do Enem</li>
+<li>Bases do Enade</li>
+<li>Bases do Saeb</li>
+<li>Bases da Educação Superior</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos</a>
+</p>
+
+<p>
+Fonte:
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgf1973b3" class="outline-2">
+<h2 id="orgf1973b3"><span class="section-number-2">3.</span> 2. Portal de Painéis do INEP</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Ambiente oficial de Business Intelligence do INEP.
+</p>
+
+<p>
+Permite consultas rápidas sem necessidade de baixar microdados.
+</p>
+
+<p>
+Contém painéis sobre:
+</p>
+
+<ul class="org-ul">
+<li>Educação Básica</li>
+<li>Educação Superior</li>
+<li>Indicadores Educacionais</li>
+<li>Estatísticas Oficiais</li>
+<li>Censo Escolar</li>
+</ul>
+
+<p>
+Site:
+<a href="https://paineis.inep.gov.br/">https://paineis.inep.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcfdd9e0" class="outline-2">
+<h2 id="orgcfdd9e0"><span class="section-number-2">4.</span> 3. Microdados do INEP</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Portal dedicado aos microdados oficiais.
+</p>
+
+<p>
+Bases disponíveis:
+</p>
+
+<ul class="org-ul">
+<li>Censo Escolar</li>
+<li>Enem</li>
+<li>Enade</li>
+<li>Saeb</li>
+<li>Censo da Educação Superior</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados</a>
+</p>
+
+<p>
+Uso recomendado:
+</p>
+
+<ul class="org-ul">
+<li>QGIS</li>
+<li>PostgreSQL/PostGIS</li>
+<li>Python</li>
+<li>R</li>
+<li>Power BI</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org81baace" class="outline-2">
+<h2 id="org81baace"><span class="section-number-2">5.</span> 4. Censo Escolar</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Principal pesquisa estatística da Educação Básica brasileira.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>Resultados</li>
+<li>Microdados</li>
+<li>Documentação técnica</li>
+<li>Instrumentos de coleta</li>
+<li>Manuais</li>
+<li>Publicações</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar">https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgbc9bb70" class="outline-2">
+<h2 id="orgbc9bb70"><span class="section-number-2">6.</span> 5. Notas Técnicas do Censo Escolar</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Reúne documentos metodológicos e técnicos produzidos pelo INEP.
+</p>
+
+<p>
+Conteúdo:
+</p>
+
+<ul class="org-ul">
+<li>Metodologias</li>
+<li>Critérios de cálculo</li>
+<li>Controle de qualidade</li>
+<li>Tratamento dos dados</li>
+<li>Notas informativas</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/outros-documentos/notas-tecnicas-e-informativas">https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar/outros-documentos/notas-tecnicas-e-informativas</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc0926e" class="outline-2">
+<h2 id="orgcc0926e"><span class="section-number-2">7.</span> 6. Plataforma do Censo Escolar (Educacenso)</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Portal de apoio operacional e técnico.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>Manuais</li>
+<li>Tutoriais</li>
+<li>Legislação</li>
+<li>Cronogramas</li>
+<li>Capacitações</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://colabora.censoescolar.inep.gov.br/">https://colabora.censoescolar.inep.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgdc25a84" class="outline-2">
+<h2 id="orgdc25a84"><span class="section-number-2">8.</span> 7. Portal de Dados Abertos do MEC</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+Dados relacionados a programas do Ministério da Educação.
+</p>
+
+<p>
+Principais bases:
+</p>
+
+<ul class="org-ul">
+<li>SISU</li>
+<li>PROUNI</li>
+<li>FIES</li>
+<li>PRONATEC</li>
+<li>Rede Federal</li>
+<li>Educação Profissional</li>
+<li>Formação de Professores</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://dadosabertos.mec.gov.br/">https://dadosabertos.mec.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org84aa59a" class="outline-2">
+<h2 id="org84aa59a"><span class="section-number-2">9.</span> 8. FNDE - Dados Abertos</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+Principal repositório de dados financeiros da educação.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>FUNDEB</li>
+<li>PNAE</li>
+<li>PDDE</li>
+<li>PNATE</li>
+<li>Caminho da Escola</li>
+<li>Salário-Educação</li>
+<li>Obras Escolares</li>
+<li>Infraestrutura Educacional</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.gov.br/fnde/pt-br/acesso-a-informacao/dados-abertos">https://www.gov.br/fnde/pt-br/acesso-a-informacao/dados-abertos</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgfe91751" class="outline-2">
+<h2 id="orgfe91751"><span class="section-number-2">10.</span> 9. Hub de Painéis Gerenciais do FNDE</h2>
+<div class="outline-text-2" id="text-10">
+<p>
+Portal de inteligência e monitoramento dos programas do FNDE.
+</p>
+
+<p>
+Principais painéis:
+</p>
+
+<ul class="org-ul">
+<li>FUNDEB</li>
+<li>Matrículas consideradas no FUNDEB</li>
+<li>Salário-Educação</li>
+<li>Transporte Escolar</li>
+<li>Obras e Creches</li>
+<li>Execução Orçamentária</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.fnde.gov.br/hub-publico/i-index.html">https://www.fnde.gov.br/hub-publico/i-index.html</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org5295456" class="outline-2">
+<h2 id="org5295456"><span class="section-number-2">11.</span> 10. CAPES - Dados Abertos</h2>
+<div class="outline-text-2" id="text-11">
+<p>
+Portal de dados sobre pós-graduação, pesquisa e formação de professores.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>Programas de Pós-Graduação</li>
+<li>Bolsas CAPES</li>
+<li>Produção Científica</li>
+<li>Formação Docente</li>
+<li>Programas de Internacionalização</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://dadosabertos.capes.gov.br/">https://dadosabertos.capes.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-orgb9183c9" class="outline-2">
+<h2 id="orgb9183c9"><span class="section-number-2">12.</span> 11. Portal Brasileiro de Dados Abertos</h2>
+<div class="outline-text-2" id="text-12">
+<p>
+Catálogo nacional de dados abertos.
+</p>
+
+<p>
+Permite localizar bases de:
+</p>
+
+<ul class="org-ul">
+<li>INEP</li>
+<li>MEC</li>
+<li>FNDE</li>
+<li>CAPES</li>
+<li>Universidades Federais</li>
+<li>Institutos Federais</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://dados.gov.br/">https://dados.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org7f89021" class="outline-2">
+<h2 id="org7f89021"><span class="section-number-2">13.</span> 12. Catálogo INEP no Dados.gov.br</h2>
+<div class="outline-text-2" id="text-13">
+<p>
+Localiza rapidamente os conjuntos de dados do INEP.
+</p>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://dados.gov.br/dados/conjuntos-dados/inep-microdados-do-censo-escolar-da-educacao-basica">https://dados.gov.br/dados/conjuntos-dados/inep-microdados-do-censo-escolar-da-educacao-basica</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org2543d53" class="outline-2">
+<h2 id="org2543d53"><span class="section-number-2">14.</span> 13. IBGE - Educação</h2>
+<div class="outline-text-2" id="text-14">
+<p>
+Fundamental para cruzamentos educacionais e territoriais.
+</p>
+
+<p>
+Indicadores:
+</p>
+
+<ul class="org-ul">
+<li>Escolarização</li>
+<li>Alfabetização</li>
+<li>Frequência Escolar</li>
+<li>PNAD Contínua</li>
+<li>Censo Demográfico</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://www.ibge.gov.br/estatisticas/sociais/educacao.html">https://www.ibge.gov.br/estatisticas/sociais/educacao.html</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org8dc6bf4" class="outline-2">
+<h2 id="org8dc6bf4"><span class="section-number-2">15.</span> 14. Dados Abertos da Educação do Estado de São Paulo</h2>
+<div class="outline-text-2" id="text-15">
+<p>
+Portal de dados da Secretaria da Educação do Estado de São Paulo.
+</p>
+
+<p>
+Disponibiliza:
+</p>
+
+<ul class="org-ul">
+<li>Escolas</li>
+<li>Matrículas</li>
+<li>Infraestrutura</li>
+<li>Orçamento</li>
+<li>Profissionais da Educação</li>
+<li>Indicadores Educacionais</li>
+</ul>
+
+<p>
+Site:
+</p>
+
+<p>
+<a href="https://dados.educacao.sp.gov.br/">https://dados.educacao.sp.gov.br/</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org26a3484" class="outline-2">
+<h2 id="org26a3484"><span class="section-number-2">16.</span> 15. IBGE links úteis</h2>
+<div class="outline-text-2" id="text-16">
+<p>
+<a href="https://www.ibge.gov.br/estatisticas/downloads-estatisticas.html">https://www.ibge.gov.br/estatisticas/downloads-estatisticas.html</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org52fdf69" class="outline-2">
+<h2 id="org52fdf69"><span class="section-number-2">17.</span> 16. INEP links úteis</h2>
+<div class="outline-text-2" id="text-17">
+<p>
+<a href="https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar">https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/censo-escolar</a>
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas</a>
+</p>
+
+<p>
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org335ca0d" class="outline-2">
+<h2 id="org335ca0d"><span class="section-number-2">18.</span> Recomendação para Georreferenciamento</h2>
+<div class="outline-text-2" id="text-18">
+<p>
+Para construir uma infraestrutura nacional de dados educacionais geográficos, recomenda-se integrar:
+</p>
+
+<ol class="org-ol">
+<li>Microdados do Censo Escolar (INEP)</li>
+<li>Painéis do INEP</li>
+<li>Bases do IBGE</li>
+<li>Bases do FNDE</li>
+<li>Dados.gov.br</li>
+<li>Dados do MEC</li>
+<li>Dados da CAPES</li>
+</ol>
+
+<p>
+Ferramentas recomendadas:
+</p>
+
+<ul class="org-ul">
+<li>PostgreSQL</li>
+<li>PostGIS</li>
+<li>QGIS</li>
+<li>Python</li>
+<li>Power BI</li>
+<li>DuckDB</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgdf4d7c8" class="outline-2">
+<h2 id="orgdf4d7c8"><span class="section-number-2">19.</span> Fluxo recomendado</h2>
+<div class="outline-text-2" id="text-19">
+<p>
+Censo Escolar
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
+  v
+QGIS
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
+    v
+PostGIS
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
++-&ndash;&mdash; IBGE
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
++-&ndash;&mdash; FNDE
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
++-&ndash;&mdash; MEC
+</p>
+<table>
+
+
+<tbody>
+<tr>
+</tr>
+</tbody>
+</table>
+<p>
+   v
+Power BI
+</p>
+</div>
+</div>
+<div id="outline-container-org4390d2f" class="outline-2">
+<h2 id="org4390d2f"><span class="section-number-2">20.</span> Observação Final</h2>
+<div class="outline-text-2" id="text-20">
+<p>
+O conjunto INEP + IBGE + FNDE constitui atualmente a combinação mais importante para análises territoriais da educação brasileira, permitindo estudos sobre:
+</p>
+
+<ul class="org-ul">
+<li>Localização de escolas</li>
+<li>Matrículas</li>
+<li>Docentes</li>
+<li>Infraestrutura</li>
+<li>Transporte escolar</li>
+<li>Investimentos públicos</li>
+<li>Desempenho educacional</li>
+<li>Indicadores socioeconômicos</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>

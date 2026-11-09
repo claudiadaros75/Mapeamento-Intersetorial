@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escolas do Censo 2025</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Cores das camadas: compartilhadas com js/escolas_censo_2025.js (CAMADAS) */
+    :root { --catalogo: #0072b2; --endereco: #009e73; --nome: #d55e00; }
+    .esc-sidebar { width: var(--sidebar-width); overflow-y: auto; padding: 0.9rem; background: var(--card-bg);
+                   border-right: 1px solid var(--border-color); font-size: 0.85rem; }
+    .esc-sidebar h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted);
+                      margin: 1rem 0 0.4rem; }
+    .esc-sidebar h2:first-child { margin-top: 0; }
+    .esc-sidebar select { width: 100%; padding: 0.35rem 0.45rem; font-size: 0.85rem;
+                          border: 1px solid var(--border-color); border-radius: 6px; background: #fff; }
+    .esc-sidebar a { color: var(--primary-color); }
+    .chk { display: flex; align-items: center; gap: 0.45rem; padding: 0.2rem 0; cursor: pointer; }
+    .qtd { margin-left: auto; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+    .sw { width: 11px; height: 11px; flex: none; }
+    .sw.circulo { border-radius: 50%; background: var(--catalogo); }
+    .sw.losango { background: var(--endereco); transform: rotate(45deg) scale(.85); }
+    .sw.quadrado { border-radius: 2px; background: var(--nome); }
+    .linha-total { display: flex; padding: 0.2rem 0; }
+    .linha-total.forte { font-weight: 600; }
+    .nota { color: var(--text-muted); font-size: 0.78rem; line-height: 1.4; margin-top: 0.4rem; }
+    .acoes { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; }
+    .btn { padding: 0.35rem 0.6rem; font-size: 0.8rem; font-weight: 600; font-family: inherit; border-radius: 6px; cursor: pointer;
+           border: 1px solid var(--primary-color); background: var(--primary-color); color: #fff; text-decoration: none; }
+    .esc-sidebar a.btn { color: #fff; }
+    .btn.sec { background: #fff; color: var(--primary-color); }
+    .esc-sidebar a.btn.sec { color: var(--primary-color); }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    #status-carga { font-size: 0.8rem; color: var(--text-muted); }
+    #mapa { flex: 1; }
+    .leaflet-popup-content { font-size: 0.8rem; min-width: 240px; }
+    .pop h4 { margin: 0 0 0.2rem; font-size: 0.85rem; }
+    .pop div { margin-top: 0.2rem; }
+    .pop .pop-origem { border-left: 3px solid; padding-left: 0.4rem; font-weight: 600; }
+    .pop .muted { color: var(--text-muted); }
+    .pop a { color: var(--primary-color); }
+
+    #dlg-tabela { width: min(1000px, calc(100vw - 32px)); max-height: calc(100vh - 32px); margin: auto; padding: 1rem;
+                  border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.85rem; }
+    #dlg-tabela::backdrop { background: rgba(15, 23, 42, 0.5); }
+    .dlg-topo { display: flex; align-items: center; gap: 0.6rem; }
+    .dlg-topo h2 { font-size: 1rem; margin: 0; }
+    .dlg-topo .btn { margin-left: auto; }
+    .filtros { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.7rem 0; }
+    .filtros select, .filtros input { padding: 0.35rem 0.45rem; font-size: 0.85rem; font-family: inherit;
+                                      border: 1px solid var(--border-color); border-radius: 6px; background: #fff; }
+    .filtros input { flex: 1; min-width: 180px; }
+    .tabela-rolagem { overflow: auto; max-height: calc(100vh - 230px); border: 1px solid var(--border-color); border-radius: 6px; }
+    .tabela-rolagem table { width: 100%; border-collapse: collapse; }
+    .tabela-rolagem th { position: sticky; top: 0; background: #f1f5f9; text-align: left; white-space: nowrap; }
+    .tabela-rolagem th, .tabela-rolagem td { padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border-color); }
+    .paginacao { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
+    .paginacao span { margin-right: auto; color: var(--text-muted); }
+
+    @media (max-width: 760px) {
+      .main-container { flex-direction: column; }
+      .esc-sidebar { width: 100%; max-height: 42vh; border-right: 0; border-bottom: 1px solid var(--border-color); }
+      #mapa { min-height: 55vh; }
+      .app-header h1 { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-title">
+      <a href="index.html" class="btn-home-link" title="Voltar à Página Inicial de Mapas">🏠 Início</a>
+      <h1>🏫 Escolas do Censo Escolar 2025</h1>
+    </div>
+    <div class="header-controls">
+      <span id="status-carga">Carregando…</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <aside class="esc-sidebar">
+      <h2>Origem da localização</h2>
+      <label class="chk"><input type="checkbox" id="chk-catalogo" checked><span class="sw circulo"></span>
+        Catálogo de Escolas do INEP<span class="qtd" id="qtd-catalogo">…</span></label>
+      <label class="chk"><input type="checkbox" id="chk-endereco" checked><span class="sw losango"></span>
+        CNEFE, por endereço<span class="qtd" id="qtd-endereco">…</span></label>
+      <label class="chk"><input type="checkbox" id="chk-nome" checked><span class="sw quadrado"></span>
+        CNEFE, por nome<span class="qtd" id="qtd-nome">…</span></label>
+      <p class="nota">O CNEFE só entra quando o catálogo não traz coordenada. Aproxime o mapa para distinguir as formas e clique em um ponto para ver os detalhes.</p>
+
+      <h2>Situação em 2025</h2>
+      <label class="chk"><input type="checkbox" id="chk-sit-1" checked>Em atividade</label>
+      <label class="chk"><input type="checkbox" id="chk-sit-2" checked>Paralisada</label>
+      <label class="chk"><input type="checkbox" id="chk-sit-3" checked>Extinta</label>
+
+      <h2>Cobertura</h2>
+      <div class="linha-total">Escolas no Censo 2025<span class="qtd" id="qtd-total">…</span></div>
+      <div class="linha-total">No mapa<span class="qtd" id="qtd-mapa">…</span></div>
+      <div class="linha-total forte">Sem localização<span class="qtd" id="qtd-sem">…</span></div>
+      <div class="acoes">
+        <button type="button" class="btn" id="btn-tabela" disabled>Ver tabela</button>
+        <a class="btn sec" href="data/censo_2025/escolas_sem_localizacao.csv" download>Baixar CSV</a>
+      </div>
+
+      <h2>De onde vêm os dados</h2>
+      <p class="nota">A lista de escolas é do Censo Escolar 2025. O catálogo usado corresponde ao Censo 2024, então escolas novas dependem do CNEFE 2022.
+        <a href="docs/12-censo-2025-georreferenciado.html">Entenda o método</a>.</p>
+
+      <h2>Mapa base</h2>
+      <select id="sel-base" aria-label="Mapa base">
+        <option value="osm">OpenStreetMap</option>
+        <option value="esri">Satélite (Esri)</option>
+      </select>
+    </aside>
+    <div id="mapa"></div>
+  </div>
+
+  <dialog id="dlg-tabela" aria-labelledby="dlg-titulo">
+    <div class="dlg-topo">
+      <h2 id="dlg-titulo">Escolas sem localização</h2>
+      <button type="button" class="btn sec" id="btn-fechar">Fechar</button>
+    </div>
+    <div class="filtros">
+      <select id="flt-uf" aria-label="Filtrar por UF"><option value="">Todas as UFs</option></select>
+      <select id="flt-sit" aria-label="Filtrar por situação">
+        <option value="">Todas as situações</option>
+        <option value="1">Em atividade</option>
+        <option value="2">Paralisada</option>
+        <option value="3">Extinta</option>
+      </select>
+      <input type="search" id="flt-busca" placeholder="Buscar por escola, código ou município" aria-label="Buscar">
+    </div>
+    <div class="tabela-rolagem">
+      <table>
+        <thead><tr><th>Código</th><th>Escola</th><th>UF</th><th>Município</th><th>Rede</th><th>Situação</th></tr></thead>
+        <tbody id="tabela-corpo"></tbody>
+      </table>
+    </div>
+    <div class="paginacao">
+      <span id="tabela-resumo"></span>
+      <button type="button" class="btn sec" id="btn-ant">Anterior</button>
+      <button type="button" class="btn sec" id="btn-prox">Próxima</button>
+      <a class="btn" href="data/censo_2025/escolas_sem_localizacao.csv" download>Baixar CSV com endereço e motivo</a>
+    </div>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/escolas_censo_2025.js"></script>
+</body>
+</html>

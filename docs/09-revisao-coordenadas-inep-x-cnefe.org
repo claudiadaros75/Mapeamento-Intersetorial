@@ -1,0 +1,536 @@
+#+TITLE: Revisão das Coordenadas das Escolas - Catálogo do INEP x CNEFE
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t ^:{}
+#+STARTUP: overview
+
+* Objetivo deste documento
+
+Registrar a revisão do georreferenciamento das escolas: as coordenadas vêm do
+*Catálogo de Escolas do INEP* e são comparadas às do *CNEFE 2022 (IBGE)*. O
+*Censo Escolar 2025* só informa quais escolas divergem do Catálogo.
+
+O documento começou em 02/11/2026, com o Amazonas e o Pará, e continua o
+[[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][doc 08]]. As seções estão em ordem cronológica. A decisão em vigor é a da
+próxima seção, e o que ela substituiu está marcado no próprio texto.
+
+Objetivo final do projeto: plotar todas as escolas do Brasil no mapa, com a
+melhor latitude e longitude possível.
+
+* Decisão em vigor: coordenadas do Catálogo, comparadas ao CNEFE (09/11/2026)
+
+** A decisão
+
+| Base                 | Papel                                                                | Fornece posição? |
+|----------------------+----------------------------------------------------------------------+------------------|
+| Catálogo de Escolas  | Lista de escolas e fonte da coordenada do INEP                       | Sim              |
+| CNEFE 2022           | Segunda coordenada, para comparar com a do Catálogo                  | Sim              |
+| Censo Escolar 2025   | Só informa a situação da escola e as divergências com o Catálogo      | Não              |
+
+*Justificativa:* não há gabarito da posição real, então misturar as fontes em
+uma só "melhor coordenada" esconderia as divergências que queremos medir.
+Mantidas separadas, cada escola mostra o que cada base informa. O Censo 2025
+não tem coordenada nem endereço, mas tem o código INEP, e isso basta para
+responder às perguntas abaixo.
+
+Com isso, o projeto tem dois mapas para esta comparação:
+
+| Mapa                          | O que mostra                                                    |
+|-------------------------------+-----------------------------------------------------------------|
+| [[../escolas_inep_cnefe.html?uf=BR][Pareamento INEP × CNEFE]]       | Catálogo × CNEFE, com cores por nível de pareamento. Fica como está. |
+| [[../escolas_catalogo_cnefe_censo.html?uf=BR][Catálogo + CNEFE + Censo 2025]] | A mesma comparação, com cores pela situação da escola no Censo 2025 |
+
+** Qual cópia do Catálogo
+
+A partir daqui, "Catálogo" é a exportação =catalogo-escolas-unificado.csv=,
+usada no [[file:10-mapa-nacional-censo-cnefe.org][doc 10]]. O conteúdo dela corresponde ao Censo Escolar 2024, sem as
+escolas extintas ([[file:11-censo-escolar-x-cnefe.org][doc 11]]).
+
+As seções seguintes, de 02/11/2026, usam outra cópia: o cadastro de 2023
+redistribuído pelo geobr, em AM, PA e SP. Os números das duas não se comparam
+diretamente. Os níveis também mudaram: aqui, o nível 2 é CEP + número; no doc
+10, N2 é CEP + logradouro.
+
+** O que o Censo 2025 informa
+
+Comparação pelo código INEP, com a tabela de escolas conferida pelo MD5
+publicado pelo INEP:
+
+| Situação                                     | Brasil  | AM    | PA    | SP    |
+|----------------------------------------------+---------+-------+-------+-------|
+| Escolas no Catálogo                          | 212.386 | 6.115 | 11.801 | 33.357 |
+| Escolas no Censo 2025                        | 214.192 | 6.104 | 11.817 | 33.616 |
+| Nas duas bases                               | 209.207 | 6.012 | 11.612 | 33.052 |
+| *No Catálogo, não consta no Censo 2025*      | 3.179   | 103   | 189   | 305   |
+| *No Censo 2025, não consta no Catálogo*      | 4.985   | 92    | 205   | 564   |
+| *Nas duas bases, sem coordenada no Catálogo* | 52.391  | 2.066 | 2.275 | 4.526 |
+
+Detalhes do Brasil:
+
+- *No Catálogo, não consta no Censo 2025:* 1.366 das 3.179 têm coordenada e
+  aparecem no mapa, em vermelho.
+- *No Censo 2025, não consta no Catálogo:* 3.737 das 4.985 estão em atividade.
+  Como o Catálogo também é a fonte da posição, elas ficam só na lista.
+- *Sem coordenada no Catálogo:* 31.069 das 52.391 estão em atividade. Dessas
+  52.391, 21.956 têm par no CNEFE e aparecem como círculo vazado, na posição do
+  par. As demais ficam só na lista.
+- *Situação das escolas nas duas bases:* 176.803 em atividade, 28.727
+  paralisadas e 3.677 extintas em 2025.
+
+*Até onde isso vale:* o Catálogo está um ano atrás do Censo 2025. Por isso, uma
+escola "só no Censo" pode ser nova, e uma "só no Catálogo" pode ter deixado de
+existir. Nenhuma das duas situações é, por si só, um erro de uma das bases.
+
+** O que esta decisão substitui
+
+- *Coordenada escolhida:* as regras "INEP primeiro, CNEFE como reserva"
+  (26/10/2026) e "coordenada por nível" (02/11/2026) não valem para este
+  trabalho. Elas ficam abaixo como registro, porque explicam o caminho até aqui.
+- *Levar o ETL ao Censo 2025 usando o endereço do geobr:* não é mais necessário.
+  A comparação com o Censo usa só o código INEP.
+- *Mapa em cascata do [[file:12-censo-2025-georreferenciado.org][doc 12]]:* parte da lista do Censo e usa o CNEFE como
+  reserva, então responde a outra pergunta. O mapa novo não o altera.
+
+** Como reproduzir
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/catalogo_censo_2025__comparar.py
+#+end_src
+
+O script lê o zip do Censo 2025 e =web/data/escolas/<UF>.json=, e grava
+=web/data/catalogo_censo_2025/=. Ele não grava nada se as contagens não fecharem.
+
+* Por que comparar as coordenadas do INEP e do CNEFE
+
+** Não existe gabarito
+
+Não temos a posição verdadeira de cada escola. Temos duas fontes oficiais,
+produzidas de formas diferentes:
+
+| Fonte                       | Como o ponto é obtido                                   | Como chega à escola                                  |
+|-----------------------------+---------------------------------------------------------+------------------------------------------------------|
+| Catálogo de Escolas do INEP | a própria escola marca o ponto num aplicativo           | pelo código da escola (=CO_ENTIDADE=): ligação direta |
+| CNEFE 2022 (IBGE)           | o recenseador registra o ponto no local, no Censo 2022  | pelo nosso casamento (CEP + número, nome exato, nome ajustado) |
+
+Comparar as duas é a única forma objetiva de medir a qualidade do que
+plotamos. Onde concordam, temos confiança; onde divergem, uma das duas (ou
+o nosso casamento) está errada.
+
+** Cada fonte erra de um jeito
+
+- *INEP*: o ponto é ligado pelo código, sem ambiguidade, mas a precisão é
+  heterogênea (depende de quem marcou); há pontos repetidos por várias
+  escolas (marcação genérica); o cadastro é de 2023 e 20-35% das nossas
+  escolas não têm ponto nele.
+- *CNEFE*: a coordenada é boa (no AM, 99,6% dos pontos de ensino com
+  =NV_GEO_COORD = 1=), mas o CNEFE não tem o código do INEP. A ligação é
+  feita por nós, por endereço e nome, e no Norte o endereço quase não
+  existe: ~80% das escolas sem número, 75-81% com CEP genérico do
+  município. O endereço é a comunidade, a aldeia, o rio.
+
+Por isso a comparação testa duas coisas ao mesmo tempo: *a coordenada do
+INEP* e *o nosso casamento com o CNEFE*.
+
+** A comparação já mudou uma decisão
+
+Em 26/10/2026, a comparação mostrou que:
+- quando as duas fontes acertam, ficam a ~20 m uma da outra;
+- quando divergem mais de 10 km, o ponto do INEP fica sobre um prédio de
+  ensino em 90% (AM) e 84% (PA) dos casos - o erro estava no nosso
+  casamento (ex.: escolas homônimas em comunidades diferentes de Altamira,
+  ligadas a até 362 km; CEP genérico em Novo Airão, 172 km).
+
+Daí a regra do ETL naquele momento: *INEP primeiro, CNEFE como reserva* (doc
+08, "Qual coordenada usar"). /Substituída em 09/11/2026: ver "Decisão em vigor"./
+
+** Mas essa decisão foi tomada por estatística, não caso a caso
+
+Os 84-90% vêm de um critério indireto (o ponto do INEP estar a até 300 m
+de /algum/ prédio de ensino do CNEFE). Isso não prova que é o prédio
+/daquela/ escola. Falta olhar os casos:
+
+| UF | Escolas com os dois pontos | Divergência > 1 km | > 10 km | > 50 km |
+|----+----------------------------+--------------------+---------+---------|
+| AM |                      1.560 |                156 |     104 |      42 |
+| PA |                      3.613 |                253 |     121 |      29 |
+
+Se a regra estiver errada numa parte desses casos, o mapa mostra escolas
+no lugar errado - e, ao levar a mesma regra para as outras 25 UFs, o erro
+se multiplica. Conferir agora, em AM e PA, é mais barato do que corrigir
+depois em todo o Brasil.
+
+** O que a comparação também ensina sobre os dados abertos
+
+A comparação é, ela mesma, parte do objetivo cívico do projeto (*reuso*
+dos dados abertos): cada divergência confirmada é um retorno possível às
+fontes - um ponto do INEP a corrigir, uma escola que não está no CNEFE,
+um CEP genérico que impede a ligação. São oportunidades de melhoria no
+processo de produção dos dados abertos.
+
+* Pergunta: o INEP é melhor no Norte e o IBGE melhor em SP? (02/11/2026)
+
+Medido nas escolas que têm os dois pontos:
+
+| Medida                              | AM    | PA    | SP     |
+|-------------------------------------+-------+-------+--------|
+| Escolas com ponto do INEP           | 64%   | 80%   | 86%    |
+| Escolas com os dois pontos          | 1.560 | 3.613 | 16.550 |
+| Os dois a até 300 m                 | 87,4% | 90,3% | 96,4%  |
+| Distância mediana                   | 20 m  | 19 m  | 26 m   |
+| P90 da distância                    | 984 m | 251 m | 84 m   |
+| Divergência > 1 km                  | 10,0% | 7,0%  | 1,6%   |
+
+Leitura:
+- *Norte*: sim, mas por um motivo específico. O ponto do INEP não é mais
+  preciso que o do CNEFE (quando os dois acertam, ficam a ~20 m). Ele é
+  mais *confiável* porque é ligado pelo código da escola, enquanto o
+  ponto do CNEFE depende do nosso casamento, que no Norte falha (sem CEP
+  e sem número). Nas divergências > 10 km, o INEP estava certo em 84-90%.
+- *SP*: os dados ainda não mostram o CNEFE melhor. As duas fontes
+  concordam em 96% das escolas, porque em SP o casamento por CEP + número
+  funciona. Nas 25 divergências > 10 km, o ponto do INEP ficou sobre um
+  prédio de ensino em 88%. O que há em SP são sinais de marcação menos
+  cuidadosa no INEP: 131 pontos com até 3 casas decimais (precisão de
+  ~100 m), contra 0 no AM e 4 no PA.
+- Hipótese a testar: em SP o CNEFE pode ser melhor nas divergências
+  /pequenas/ (300 m a 1 km), em que o INEP marca a quadra ou o bairro e
+  o CNEFE, o prédio. Isso só se confirma olhando os casos no satélite.
+
+* Etapa 1: níveis de casamento marcados nos próprios dados (02/11/2026)
+
+/Registro: a regra de coordenada por nível desta seção foi substituída em
+09/11/2026 (ver "Decisão em vigor"). O ETL descrito aqui é o do branch
+=mapeamento-intersetorial-nacional=./
+
+** A proposta
+
+Os níveis de casamento já existiam no ETL, mas só no CSV juntado. A
+proposta é deixar explícito, *em cada base*, em que nível cada registro
+casou, com a distância entre os dois pontos ao lado, para filtrar e
+auditar direto nos dados:
+
+| Nível | Nome             | Regra                                                 |
+|-------+------------------+-------------------------------------------------------|
+|     1 | =endereco_exato= | município + CEP + número + nome da rua iguais (novo)  |
+|     2 | =cep_numero=     | município + CEP + número iguais, rua diferente        |
+|     3 | =nome_exato=     | nome igual e único no município                       |
+|     4 | =nome_ajustado=  | núcleo do nome igual e único no município             |
+|     - | sem casamento    | nenhum nível                                          |
+
+** Decisões (02/11/2026)
+
+1. *Endereço exato* = município + CEP + número + nome da rua normalizado
+   (sem acento, abreviações como "R." e "AV." expandidas).
+2. *Coordenada escolhida depende do nível*:
+   - níveis 1 e 2 (endereço): ponto do *CNEFE*, que marca o prédio;
+   - níveis 3 e 4 (nome): ponto do *INEP*, porque o casamento por nome é
+     menos seguro (CNEFE se a escola não tem ponto no INEP, ou se o ponto
+     do INEP é repetido por 5+ escolas);
+   - sem casamento: ponto do *INEP*, quando houver.
+   Substitui a regra "INEP primeiro" de 26/10/2026 para os níveis 1 e 2, e
+   testa a hipótese levantada para SP.
+3. *Bases primárias marcadas*: o Catálogo de Escolas do INEP (geobr, com a
+   coordenada do INEP) e os pontos de ensino do CNEFE. Os arquivos baixados
+   não são alterados; o ETL grava cópias com as colunas novas.
+
+** Tarefas
+
+| # | Tarefa                                                         | Justificativa |
+|---+----------------------------------------------------------------+---------------|
+| 1 | Nível 1 =endereco_exato= no estágio de endereço do ETL          | Separa o casamento mais seguro (até a rua bate) do CEP + número, que erra com CEP genérico (caso de Novo Airão, 172 km). |
+| 2 | Coluna =NIVEL_CASAMENTO= (1-4) no CSV juntado                  | Filtrar pelo nível sem decorar os nomes dos status. |
+| 3 | Nova regra da coordenada escolhida, por nível                  | Decisão 2: usar o ponto do prédio (CNEFE) quando o endereço garante que é a mesma escola. |
+| 4 | Cópia marcada do Catálogo de Escolas do INEP                   | Decisão 3: ver, na base do INEP, quais escolas casaram, em que nível, com qual ponto do CNEFE e a que distância. |
+| 5 | Cópia marcada dos pontos de ensino do CNEFE                    | O mesmo do lado do CNEFE; um ponto pode servir a várias escolas (mesmo prédio), por isso os códigos ficam separados por "\vert". |
+| 6 | Manter os CSVs de auditoria e o de pontos do CNEFE não usados  | Pedido explícito; são a base da conferência caso a caso. |
+| 7 | Mapas web: novo status =endereco_exato=                        | Sem isso o mapa não mostra as escolas do nível 1. |
+| 8 | Rodar AM, PA e SP e registrar os números aqui                  | Medir o efeito da nova regra antes de levar para outras UFs. |
+
+** O que foi feito (02/11/2026)
+
+Tarefas 1 a 8 concluídas.
+
+*Arquivos modificados*
+- =scripts/commands/escolas_dados__cruzar_inep_cnefe.py=: =palavras_logradouro=
+  e =mesmo_logradouro= (comparação da rua); =estagio_endereco= (níveis 1 e
+  2, substitui =estagio1_cep_numero=); =escolher_coordenada= com a regra por
+  nível; =carregar_coordenadas_inep= devolve também o catálogo inteiro;
+  coluna =NIVEL_CASAMENTO=; gravação das duas cópias marcadas.
+- =scripts/commands/escolas_mapa__gerar_dados_web.py= e
+  =escolas_mapa__gerar_dados_auditoria.py=: status =endereco_exato=.
+- =web/js/escolas_mapa.js=, =web/js/escolas_auditoria.js=,
+  =web/escolas_auditoria.html=, =web/index.html=: nível 1 (azul-marinho),
+  níveis renumerados de 1 a 4.
+
+*Arquivos gerados* (além dos que já existiam, regerados)
+
+| Arquivo                                       | Linhas (AM+PA+SP) | Conteúdo |
+|-----------------------------------------------+-------------------+----------|
+| =data/inep_catalogo_escolas_2023_marcado.csv= |            51.016 | Catálogo do INEP + =NO_CENSO_ESCOLAR_2024=, =NIVEL_CASAMENTO=, =STATUS_CNEFE=, =CNEFE_COD_UNICO_ENDERECO=, =DIST_INEP_CNEFE_KM=, =FONTE_COORDENADA=, =STATUS_GEOLOCALIZACAO= |
+| =data/cnefe_2022_ensino_marcado.csv=          |            61.948 | Todos os pontos de ensino do CNEFE (colunas originais) + =CO_ENTIDADE=, =NIVEL_CASAMENTO=, =STATUS_CNEFE=, =DIST_INEP_CNEFE_KM= (separados por "\vert") |
+
+*Comandos*
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp   # ~3,5 min
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+  node --check web/js/escolas_mapa.js web/js/escolas_auditoria.js
+#+end_src
+
+*Verificação*: os antigos =cep_numero= se dividiram em nível 1 + nível 2
+sem perda (AM 300 = 177 + 123; PA 809 = 486 + 323; SP 15.218 = 13.453 +
+1.765); a cobertura não mudou (AM 4.513, PA 9.970, SP 31.060 escolas no
+mapa).
+
+** Resultados por nível
+
+Distância INEP x CNEFE, nas escolas que têm os dois pontos:
+
+| UF | Nível |      n | Até 300 m | Mediana | P90      | > 1 km | > 10 km | > 50 km | Máximo   |
+|----+-------+--------+-----------+---------+----------+--------+---------+---------+----------|
+| AM |     1 |    126 | 95,2%     | 20 m    | 170 m    |      2 |       0 |       0 | 1,4 km   |
+| AM |     2 |    100 | 81,0%     | 22 m    | 11,0 km  |     16 |      10 |       6 | 171,6 km |
+| AM |     3 |    473 | 87,9%     | 21 m    | 828 m    |     45 |      33 |      13 | 177,8 km |
+| AM |     4 |    861 | 86,8%     | 19 m    | 1,3 km   |     93 |      61 |      23 | 186,7 km |
+| PA |     1 |    402 | 95,3%     | 20 m    | 72 m     |      9 |       2 |       0 | 28,4 km  |
+| PA |     2 |    265 | 78,9%     | 25 m    | 9,4 km   |     45 |      26 |      10 | 155,3 km |
+| PA |     3 |    291 | 87,6%     | 22 m    | 356 m    |     22 |       7 |       1 | 362,0 km |
+| PA |     4 |  2.655 | 91,0%     | 19 m    | 164 m    |    177 |      86 |      18 | 345,6 km |
+| SP |     1 | 11.818 | 96,8%     | 26 m    | 81 m     |    141 |       4 |       0 | 16,5 km  |
+| SP |     2 |  1.595 | 93,6%     | 27 m    | 120 m    |     49 |      10 |       0 | 28,1 km  |
+| SP |     3 |    313 | 90,7%     | 30 m    | 257 m    |     17 |       1 |       0 | 17,0 km  |
+| SP |     4 |  2.824 | 96,8%     | 28 m    | 79 m     |     51 |       9 |       0 | 26,3 km  |
+
+Leitura:
+- *O nível 1 é o melhor nível, nas três UFs*: 95-97% das escolas com os
+  dois pontos a até 300 m, e nenhuma a mais de 50 km. A comparação da rua
+  separou bem o casamento seguro.
+- *O nível 2 no Norte é o pior*: P90 de ~10 km, e 36 escolas a mais de
+  10 km (AM 10, PA 26). Os nomes mostram que são escolas diferentes no
+  mesmo CEP genérico + número (ex.: "ESCOLA ESTADUAL BALBINA MESTRINHO" x
+  "ESCOLA MUNICIPAL JAU TAMBOR", Novo Airão, 172 km). Em SP o nível 2 é
+  bom (93,6% até 300 m).
+- *Efeito da regra nova*: passaram do ponto do INEP para o do CNEFE 225
+  escolas no AM, 667 no PA e 13.401 em SP, quase todas a poucas dezenas de
+  metros. Nos níveis 1 e 2, 52 escolas ficaram agora num ponto do CNEFE a
+  mais de 10 km do ponto do INEP; *48 delas têm o alerta =cep_generico=*.
+
+** Exceção: nível 2 com CEP genérico (decidido em 02/11/2026)
+
+Com a regra da decisão 2, os erros de casamento do nível 2 com CEP
+genérico voltavam para o mapa (eram justamente os exemplos do doc 08 que
+motivaram "INEP primeiro").
+
+*Decisão*: no nível 2 com o alerta =cep_generico=, a coordenada segue a
+regra dos níveis 3 e 4 (ponto do INEP quando existir; senão o do CNEFE).
+O nível 1 não tem exceção: mesmo com CEP genérico, a rua confirma o
+endereço.
+
+*Justificativa*: no Norte, o CEP genérico + número junta escolas
+diferentes do município; 48 das 52 escolas de nível 1 ou 2 que ficavam a
+mais de 10 km do ponto do INEP tinham esse alerta.
+
+*Feito*: =escolher_coordenada= (variável =endereco_confiavel=); ETL e
+geradores web rodados de novo para AM, PA e SP.
+
+*Resultado*:
+- Nível 2 com CEP genérico: AM 62, PA 217, SP 669 escolas; ficaram no
+  ponto do INEP AM 54, PA 183 e SP 615 (as outras não têm ponto no INEP).
+- Escolas de nível 1 ou 2 no ponto do CNEFE a mais de 10 km do INEP: de
+  52 para *7* (AM 1, PA 2, SP 4). Vão para a conferência caso a caso.
+
+| Coordenada final | AM    | PA    | SP     |
+|------------------+-------+-------+--------|
+| =endereco_exato= |   177 |   486 | 13.453 |
+| =cep_numero=     |    69 |   140 |  1.150 |
+| =inep_confirmado=| 1.201 | 2.805 |  3.571 |
+| =inep_proximo=   |    36 |    83 |     75 |
+| =inep_divergente=|   145 |   241 |    106 |
+| =inep_sem_cnefe= | 2.410 | 5.834 | 12.511 |
+| =nome_exato=     |   131 |    50 |     67 |
+| =nome_ajustado=  |   344 |   331 |    127 |
+| =sem_correspondencia= | 1.668 | 1.878 | 2.803 |
+
+** Escolas e pontos já casados saem das comparações seguintes (02/11/2026)
+
+*A pergunta*: uma escola casada no nível 1 não deveria mais ser
+considerada nas comparações seguintes?
+
+*O que o código fazia*: a escola já casada não era comparada de novo, mas
+*continuava contando* na regra de unicidade dos níveis 3 e 4. Se duas
+escolas do INEP tinham o mesmo nome no município e uma já tinha casado no
+nível 1, a outra era rejeitada como =nome_repetido_inep=. O mesmo do lado
+do CNEFE: um ponto já usado seguia como candidato e tornava o nome
+"repetido" (=nome_repetido_cnefe=) ou caía em =ponto_ja_usado=.
+
+*Justificativa*: o que já foi resolvido com segurança não deve impedir o
+casamento do que sobrou.
+
+*Feito*: em =estagio2_por_nome=, o índice do CNEFE deixa de fora os pontos
+já usados e a contagem do INEP só considera as escolas ainda sem
+casamento. O motivo =ponto_ja_usado= deixou de existir.
+
+*Resultado*:
+- Novos casamentos: AM 13, PA 16, SP 63; nenhum casamento anterior mudou.
+- Dos 79 novos com ponto do INEP, 57 (72%) a até 300 m e 11 a mais de
+  10 km (ex.: homônimos em São Paulo, "COLEGIO VITORIA", 32 km). Como os
+  níveis 3 e 4 usam o ponto do INEP quando existe, esses ficam como
+  =inep_divergente= e o mapa não muda.
+- Coordenada final alterada em só 13 escolas (AM 6, SP 7), que não têm
+  ponto no INEP. Escolas sem ponto: AM 1.668 -> 1.662, PA 1.878 (igual),
+  SP 2.803 -> 2.796.
+
+* Catálogo de Escolas mais novo: dá para baixar automaticamente? (02/11/2026)
+
+** A pergunta
+
+O Censo Escolar 2025 (microdados) não tem latitude/longitude nem endereço
+(ver doc 06). A coordenada do INEP vem do Catálogo de Escolas, e a cópia
+que usamos é a de 2023 (geobr 1.7.0, =date_update= 2024-03-22). Existe uma
+versão mais nova que possa ser baixada por script?
+
+** Painel do INEP Data: não automatizável
+
+- O Catálogo é um painel de BI (Oracle Analytics,
+  =https://anonymousdata.inep.gov.br/analytics/saw.dll?Portal&PortalPath=...Catálogo de Escolas=);
+  a página do INEP diz só que "é possível exportar os dados", sem arquivo
+  para download, formato ou limite documentados.
+- A página responde sem login, mas é uma aplicação JavaScript: a exportação
+  é manual, pelo navegador. Não vale a pena automatizar, porque existe
+  alternativa melhor (abaixo).
+- Página informativa:
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
+
+** geobr 2.x: um arquivo por ano, de 2007 a 2025
+
+O geobr mudou de versão (pacote 2.1.0; release de dados =v2.0.0=,
+publicada em 15/09/2026). As escolas agora vêm em um arquivo parquet por
+ano, baixável direto:
+
+#+begin_example
+https://github.com/ipea/geobr_prep_data/releases/download/v2.0.0/schools_<ano>.parquet
+#+end_example
+
+| Ano  | Escolas (Brasil) | Tamanho |
+|------+------------------+---------|
+| 2024 |          215.545 | 18,1 MB |
+| 2025 |          214.192 | 17,5 MB |
+
+Colunas (29): código e nome da escola e do município, UF,
+=tp_dependencia=, =tp_situacao_funcionamento=, =tp_localizacao=,
+=tp_localizacao_diferenciada=, *=ds_endereco=, =nu_endereco=,
+=ds_complemento=, =no_bairro=, =co_cep=*, *=lat_inep=, =lon_inep=* (ponto
+do INEP), *=lat_geocodebr=, =lon_geocodebr=, =precisao_geocodebr=,
+=tipo_resultado_geocodebr=, =desvio_metros_geocodebr=* (geocodificação
+do Ipea pelo endereço), *=coords_source=* (qual das duas está em
+=geometry=), =year=, =geometry=.
+
+*Atenção*: a =geometry= do geobr 2.x não é mais só o ponto do INEP. Segundo
+a documentação de =read_schools=, o geobr usa o ponto do INEP quando ele e
+a geocodificação ficam a menos de 800 m; acima disso, usa a geocodificação
+se ela for mais precisa que 800 m; sem ponto do INEP, usa a geocodificação
+de qualquer precisão. Para nós, o certo é ler =lat_inep=/=lon_inep= e
+=lat_geocodebr=/=lon_geocodebr= separados, nunca a =geometry=.
+
+** O que medimos (AM, PA e SP)
+
+1. *O ponto do INEP não mudou.* Comparando a mesma escola, =lat_inep= de
+   2025 é igual ao ponto do cadastro de 2023 em 100% dos casos (AM 3.939,
+   PA 9.327, SP 28.513 escolas; nenhuma diferença acima de 1 m). Também não
+   há ganho de cobertura: das escolas do Censo 2024 hoje sem ponto, só 16
+   ganham ponto do INEP no arquivo de 2025 (AM 4, PA 4, SP 8). *Trocar o
+   cadastro de 2023 pelo de 2025 não melhora as coordenadas do INEP.*
+2. *O arquivo de 2024 cobre exatamente o nosso Censo 2024* (AM 6.181, PA
+   11.848, SP 33.863 escolas), e o de 2025 traz o *endereço* que os
+   microdados de 2025 deixaram de publicar. É a ponte para fazer o
+   casamento por endereço (níveis 1 e 2) com o Censo 2025.
+3. *A geocodificação depende muito da precisão.* Distância até o ponto
+   que usamos hoje:
+
+   | Precisão     | AM: até 300 m | PA: até 300 m | SP: até 300 m |
+   |--------------+---------------+---------------+---------------|
+   | =numero=     | 86,6%         | 90,5%         | 95,5%         |
+   | =numero_aproximado= | 64,7%  | 58,9%         | 70,0%         |
+   | =logradouro= | 42,9%         | 32,1%         | 50,7%         |
+   | =cep=        | 7,5% (mediana 25,6 km) | 9,5% (mediana 16,3 km) | 68,6% |
+
+   No Norte, o ponto "por CEP" é o centro do CEP genérico do município:
+   inútil. Por número, é tão bom quanto o CNEFE.
+4. *Escolas em funcionamento hoje sem ponto*, pela precisão da
+   geocodificação:
+
+   | Precisão                       | AM  | PA  | SP    |
+   |--------------------------------+-----+-----+-------|
+   | =numero=                       |  15 |  47 |   137 |
+   | =numero_aproximado=            |  51 |  97 |   121 |
+   | =logradouro=                   | 169 | 315 |    28 |
+   | =cep=, =localidade=, =municipio= | 1.007 | 836 | 1.334 |
+
+** Conclusão e proposta
+
+/Atualização de 09/11/2026: a medição continua válida, mas a tarefa 3 abaixo não
+é mais necessária, porque o Censo 2025 passou a ser comparado só pelo código
+INEP. As tarefas 1 e 2 também ficam sem efeito neste trabalho: a coordenada vem
+do Catálogo, sem geocodificação como reserva. O geobr 2.x continua como fonte
+conhecida, caso o endereço de 2025 volte a ser necessário./
+
+- Para a *coordenada do INEP*, o cadastro de 2023 que já usamos é
+  equivalente ao de 2025. Não há o que atualizar.
+- O geobr 2.x é a fonte para *levar o projeto ao Censo 2025*: traz o
+  endereço por escola e é baixável por script, um arquivo por ano.
+- A geocodificação do Ipea pode ser uma *reserva* para quem fica sem
+  ponto, mas só com precisão =numero= (e talvez =numero_aproximado=):
+  ~470 escolas em funcionamento nas três UFs. Não resolve o Norte rural.
+
+Tarefas propostas (a decidir):
+
+| # | Tarefa                                                           | Justificativa |
+|---+------------------------------------------------------------------+---------------|
+| 1 | Script =ipea_geobr_escolas__baixar_dados.py= baixar também os parquet do geobr 2.x (=pyarrow= no =.venv=) | Fonte oficial, por ano, sem exportação manual do painel. |
+| 2 | Reserva "geocodificação do Ipea" com precisão =numero= para escolas sem ponto | ~200 escolas em funcionamento ganham um ponto confiável (86-96% até 300 m). |
+| 3 | Pipeline do Censo 2025 usando o endereço do arquivo do geobr 2025 | Os microdados de 2025 não têm endereço; sem isso, só restam os níveis 3 e 4. |
+
+* Próximas etapas
+
+A decidir, a partir da decisão de 09/11/2026:
+
+1. Conferir caso a caso uma amostra das divergências Catálogo × CNEFE, no mapa
+   novo, com o filtro de distância e a imagem de satélite.
+2. Estudar as escolas em atividade sem posição conhecida: as 3.737 só no Censo e
+   as que estão entre as 31.069 sem coordenada no Catálogo e não têm par no CNEFE.
+3. Refazer a comparação quando o Catálogo incorporar o Censo 2025.
+
+Lista anterior, de 02/11/2026, com números da cópia de 2023 do cadastro:
+
+1. Conferir caso a caso uma amostra das divergências INEP x CNEFE (as 71
+   escolas a mais de 50 km e uma amostra das 663 =inep_divergente=), com
+   imagem de satélite, registrando qual ponto está certo.
+2. Separar as escolas paralisadas e extintas na contagem de cobertura.
+3. Casamento por localidade (comunidade, aldeia, rio, ramal) para as
+   ~2.500 escolas rurais em funcionamento ainda sem ponto.
+4. Só depois, expandir para outras UFs.
+
+* O que foi feito
+
+** 09/11/2026
+
+- Decidido que as coordenadas vêm do Catálogo e são comparadas ao CNEFE, com o
+  Censo 2025 só como informação (ver "Decisão em vigor").
+- Criados =scripts/commands/catalogo_censo_2025__comparar.py=,
+  =web/escolas_catalogo_cnefe_censo.html= e
+  =web/js/escolas_catalogo_cnefe_censo.js=.
+- Gerados os dados em =web/data/catalogo_censo_2025/=. O CSV de divergências tem
+  60.555 escolas: as três situações somadas.
+- Verificação: os totais batem com os do doc 11 e nenhuma escola muda de UF entre
+  o Catálogo e o Censo. O mapa =escolas_inep_cnefe.html= não foi alterado.
+
+** 02/11/2026
+
+- Criado este documento.
+- Números conferidos no CSV atual
+  (=data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv=):
+  batem com os do doc 08. Novo: cobertura só entre escolas em
+  funcionamento (=TP_SITUACAO_FUNCIONAMENTO = 1=) é de 77,5% no AM e 87,8%
+  no PA; das escolas sem ponto, 1.248 (AM) e 1.295 (PA) estão em
+  funcionamento, ~85% rurais, quase todas com motivo =nome_nao_encontrado=.

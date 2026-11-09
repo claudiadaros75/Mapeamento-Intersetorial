@@ -48,7 +48,7 @@ O código já estava em grande parte preparado para várias UFs:
    .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py am pa --extrair
    #+end_src
 2. Execução do ETL existente, *sem nenhuma alteração de lógica*, gravando em
-   um arquivo de teste (para não sobrescrever o CSV de SP, ver [[*Cuidado: o ETL sobrescreve o CSV de saída][abaixo]]):
+   um arquivo de teste (para não sobrescrever o CSV de SP):
    #+begin_src sh
    .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa --saida <arquivo-de-teste>.csv
    #+end_src

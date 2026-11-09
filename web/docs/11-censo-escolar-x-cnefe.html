@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- 2026-11-08 dom 23:32 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Censo Escolar e CNEFE: o que cada base é e como compará-las</title>
+<meta name="author" content="Projeto de aprendizagem" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Censo Escolar e CNEFE: o que cada base é e como compará-las</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgf40100a">1. Resumo</a></li>
+<li><a href="#orgcdfe9ba">2. De qual censo é o Catálogo de Escolas?</a>
+<ul>
+<li><a href="#orgf21423c">2.1. Por que não usar direto o Censo 2025?</a></li>
+<li><a href="#orgcc5df68">2.2. Outra safra no projeto</a></li>
+</ul>
+</li>
+<li><a href="#org9e626c8">3. Censo 2025: quais escolas ficam sem coordenada?</a>
+<ul>
+<li><a href="#org848ec4f">3.1. Quem são essas escolas</a></li>
+<li><a href="#org72e9e61">3.2. Por UF</a></li>
+<li><a href="#org6edacc3">3.3. O CNEFE ajuda, mas não substitui</a></li>
+<li><a href="#org8260e82">3.4. Um registro incompleto</a></li>
+</ul>
+</li>
+<li><a href="#org4b2db2e">4. Comparação teórica entre as bases</a>
+<ul>
+<li><a href="#orga6240d8">4.1. Como cada coordenada nasce</a></li>
+<li><a href="#org90c0ffe">4.2. Qualidade das coordenadas do CNEFE nos registros de ensino</a></li>
+</ul>
+</li>
+<li><a href="#orgc267434">5. Por que os totais não coincidem</a></li>
+<li><a href="#org8de7027">6. O que o cruzamento mostrou</a></li>
+<li><a href="#org8784b19">7. Como ler o mapa nacional</a></li>
+<li><a href="#orgdda7a8a">8. Fontes</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-orgf40100a" class="outline-2">
+<h2 id="orgf40100a"><span class="section-number-2">1.</span> Resumo</h2>
+<div class="outline-text-2" id="text-1">
+<ul class="org-ul">
+<li>O <b>Censo Escolar</b> (INEP) lista escolas como unidades administrativas, a partir do que elas mesmas declaram todo ano.</li>
+<li>O <b>CNEFE</b> (IBGE) lista endereços percorridos por recenseadores em 2022. Um deles pode ser classificado como estabelecimento de ensino.</li>
+<li>As duas bases respondem a perguntas diferentes, então <b>seus totais não devem coincidir</b>: não há como tratar uma delas como erro da outra só por isso.</li>
+<li>A nossa cópia do <b>Catálogo de Escolas</b> corresponde ao <b>Censo Escolar 2024</b>, não ao de 2025 (seção <a href="#orgcdfe9ba">abaixo</a>).</li>
+<li>Das 214.192 escolas do <b>Censo 2025</b>, 57.376 (26,8%) não têm coordenada do INEP na nossa cópia do catálogo (<a href="#org9e626c8">detalhes</a>).</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgcdfe9ba" class="outline-2">
+<h2 id="orgcdfe9ba"><span class="section-number-2">2.</span> De qual censo é o Catálogo de Escolas?</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+O Catálogo de Escolas é um serviço do INEP que reúne endereço, telefone e informações gerais das escolas de educação básica. A <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">página oficial</a> diz que os dados são atualizados todo ano com base no Censo Escolar, mas não informa o ano de referência. A página foi atualizada pela última vez em 15/07/2026.
+</p>
+
+<p>
+Como o arquivo também não traz o ano, medimos: cruzamos os 212.386 códigos INEP da nossa cópia (<code>catalogo-escolas-unificado.csv</code>) com os microdados de cada censo.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Censo</th>
+<th scope="col" class="org-right">Escolas no censo</th>
+<th scope="col" class="org-right">Também no catálogo</th>
+<th scope="col" class="org-right">Só no catálogo</th>
+<th scope="col" class="org-left">Só no censo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">2023</td>
+<td class="org-right">217.625</td>
+<td class="org-right">207.670</td>
+<td class="org-right">4.716</td>
+<td class="org-left">9.955</td>
+</tr>
+
+<tr>
+<td class="org-right"><b>2024</b></td>
+<td class="org-right"><b>215.545</b></td>
+<td class="org-right"><b>212.386</b></td>
+<td class="org-right"><b>0</b></td>
+<td class="org-left"><b>3.159, todas extintas</b></td>
+</tr>
+
+<tr>
+<td class="org-right">2025</td>
+<td class="org-right">214.192</td>
+<td class="org-right">209.207</td>
+<td class="org-right">3.179</td>
+<td class="org-left">4.985, sendo 3.737 em atividade</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+A situação de funcionamento confirma o resultado de 2024:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Situação</th>
+<th scope="col" class="org-right">Catálogo</th>
+<th scope="col" class="org-right">Censo 2024</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Em funcionamento</td>
+<td class="org-right">181.065</td>
+<td class="org-right">181.065</td>
+</tr>
+
+<tr>
+<td class="org-left">Paralisada</td>
+<td class="org-right">31.321</td>
+<td class="org-right">31.321</td>
+</tr>
+
+<tr>
+<td class="org-left">Extinta</td>
+<td class="org-right">0</td>
+<td class="org-right">3.159</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>Conclusão:</b> a nossa cópia é o Censo Escolar 2024 sem as escolas extintas.
+</p>
+
+<p>
+<b>Sobre a data da exportação:</b> segundo a informação do projeto, ela é recente, e o arquivo no Drive foi modificado em 07/11/2026. Como o conteúdo corresponde ao Censo 2024, o mais provável é que o próprio catálogo ainda não tenha incorporado o Censo 2025. Não consultamos o painel do INEP para confirmar, e o arquivo não traz a data da exportação.
+</p>
+</div>
+<div id="outline-container-orgf21423c" class="outline-3">
+<h3 id="orgf21423c"><span class="section-number-3">2.1.</span> Por que não usar direto o Censo 2025?</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Os microdados de 2025 (<code>Tabela_Escola_2025_V2.csv</code>) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem sozinhos para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo, então dependem do CNEFE (ver o <a href="12-censo-2025-georreferenciado.html">doc 12</a>).
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc5df68" class="outline-3">
+<h3 id="orgcc5df68"><span class="section-number-3">2.2.</span> Outra safra no projeto</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+O doc <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08</a> usa o cadastro de 2023 redistribuído pelo pacote geobr, do Ipea. Ele vem da mesma fonte, mas é de outro ano, e por isso os números dos dois trabalhos não se comparam diretamente.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9e626c8" class="outline-2">
+<h2 id="org9e626c8"><span class="section-number-2">3.</span> Censo 2025: quais escolas ficam sem coordenada?</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+<b>Sim, muitas.</b> Das 214.192 escolas do Censo 2025, <b>57.376 (26,8%)</b> não têm coordenada do INEP na nossa cópia do catálogo. Os microdados de 2024 e 2025 não têm coordenada, então o catálogo é a única fonte do próprio INEP.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Situação em relação ao catálogo</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-left">%</th>
+<th scope="col" class="org-left">Como ler</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">No catálogo, com coordenada</td>
+<td class="org-right">156.816</td>
+<td class="org-left">73,2%</td>
+<td class="org-left">Têm coordenada do INEP</td>
+</tr>
+
+<tr>
+<td class="org-left">No catálogo, sem coordenada</td>
+<td class="org-right">52.391</td>
+<td class="org-left">24,5%</td>
+<td class="org-left">Sem coordenada na nossa cópia</td>
+</tr>
+
+<tr>
+<td class="org-left">Fora da nossa cópia do catálogo</td>
+<td class="org-right">4.985</td>
+<td class="org-left">2,3%</td>
+<td class="org-left">Não sabemos: a cópia é do Censo 2024</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>Atenção à safra:</b> este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391, quando o catálogo incorporar o Censo 2025.
+</p>
+</div>
+<div id="outline-container-org848ec4f" class="outline-3">
+<h3 id="org848ec4f"><span class="section-number-3">3.1.</span> Quem são essas escolas</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% das 180.540 em atividade em 2025.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Situação em 2025</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-right">Sem coordenada</th>
+<th scope="col" class="org-left">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Em atividade</td>
+<td class="org-right">180.540</td>
+<td class="org-right">34.806</td>
+<td class="org-left">19,3%</td>
+</tr>
+
+<tr>
+<td class="org-left">Paralisada</td>
+<td class="org-right">29.780</td>
+<td class="org-right">20.098</td>
+<td class="org-left">67,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">Extinta</td>
+<td class="org-right">3.872</td>
+<td class="org-right">2.472</td>
+<td class="org-left">63,8%</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Localização</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-right">Sem coordenada</th>
+<th scope="col" class="org-left">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Urbana</td>
+<td class="org-right">144.217</td>
+<td class="org-right">31.513</td>
+<td class="org-left">21,9%</td>
+</tr>
+
+<tr>
+<td class="org-left">Rural</td>
+<td class="org-right">69.975</td>
+<td class="org-right">25.863</td>
+<td class="org-left">37,0%</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Rede</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-right">Sem coordenada</th>
+<th scope="col" class="org-left">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Federal</td>
+<td class="org-right">728</td>
+<td class="org-right">64</td>
+<td class="org-left">8,8%</td>
+</tr>
+
+<tr>
+<td class="org-left">Estadual</td>
+<td class="org-right">33.561</td>
+<td class="org-right">6.187</td>
+<td class="org-left">18,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">Municipal</td>
+<td class="org-right">128.145</td>
+<td class="org-right">31.192</td>
+<td class="org-left">24,3%</td>
+</tr>
+
+<tr>
+<td class="org-left">Privada</td>
+<td class="org-right">51.758</td>
+<td class="org-right">19.933</td>
+<td class="org-left">38,5%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org72e9e61" class="outline-3">
+<h3 id="org72e9e61"><span class="section-number-3">3.2.</span> Por UF</h3>
+<div class="outline-text-3" id="text-3-2">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-right">Com coordenada</th>
+<th scope="col" class="org-right">Sem coordenada</th>
+<th scope="col" class="org-right">Fora do catálogo</th>
+<th scope="col" class="org-left">% sem coordenada do INEP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AC</td>
+<td class="org-right">1.678</td>
+<td class="org-right">539</td>
+<td class="org-right">1.115</td>
+<td class="org-right">24</td>
+<td class="org-left">67,9%</td>
+</tr>
+
+<tr>
+<td class="org-left">MT</td>
+<td class="org-right">3.241</td>
+<td class="org-right">1.635</td>
+<td class="org-right">1.484</td>
+<td class="org-right">122</td>
+<td class="org-left">49,6%</td>
+</tr>
+
+<tr>
+<td class="org-left">BA</td>
+<td class="org-right">19.604</td>
+<td class="org-right">10.743</td>
+<td class="org-right">8.021</td>
+<td class="org-right">840</td>
+<td class="org-left">45,2%</td>
+</tr>
+
+<tr>
+<td class="org-left">MG</td>
+<td class="org-right">24.069</td>
+<td class="org-right">15.349</td>
+<td class="org-right">8.194</td>
+<td class="org-right">526</td>
+<td class="org-left">36,2%</td>
+</tr>
+
+<tr>
+<td class="org-left">RN</td>
+<td class="org-right">4.708</td>
+<td class="org-right">3.013</td>
+<td class="org-right">1.664</td>
+<td class="org-right">31</td>
+<td class="org-left">36,0%</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">6.104</td>
+<td class="org-right">3.946</td>
+<td class="org-right">2.066</td>
+<td class="org-right">92</td>
+<td class="org-left">35,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">RS</td>
+<td class="org-right">11.046</td>
+<td class="org-right">7.158</td>
+<td class="org-right">3.695</td>
+<td class="org-right">193</td>
+<td class="org-left">35,2%</td>
+</tr>
+
+<tr>
+<td class="org-left">CE</td>
+<td class="org-right">10.122</td>
+<td class="org-right">6.772</td>
+<td class="org-right">3.085</td>
+<td class="org-right">265</td>
+<td class="org-left">33,1%</td>
+</tr>
+
+<tr>
+<td class="org-left">PI</td>
+<td class="org-right">5.325</td>
+<td class="org-right">3.714</td>
+<td class="org-right">1.512</td>
+<td class="org-right">99</td>
+<td class="org-left">30,3%</td>
+</tr>
+
+<tr>
+<td class="org-left">RR</td>
+<td class="org-right">969</td>
+<td class="org-right">677</td>
+<td class="org-right">279</td>
+<td class="org-right">13</td>
+<td class="org-left">30,1%</td>
+</tr>
+
+<tr>
+<td class="org-left">RJ</td>
+<td class="org-right">13.035</td>
+<td class="org-right">9.184</td>
+<td class="org-right">3.383</td>
+<td class="org-right">468</td>
+<td class="org-left">29,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">AL</td>
+<td class="org-right">3.322</td>
+<td class="org-right">2.345</td>
+<td class="org-right">881</td>
+<td class="org-right">96</td>
+<td class="org-left">29,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">PE</td>
+<td class="org-right">9.957</td>
+<td class="org-right">7.237</td>
+<td class="org-right">2.574</td>
+<td class="org-right">146</td>
+<td class="org-left">27,3%</td>
+</tr>
+
+<tr>
+<td class="org-left">PB</td>
+<td class="org-right">5.641</td>
+<td class="org-right">4.175</td>
+<td class="org-right">1.052</td>
+<td class="org-right">414</td>
+<td class="org-left">26,0%</td>
+</tr>
+
+<tr>
+<td class="org-left">TO</td>
+<td class="org-right">2.217</td>
+<td class="org-right">1.681</td>
+<td class="org-right">501</td>
+<td class="org-right">35</td>
+<td class="org-left">24,2%</td>
+</tr>
+
+<tr>
+<td class="org-left">DF</td>
+<td class="org-right">1.471</td>
+<td class="org-right">1.140</td>
+<td class="org-right">156</td>
+<td class="org-right">175</td>
+<td class="org-left">22,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">11.817</td>
+<td class="org-right">9.337</td>
+<td class="org-right">2.275</td>
+<td class="org-right">205</td>
+<td class="org-left">21,0%</td>
+</tr>
+
+<tr>
+<td class="org-left">AP</td>
+<td class="org-right">944</td>
+<td class="org-right">763</td>
+<td class="org-right">168</td>
+<td class="org-right">13</td>
+<td class="org-left">19,2%</td>
+</tr>
+
+<tr>
+<td class="org-left">RO</td>
+<td class="org-right">1.393</td>
+<td class="org-right">1.132</td>
+<td class="org-right">243</td>
+<td class="org-right">18</td>
+<td class="org-left">18,7%</td>
+</tr>
+
+<tr>
+<td class="org-left">ES</td>
+<td class="org-right">3.847</td>
+<td class="org-right">3.156</td>
+<td class="org-right">659</td>
+<td class="org-right">32</td>
+<td class="org-left">18,0%</td>
+</tr>
+
+<tr>
+<td class="org-left">SC</td>
+<td class="org-right">7.463</td>
+<td class="org-right">6.156</td>
+<td class="org-right">1.167</td>
+<td class="org-right">140</td>
+<td class="org-left">17,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">MA</td>
+<td class="org-right">13.226</td>
+<td class="org-right">10.994</td>
+<td class="org-right">2.100</td>
+<td class="org-right">132</td>
+<td class="org-left">16,9%</td>
+</tr>
+
+<tr>
+<td class="org-left">GO</td>
+<td class="org-right">5.007</td>
+<td class="org-right">4.224</td>
+<td class="org-right">625</td>
+<td class="org-right">158</td>
+<td class="org-left">15,6%</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">33.616</td>
+<td class="org-right">28.526</td>
+<td class="org-right">4.526</td>
+<td class="org-right">564</td>
+<td class="org-left">15,1%</td>
+</tr>
+
+<tr>
+<td class="org-left">SE</td>
+<td class="org-right">2.430</td>
+<td class="org-right">2.088</td>
+<td class="org-right">315</td>
+<td class="org-right">27</td>
+<td class="org-left">14,1%</td>
+</tr>
+
+<tr>
+<td class="org-left">MS</td>
+<td class="org-right">1.965</td>
+<td class="org-right">1.761</td>
+<td class="org-right">163</td>
+<td class="org-right">41</td>
+<td class="org-left">10,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">PR</td>
+<td class="org-right">9.975</td>
+<td class="org-right">9.371</td>
+<td class="org-right">488</td>
+<td class="org-right">116</td>
+<td class="org-left">6,1%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org6edacc3" class="outline-3">
+<h3 id="org6edacc3"><span class="section-number-3">3.3.</span> O CNEFE ajuda, mas não substitui</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Das 57.376 escolas, 21.956 têm um par no CNEFE, que oferece uma posição, mas não uma coordenada do INEP. Sobram <b>35.420 escolas sem nenhuma posição conhecida</b>, das quais 17.446 em atividade.
+</p>
+
+<p>
+Esse par foi calculado com os endereços do catálogo, então não inclui as 4.985 escolas fora da cópia. O <a href="12-censo-2025-georreferenciado.html">doc 12</a> aplica a elas as regras do CNEFE e leva o total sem localização para 34.618.
+</p>
+</div>
+</div>
+<div id="outline-container-org8260e82" class="outline-3">
+<h3 id="org8260e82"><span class="section-number-3">3.4.</span> Um registro incompleto</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+A escola <code>43145833</code> vem sem <code>SG_UF</code> e sem nome de município nos microdados de 2025, embora tenha 237 colunas preenchidas. O script recupera a UF (RS) pelo código do município, em vez de descartá-la.
+</p>
+
+<p>
+Para refazer os números: <code>.venv/bin/python scripts/commands/censo_escolar_2025__cruzar_catalogo.py</code>. A tabela confere com o MD5 publicado dentro do zip do INEP.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4b2db2e" class="outline-2">
+<h2 id="org4b2db2e"><span class="section-number-2">4.</span> Comparação teórica entre as bases</h2>
+<div class="outline-text-2" id="text-4">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Dimensão</th>
+<th scope="col" class="org-left">Censo Escolar (INEP)</th>
+<th scope="col" class="org-left">CNEFE (IBGE)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Finalidade</td>
+<td class="org-left">Estatística educacional</td>
+<td class="org-left">Cadastro de endereços para operações estatísticas</td>
+</tr>
+
+<tr>
+<td class="org-left">O que é um registro</td>
+<td class="org-left">Uma escola</td>
+<td class="org-left">Uma espécie de endereço existente em um endereço</td>
+</tr>
+
+<tr>
+<td class="org-left">Quem informa</td>
+<td class="org-left">A própria escola ou rede, pelo sistema Educacenso</td>
+<td class="org-left">O recenseador, em campo</td>
+</tr>
+
+<tr>
+<td class="org-left">Tipo de dado</td>
+<td class="org-left">Declaratório, com base em documentos administrativos</td>
+<td class="org-left">Observação em campo, com classificação da finalidade do endereço</td>
+</tr>
+
+<tr>
+<td class="org-left">Referência no tempo</td>
+<td class="org-left">Última quarta-feira de maio, todo ano</td>
+<td class="org-left">Coleta do Censo Demográfico 2022</td>
+</tr>
+
+<tr>
+<td class="org-left">Identificador</td>
+<td class="org-left">Código INEP, estável entre os anos</td>
+<td class="org-left"><code>COD_UNICO_ENDERECO</code></td>
+</tr>
+
+<tr>
+<td class="org-left">O que conta como escola</td>
+<td class="org-left">Escolas de educação básica no escopo do censo</td>
+<td class="org-left">Qualquer endereço classificado como <code>COD_ESPECIE = 4</code></td>
+</tr>
+
+<tr>
+<td class="org-left">Nome</td>
+<td class="org-left">Nome cadastrado da escola</td>
+<td class="org-left"><code>DSC_ESTABELECIMENTO</code>, a identificação do estabelecimento</td>
+</tr>
+
+<tr>
+<td class="org-left">Situação</td>
+<td class="org-left">Em atividade, paralisada ou extinta</td>
+<td class="org-left">Não há campo de situação no dicionário</td>
+</tr>
+
+<tr>
+<td class="org-left">Coordenada</td>
+<td class="org-left">Publicada no catálogo, sem a coordenada em 25,5% das escolas</td>
+<td class="org-left">Presente em todos os registros, com nível de geocodificação</td>
+</tr>
+
+<tr>
+<td class="org-left">Precisão documentada</td>
+<td class="org-left">Não encontramos</td>
+<td class="org-left">EQM de 5,84 m em situação ideal, até 11,71 m em condições normais</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="outline-container-orga6240d8" class="outline-3">
+<h3 id="orga6240d8"><span class="section-number-3">4.1.</span> Como cada coordenada nasce</h3>
+<div class="outline-text-3" id="text-4-1">
+<ul class="org-ul">
+<li><b>CNEFE:</b> o aplicativo de coleta previa três tentativas obrigatórias de capturar a posição por GNSS, antes de o recenseador classificar o endereço. Em condições adversas, como áreas muito verticalizadas, o erro pode passar de 11,71 m (<a href="https://biblioteca.ibge.gov.br/visualizacao/livros/liv102063.pdf">Nota metodológica n. 01</a>).</li>
+<li><b>Censo Escolar:</b> segundo o doc <a href="06-georeferenciamento-escolas.html">06</a>, o INEP coleta a localização desde 2018, por um aplicativo em que a escola é posicionada no mapa. Não encontramos a precisão dessa coleta documentada.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org90c0ffe" class="outline-3">
+<h3 id="org90c0ffe"><span class="section-number-3">4.2.</span> Qualidade das coordenadas do CNEFE nos registros de ensino</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Medido nos nossos 264.445 registros, com as categorias do dicionário oficial:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right"><code>NV_GEO_COORD</code></th>
+<th scope="col" class="org-left">Significado</th>
+<th scope="col" class="org-right">Registros</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Coordenada original do Censo 2022</td>
+<td class="org-right">262.738</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Coordenada modificada (apartamentos)</td>
+<td class="org-right">188</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Coordenada estimada</td>
+<td class="org-right">397</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">Face de quadra</td>
+<td class="org-right">988</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">Localidade</td>
+<td class="org-right">54</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">Setor censitário</td>
+<td class="org-right">80</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Ou seja, 99,4% têm a coordenada original. O restante é uma posição aproximada, o que importa ao interpretar distâncias grandes nesses casos.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc267434" class="outline-2">
+<h2 id="orgc267434"><span class="section-number-2">5.</span> Por que os totais não coincidem</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Temos 212.386 escolas no catálogo e 264.445 estabelecimentos de ensino no CNEFE. Estas são as explicações mais prováveis. São hipóteses que decorrem da definição das bases, e não medimos o peso de cada uma:
+</p>
+
+<ul class="org-ul">
+<li><b>Unidades diferentes:</b> uma escola pode funcionar em mais de um prédio, e um prédio pode abrigar mais de uma escola.</li>
+<li><b>Escopos diferentes:</b> no CNEFE, o que define o registro é a classificação do endereço. Encontramos nele faculdades, autoescolas e até registros como <code>IGREJA CATOLICA</code>.</li>
+<li><b>Dois anos de distância:</b> entre 2022 e 2024, escolas abriram, fecharam e mudaram de endereço.</li>
+<li><b>Situação:</b> o catálogo inclui 31.321 escolas paralisadas, que um recenseador pode não ter identificado como escola em 2022.</li>
+<li><b>Identificação fraca:</b> o nome no CNEFE às vezes é genérico (<code>ESCOLA</code>, <code>CRECHE</code>), o que dificulta o pareamento, mas não reduz o total.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org8de7027" class="outline-2">
+<h2 id="org8de7027"><span class="section-number-2">6.</span> O que o cruzamento mostrou</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+O pareamento (doc <a href="10-mapa-nacional-censo-cnefe.html">10</a>) encontrou par para 130.694 escolas (61,5%). Entre os 107.950 pares em que as duas coordenadas existem, a distância mediana é de 24 m, e 78,3% ficam a menos de 50 m.
+</p>
+
+<p>
+<b>O que isso permite dizer:</b> na maior parte dos pares, as duas bases apontam para o mesmo lugar, com diferença de poucas dezenas de metros.
+</p>
+
+<p>
+<b>O que isso não permite dizer:</b>
+</p>
+<ul class="org-ul">
+<li>Qual coordenada está certa. Não temos uma medição de referência independente.</li>
+<li>Que as 74.474 escolas sem par não existem no CNEFE. Elas podem estar lá sob nome ou endereço que o método não reconheceu.</li>
+<li>Que a precisão geral é de 24 m. A medida só vale para pares encontrados, e os níveis por nome podem ter critérios que favorecem certos casos.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org8784b19" class="outline-2">
+<h2 id="org8784b19"><span class="section-number-2">7.</span> Como ler o mapa nacional</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+O <a href="../escolas_brasil_censo_cnefe.html">mapa nacional</a> mostra as duas bases sobrepostas, sem filtrar pelos pares:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Camada</th>
+<th scope="col" class="org-right">Pontos</th>
+<th scope="col" class="org-left">Origem da posição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Censo Escolar, coordenada do INEP</td>
+<td class="org-right">158.182</td>
+<td class="org-left">Catálogo de Escolas</td>
+</tr>
+
+<tr>
+<td class="org-left">Censo Escolar, posição do par no CNEFE</td>
+<td class="org-right">22.744</td>
+<td class="org-left">Registro do CNEFE pareado</td>
+</tr>
+
+<tr>
+<td class="org-left">CNEFE, estabelecimentos de ensino</td>
+<td class="org-right">264.445</td>
+<td class="org-left">CNEFE</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>Fora do mapa: sem nenhuma coordenada</i></td>
+<td class="org-right"><i>31.460</i></td>
+<td class="org-left"><i>Sem coordenada no INEP e sem par</i></td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Portanto, <b>nem todas as escolas do Censo aparecem</b>: 31.460 (14,8%) não têm posição conhecida. O número está na própria página para não dar a impressão de que o mapa está completo.
+</p>
+</div>
+</div>
+<div id="outline-container-orgdda7a8a" class="outline-2">
+<h2 id="orgdda7a8a"><span class="section-number-2">8.</span> Fontes</h2>
+<div class="outline-text-2" id="text-8">
+<ul class="org-ul">
+<li>INEP, <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">Catálogo de Escolas</a>.</li>
+<li>INEP, <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/perguntas-frequentes/censo-escolar">Censo Escolar: perguntas frequentes</a> (data de referência e sistema Educacenso).</li>
+<li>INEP, <a href="https://www.gov.br/inep/pt-br/centrais-de-conteudo/acervo-linha-editorial/publicacoes-institucionais/estatisticas-e-indicadores-educacionais/censo-escolar-da-educacao-basica-2025-notas-estatisticas">Censo Escolar 2025: notas estatísticas</a> (caráter declaratório).</li>
+<li>IBGE, <a href="https://biblioteca.ibge.gov.br/visualizacao/livros/liv102063.pdf">Censo Demográfico 2022: Coordenadas Geográficas dos Endereços, Nota metodológica n. 01</a>, 2024.</li>
+<li>IBGE, <a href="https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/Dicionario_CNEFE_Censo_2022.xls">Dicionário do CNEFE 2022</a>, que confirma <code>COD_ESPECIE = 4</code> como estabelecimento de ensino.</li>
+<li>Microdados do Censo Escolar 2023, 2024 e 2025 e registros do CNEFE, processados neste projeto em 08/11/2026.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>

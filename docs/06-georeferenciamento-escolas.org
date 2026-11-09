@@ -36,6 +36,8 @@ o plano registra como pendente na Fase 7.
   tem um dataset público e baixável em massa com coordenadas de escolas -
   ver panorama completo abaixo.
 
+- *Ano do catálogo (08/11/2026):* a cópia do Catálogo de Escolas usada no mapa nacional corresponde ao Censo Escolar 2024. Ver [[file:11-censo-escolar-x-cnefe.org][doc 11]] e o [[file:10-mapa-nacional-censo-cnefe.org][doc 10]], com os resultados das 27 UFs.
+
 * Panorama das fontes oficiais pesquisadas
 
 ** dados.gov.br (Portal Brasileiro de Dados Abertos)
@@ -271,7 +273,7 @@ registrada no Censo 2022.
   (São Pedro do Turvo, ~10 mil habitantes). Capitais como São Paulo devem
   gerar arquivos ordens de magnitude maiores - tamanho e desempenho de
   processamento ainda não avaliados.
-- *Dicionário oficial não lido*: =Dicionario_CNEFE_Censo_2022.xls= está no
+- *Dicionário oficial*: lido em 08/11/2026, confirma =COD_ESPECIE = 4= como estabelecimento de ensino (ver [[file:11-censo-escolar-x-cnefe.org][doc 11]]). Registro anterior: =Dicionario_CNEFE_Censo_2022.xls= está no
   formato antigo do Excel (BIFF/OLE2), e não há biblioteca disponível no
   ambiente atual (=openpyxl=/=xlrd=) para abri-lo. Os significados de
   =COD_ESPECIE=, =COD_TIPO_ESPECI= e =NV_GEO_COORD= usados aqui foram
@@ -533,7 +535,7 @@ não redescobrir depois):
   é recalculada a cada comparação), podar candidatos por primeira palavra
   antes de rodar =difflib=, e/ou usar leitura em bloco do CNEFE em vez de
   =csv.reader= linha a linha.
-- [ ] Ler o dicionário oficial do CNEFE (=Dicionario_CNEFE_Censo_2022.xls=)
+- [X] (08/11/2026, ver [[file:11-censo-escolar-x-cnefe.org][doc 11]]) Ler o dicionário oficial do CNEFE (=Dicionario_CNEFE_Censo_2022.xls=)
   para confirmar os códigos de =COD_ESPECIE=, =COD_TIPO_ESPECI= e
   =NV_GEO_COORD= (precisa de =xlrd= ou converter o arquivo antes).
 - [ ] Baixar o CNEFE das demais 26 UFs, só depois de resolver ambiguidade,

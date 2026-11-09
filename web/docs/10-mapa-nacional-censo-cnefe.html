@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- 2026-11-08 dom 23:32 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mapa nacional de escolas: como comparamos o INEP e o CNEFE</title>
+<meta name="author" content="Projeto de aprendizagem" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Mapa nacional de escolas: como comparamos o INEP e o CNEFE</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orgef766ec">1. O que foi feito</a></li>
+<li><a href="#org5951ac0">2. Os dados</a></li>
+<li><a href="#org1b0ad25">3. O pareamento</a>
+<ul>
+<li><a href="#org35c463b">3.1. A regra mais importante: a distância não escolhe o par</a></li>
+<li><a href="#org8551e47">3.2. Resultado geral</a></li>
+</ul>
+</li>
+<li><a href="#org1b8eda1">4. O que a validação manual mudou</a></li>
+<li><a href="#org2f243a6">5. Problemas que encontramos</a></li>
+<li><a href="#orgfd8ca1e">6. Decisões e pendências</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-orgef766ec" class="outline-2">
+<h2 id="orgef766ec"><span class="section-number-2">1.</span> O que foi feito</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Entre 7 e 8 de novembro de 2026, levamos a comparação de escolas do piloto de São Paulo para as 27 UFs. O trabalho responde a três perguntas:
+</p>
+
+<ol class="org-ol">
+<li>Quais escolas são a mesma nas duas bases?</li>
+<li>Qual a distância entre as duas coordenadas de uma mesma escola?</li>
+<li>Como conferir cada resultado?</li>
+</ol>
+
+<p>
+O resultado está em dois mapas e em arquivos de auditoria. O <a href="11-censo-escolar-x-cnefe.html">doc 11</a> explica o que cada base significa, e o registro tarefa a tarefa está no <a href="https://github.com/claudiadaros75/Mapeamento-Intersetorial/blob/main/docs/features/mapa-escolas-inep-cnefe.org">documento da feature</a>.
+</p>
+
+<ul class="org-ul">
+<li><a href="../escolas_brasil_censo_cnefe.html">Mapa nacional Censo Escolar × CNEFE</a>: as duas bases sobrepostas.</li>
+<li><a href="../escolas_inep_cnefe.html">Mapa de pareamento</a>: os pares, com filtros por nível e por distância.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org5951ac0" class="outline-2">
+<h2 id="org5951ac0"><span class="section-number-2">2.</span> Os dados</h2>
+<div class="outline-text-2" id="text-2">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Base</th>
+<th scope="col" class="org-left">Recorte</th>
+<th scope="col" class="org-right">Registros</th>
+<th scope="col" class="org-right">Com coordenada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Catálogo de Escolas (INEP)</td>
+<td class="org-left">Censo Escolar 2024, sem as extintas</td>
+<td class="org-right">212.386</td>
+<td class="org-right">158.182</td>
+</tr>
+
+<tr>
+<td class="org-left">CNEFE 2022 (IBGE)</td>
+<td class="org-left"><code>COD_ESPECIE = 4</code>, estabelecimento de ensino</td>
+<td class="org-right">264.445</td>
+<td class="org-right">264.445</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Os arquivos do CNEFE vêm de <code>Censo_Demografico_2022/Arquivos_CNEFE/CSV/UF</code> no servidor do IBGE, um zip por estado. Como havia pouco espaço em disco, cada zip é lido em streaming, só os registros de ensino são gravados, e o zip é apagado antes do próximo. Assim, cada nova rodada de pareamento leva cerca de 3 minutos para o país inteiro, contra cerca de 28 minutos só para SP no piloto.
+</p>
+</div>
+</div>
+<div id="outline-container-org1b0ad25" class="outline-2">
+<h2 id="org1b0ad25"><span class="section-number-2">3.</span> O pareamento</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Os níveis são aplicados em cascata, sempre dentro do mesmo município. Cada registro do CNEFE só pode ser usado uma vez.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Nível</th>
+<th scope="col" class="org-left">Compara</th>
+<th scope="col" class="org-right">Pares</th>
+<th scope="col" class="org-left">Mediana</th>
+<th scope="col" class="org-left">p90</th>
+<th scope="col" class="org-left">Até 50 m</th>
+<th scope="col" class="org-left">Acima de 5 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">N1</td>
+<td class="org-left">CEP + número + logradouro</td>
+<td class="org-right">39.995</td>
+<td class="org-left">24 m</td>
+<td class="org-left">87 m</td>
+<td class="org-left">79,4%</td>
+<td class="org-left">0,3%</td>
+</tr>
+
+<tr>
+<td class="org-left">N2</td>
+<td class="org-left">CEP + logradouro</td>
+<td class="org-right">41.571</td>
+<td class="org-left">24 m</td>
+<td class="org-left">151 m</td>
+<td class="org-left">78,1%</td>
+<td class="org-left">2,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">N3</td>
+<td class="org-left">Nome exato, depois de normalizado</td>
+<td class="org-right">9.258</td>
+<td class="org-left">22 m</td>
+<td class="org-left">222 m</td>
+<td class="org-left">79,2%</td>
+<td class="org-left">3,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">N4</td>
+<td class="org-left">Nome ajustado, com similaridade de pelo menos 85</td>
+<td class="org-right">39.870</td>
+<td class="org-left">23 m</td>
+<td class="org-left">290 m</td>
+<td class="org-left">77,3%</td>
+<td class="org-left">4,4%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+As distâncias usam só os pares em que as duas coordenadas existem (107.950 no total).
+</p>
+</div>
+<div id="outline-container-org35c463b" class="outline-3">
+<h3 id="org35c463b"><span class="section-number-3">3.1.</span> A regra mais importante: a distância não escolhe o par</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+A distância é o que queremos medir. Se ela também escolhesse os pares, eles pareceriam mais próximos do que são. Por isso, os empates são resolvidos pela nota do nome, e o que continua empatado vira <code>ambíguo</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8551e47" class="outline-3">
+<h3 id="org8551e47"><span class="section-number-3">3.2.</span> Resultado geral</h3>
+<div class="outline-text-3" id="text-3-2">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Situação das escolas do catálogo</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-left">%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Com par</td>
+<td class="org-right">130.694</td>
+<td class="org-left">61,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">Ambíguas</td>
+<td class="org-right">7.218</td>
+<td class="org-left">3,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">Sem par</td>
+<td class="org-right">74.474</td>
+<td class="org-left">35,1%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Também ficaram sem par 133.751 registros do CNEFE. Entre as UFs, as melhores foram PB e SE (69,5%), e as piores, DF (34,2%) e AM (52,5%).
+</p>
+
+<p>
+Como efeito colateral, 22.744 escolas sem coordenada no INEP ganharam uma posição, emprestada do seu par no CNEFE.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1b8eda1" class="outline-2">
+<h2 id="org1b8eda1"><span class="section-number-2">4.</span> O que a validação manual mudou</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Conferimos à mão uma amostra de 25 pares por nível. A amostra é pequena, então os números indicam uma ordem de grandeza.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Nível</th>
+<th scope="col" class="org-left">Corretos na amostra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">N1</td>
+<td class="org-left">Cerca de 24 em 25</td>
+</tr>
+
+<tr>
+<td class="org-left">N2</td>
+<td class="org-left">Cerca de 18 em 25 antes do ajuste, cerca de 24 depois</td>
+</tr>
+
+<tr>
+<td class="org-left">N3</td>
+<td class="org-left">25 em 25</td>
+</tr>
+
+<tr>
+<td class="org-left">N4</td>
+<td class="org-left">Cerca de 24 em 25</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Os erros do N2 tinham nota de nome abaixo de 50, como <code>CE CORONEL...</code> pareada com <code>IGREJA ADVENTISTA</code>, a 4,7 km. Criamos então uma regra: no N2, um nome específico que contradiz o outro rejeita o candidato. O p90 de distância do N2 caiu de 492 m para 151 m, e o total de pareadas caiu de 64,1% para 61,5%. Aceitamos pares a menos em troca de pares mais confiáveis.
+</p>
+
+<p>
+A distância agregada serviu para confirmar esse limiar, escolhido na amostra manual. Ela nunca decide um par individual.
+</p>
+</div>
+</div>
+<div id="outline-container-org2f243a6" class="outline-2">
+<h2 id="org2f243a6"><span class="section-number-2">5.</span> Problemas que encontramos</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li><b>Dados:</b> os testes pegaram normalizações que apagavam ruas como <code>RUA D</code> e confundiam <code>D PEDRO I</code> com <code>D PEDRO II</code>.</li>
+<li><b>DF:</b> o CNEFE grava o número 0 em todos os endereços do DF, então o N1 é impossível ali.</li>
+<li><b>Download:</b> uma conexão com o servidor do IBGE travou por 40 minutos por falta de timeout. O download agora tem timeout e retoma de onde parou.</li>
+<li><b>Clone desatualizado:</b> o trabalho começou em um clone sem remoto, 14 commits atrás da <code>ibge_malhas</code> do GitHub. Só descobrimos ao conferir o README, e fizemos o merge sem perder nenhum dos dois lados.</li>
+<li><b>Mapa base:</b> o CARTO passou a exigir chave de API. Os mapas novos usam o OpenStreetMap como padrão.</li>
+<li><b>Ano do catálogo:</b> verificamos que a nossa cópia corresponde ao Censo 2024, não ao de 2025 (ver <a href="11-censo-escolar-x-cnefe.html">doc 11</a>).</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgfd8ca1e" class="outline-2">
+<h2 id="orgfd8ca1e"><span class="section-number-2">6.</span> Decisões e pendências</h2>
+<div class="outline-text-2" id="text-6">
+<ul class="org-ul">
+<li><b>Dados no git:</b> os 69 MB de <code>web/data/escolas/</code> foram versionados para o mapa funcionar no GitHub Pages.</li>
+<li><b>Sem nível por proximidade (em aberto, desaconselhado):</b> parear pelos pontos próximos atingiria cerca de 5 mil registros com nome genérico, mas usaria a coordenada para decidir o par.</li>
+<li><b>Trabalho paralelo:</b> a branch <code>mapeamento-intersetorial-nacional</code> tem níveis de casamento parecidos, e ainda falta comparar os dois métodos.</li>
+<li><b>Catálogo mais recente:</b> refazer o processo quando o catálogo incorporar o Censo 2025. O mapa do Censo 2025 está no <a href="12-censo-2025-georreferenciado.html">doc 12</a>.</li>
+<li><b>Testes de interface:</b> os filtros e cliques dos mapas ainda não têm teste automatizado.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>

@@ -1,234 +1,154 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<!-- 2026-08-30 dom 23:20 -->
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<!-- 2026-11-08 dom 21:58 -->
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Georeferenciamento com as Malhas Municipais do IBGE</title>
+<title>Utilização e Reuso de dados abertos</title>
 <meta name="author" content="Projeto de aprendizagem" />
 <meta name="generator" content="Org Mode" />
-<style type="text/css">
-  #content { max-width: 60em; margin: auto; }
-  .title  { text-align: center;
-             margin-bottom: .2em; }
-  .subtitle { text-align: center;
-              font-size: medium;
-              font-weight: bold;
-              margin-top:0; }
-  .todo   { font-family: monospace; color: red; }
-  .done   { font-family: monospace; color: green; }
-  .priority { font-family: monospace; color: orange; }
-  .tag    { background-color: #eee; font-family: monospace;
-            padding: 2px; font-size: 80%; font-weight: normal; }
-  .timestamp { color: #bebebe; }
-  .timestamp-kwd { color: #5f9ea0; }
-  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
-  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
-  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
-  .underline { text-decoration: underline; }
-  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
-  p.verse { margin-left: 3%; }
-  pre {
-    border: 1px solid #e6e6e6;
-    border-radius: 3px;
-    background-color: #f2f2f2;
-    padding: 8pt;
-    font-family: monospace;
-    overflow: auto;
-    margin: 1.2em;
-  }
-  pre.src {
-    position: relative;
-    overflow: auto;
-  }
-  pre.src:before {
-    display: none;
-    position: absolute;
-    top: -8px;
-    right: 12px;
-    padding: 3px;
-    color: #555;
-    background-color: #f2f2f299;
-  }
-  pre.src:hover:before { display: inline; margin-top: 14px;}
-  /* Languages per Org manual */
-  pre.src-asymptote:before { content: 'Asymptote'; }
-  pre.src-awk:before { content: 'Awk'; }
-  pre.src-authinfo::before { content: 'Authinfo'; }
-  pre.src-C:before { content: 'C'; }
-  /* pre.src-C++ doesn't work in CSS */
-  pre.src-clojure:before { content: 'Clojure'; }
-  pre.src-css:before { content: 'CSS'; }
-  pre.src-D:before { content: 'D'; }
-  pre.src-ditaa:before { content: 'ditaa'; }
-  pre.src-dot:before { content: 'Graphviz'; }
-  pre.src-calc:before { content: 'Emacs Calc'; }
-  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
-  pre.src-fortran:before { content: 'Fortran'; }
-  pre.src-gnuplot:before { content: 'gnuplot'; }
-  pre.src-haskell:before { content: 'Haskell'; }
-  pre.src-hledger:before { content: 'hledger'; }
-  pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
-  pre.src-latex:before { content: 'LaTeX'; }
-  pre.src-ledger:before { content: 'Ledger'; }
-  pre.src-lisp:before { content: 'Lisp'; }
-  pre.src-lilypond:before { content: 'Lilypond'; }
-  pre.src-lua:before { content: 'Lua'; }
-  pre.src-matlab:before { content: 'MATLAB'; }
-  pre.src-mscgen:before { content: 'Mscgen'; }
-  pre.src-ocaml:before { content: 'Objective Caml'; }
-  pre.src-octave:before { content: 'Octave'; }
-  pre.src-org:before { content: 'Org mode'; }
-  pre.src-oz:before { content: 'OZ'; }
-  pre.src-plantuml:before { content: 'Plantuml'; }
-  pre.src-processing:before { content: 'Processing.js'; }
-  pre.src-python:before { content: 'Python'; }
-  pre.src-R:before { content: 'R'; }
-  pre.src-ruby:before { content: 'Ruby'; }
-  pre.src-sass:before { content: 'Sass'; }
-  pre.src-scheme:before { content: 'Scheme'; }
-  pre.src-screen:before { content: 'Gnu Screen'; }
-  pre.src-sed:before { content: 'Sed'; }
-  pre.src-sh:before { content: 'shell'; }
-  pre.src-sql:before { content: 'SQL'; }
-  pre.src-sqlite:before { content: 'SQLite'; }
-  /* additional languages in org.el's org-babel-load-languages alist */
-  pre.src-forth:before { content: 'Forth'; }
-  pre.src-io:before { content: 'IO'; }
-  pre.src-J:before { content: 'J'; }
-  pre.src-makefile:before { content: 'Makefile'; }
-  pre.src-maxima:before { content: 'Maxima'; }
-  pre.src-perl:before { content: 'Perl'; }
-  pre.src-picolisp:before { content: 'Pico Lisp'; }
-  pre.src-scala:before { content: 'Scala'; }
-  pre.src-shell:before { content: 'Shell Script'; }
-  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
-  /* additional language identifiers per "defun org-babel-execute"
-       in ob-*.el */
-  pre.src-cpp:before  { content: 'C++'; }
-  pre.src-abc:before  { content: 'ABC'; }
-  pre.src-coq:before  { content: 'Coq'; }
-  pre.src-groovy:before  { content: 'Groovy'; }
-  /* additional language identifiers from org-babel-shell-names in
-     ob-shell.el: ob-shell is the only babel language using a lambda to put
-     the execution function name together. */
-  pre.src-bash:before  { content: 'bash'; }
-  pre.src-csh:before  { content: 'csh'; }
-  pre.src-ash:before  { content: 'ash'; }
-  pre.src-dash:before  { content: 'dash'; }
-  pre.src-ksh:before  { content: 'ksh'; }
-  pre.src-mksh:before  { content: 'mksh'; }
-  pre.src-posh:before  { content: 'posh'; }
-  /* Additional Emacs modes also supported by the LaTeX listings package */
-  pre.src-ada:before { content: 'Ada'; }
-  pre.src-asm:before { content: 'Assembler'; }
-  pre.src-caml:before { content: 'Caml'; }
-  pre.src-delphi:before { content: 'Delphi'; }
-  pre.src-html:before { content: 'HTML'; }
-  pre.src-idl:before { content: 'IDL'; }
-  pre.src-mercury:before { content: 'Mercury'; }
-  pre.src-metapost:before { content: 'MetaPost'; }
-  pre.src-modula-2:before { content: 'Modula-2'; }
-  pre.src-pascal:before { content: 'Pascal'; }
-  pre.src-ps:before { content: 'PostScript'; }
-  pre.src-prolog:before { content: 'Prolog'; }
-  pre.src-simula:before { content: 'Simula'; }
-  pre.src-tcl:before { content: 'tcl'; }
-  pre.src-tex:before { content: 'TeX'; }
-  pre.src-plain-tex:before { content: 'Plain TeX'; }
-  pre.src-verilog:before { content: 'Verilog'; }
-  pre.src-vhdl:before { content: 'VHDL'; }
-  pre.src-xml:before { content: 'XML'; }
-  pre.src-nxml:before { content: 'XML'; }
-  /* add a generic configuration mode; LaTeX export needs an additional
-     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
-  pre.src-conf:before { content: 'Configuration File'; }
 
-  table { border-collapse:collapse; }
-  caption.t-above { caption-side: top; }
-  caption.t-bottom { caption-side: bottom; }
-  td, th { vertical-align:top;  }
-  th.org-right  { text-align: center;  }
-  th.org-left   { text-align: center;   }
-  th.org-center { text-align: center; }
-  td.org-right  { text-align: right;  }
-  td.org-left   { text-align: left;   }
-  td.org-center { text-align: center; }
-  dt { font-weight: bold; }
-  .footpara { display: inline; }
-  .footdef  { margin-bottom: 1em; }
-  .figure { padding: 1em; }
-  .figure p { text-align: center; }
-  .equation-container {
-    display: table;
-    text-align: center;
-    width: 100%;
-  }
-  .equation {
-    vertical-align: middle;
-  }
-  .equation-label {
-    display: table-cell;
-    text-align: right;
-    vertical-align: middle;
-  }
-  .inlinetask {
-    padding: 10px;
-    border: 2px solid gray;
-    margin: 10px;
-    background: #ffffcc;
-  }
-  #org-div-home-and-up
-   { text-align: right; font-size: 70%; white-space: nowrap; }
-  textarea { overflow-x: auto; }
-  .linenr { font-size: smaller }
-  .code-highlighted { background-color: #ffff00; }
-  .org-info-js_info-navigation { border-style: none; }
-  #org-info-js_console-label
-    { font-size: 10px; font-weight: bold; white-space: nowrap; }
-  .org-info-js_search-highlight
-    { background-color: #ffff00; color: #000000; font-weight: bold; }
-  .org-svg { }
-</style>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
 </head>
 <body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
 <div id="content" class="content">
-<h1 class="title">Georeferenciamento com as Malhas Municipais do IBGE</h1>
-<div id="table-of-contents" role="doc-toc">
-<h2>Table of Contents</h2>
+<header>
+<h1 class="title">Utilização e Reuso de dados abertos</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge9c8e37">1. Sobre o projeto</a></li>
-<li><a href="#orgb5fa497">2. Decisões iniciais</a></li>
-<li><a href="#orgac3c9d5">3. Estrutura do projeto</a></li>
-<li><a href="#orgf9066fa">4. Roteiro de estudo</a></li>
-<li><a href="#orgd3a1bee">5. Referências</a></li>
+<li><a href="#org2532edc">1. Sobre o projeto</a></li>
+<li><a href="#org75c536a">2. Painéis de dados abertos públicos: delimitação do que será utilizado e reusado</a>
+<ul>
+<li><a href="#org626812f">2.1. Delimitação</a></li>
+<li><a href="#orgc98b8de">2.2. Decisões iniciais (malhas do IBGE)</a></li>
+</ul>
+</li>
+<li><a href="#org20edb74">3. Registro e divulgação do processo colaborativo (Contexto de Ciência Aberta)</a>
+<ul>
+<li><a href="#org35817de">3.1. Camadas de registro</a></li>
+<li><a href="#org4bd9419">3.2. Fases (Milestones)</a></li>
+<li><a href="#orgd34620f">3.3. Fluxo de cada etapa</a></li>
+<li><a href="#org9a097ba">3.4. Convenção das mensagens de commit</a></li>
+<li><a href="#org983abda">3.5. Peças que completam a auditabilidade</a></li>
+<li><a href="#orge09bdc5">3.6. Automação: release → Zenodo (DOI) com trilha de auditoria</a></li>
+<li><a href="#orgde20664">3.7. Pendências para pôr o fluxo em prática</a></li>
+</ul>
+</li>
+<li><a href="#org6fdabb1">4. Estrutura do projeto</a></li>
+<li><a href="#org23eb92c">5. Roteiro de estudo</a></li>
+<li><a href="#org834bae3">6. Referências</a></li>
+<li><a href="#org14b429b">7. Licença</a></li>
 </ul>
 </div>
-</div>
-<div id="outline-container-orge9c8e37" class="outline-2">
-<h2 id="orge9c8e37"><span class="section-number-2">1.</span> Sobre o projeto</h2>
+</nav>
+<div id="outline-container-org2532edc" class="outline-2">
+<h2 id="org2532edc"><span class="section-number-2">1.</span> Sobre o projeto</h2>
 <div class="outline-text-2" id="text-1">
 <p>
-Este projeto é um espaço de estudo sobre georeferenciamento e análise
-geoespacial, tendo como material de partida as Malhas Municipais Digitais
-(MMD) do IBGE, na edição de 2024.
+Este projeto é uma oportunidade de ação social: um exercício cívico que
+cumpre os objetivos da política de dados abertos, que são justamente a
+<b>utilização</b> e o <b>reuso</b> dos dados públicos disponibilizados por fontes
+oficiais, como o IBGE e o Censo Escolar do INEP.
 </p>
 
 <p>
-O objetivo é aprender na prática conceitos fundamentais de cartografia,
-sistemas de coordenadas, projeções e manipulação de dados geoespaciais,
-documentando todo o aprendizado em arquivos Org (formato <b>org-mode</b> do
-Emacs)
+Inicialmente, o projeto estudou o georreferenciamento e a análise
+geoespacial, tendo como material de partida as Malhas Municipais Digitais
+(MMD) do IBGE, na edição de 2024. O objetivo foi aprender na prática
+conceitos fundamentais de cartografia, sistemas de coordenadas, projeções
+e manipulação de dados geoespaciais, documentando todo o aprendizado em
+arquivos Org (formato <b>org-mode</b> do Emacs).
+</p>
+
+<p>
+A partir de agora, o projeto passa a apresentar alguns painéis abertos já
+existentes e os seus respectivos microdados (veja o inventário em
+<code>docs/paines-publicos.org</code>), trabalhando as duas dimensões dos dados
+abertos:
+</p>
+
+<ul class="org-ul">
+<li><b>Utilização</b>: consultar e interpretar os painéis abertos, usando os
+dados da forma como já são publicados.</li>
+<li><b>Reuso</b>: manipular os microdados respectivos de cada painel para
+produzir novas análises, cruzamentos e visualizações, como os mapas
+georreferenciados deste projeto.</li>
+</ul>
+
+<p>
+Após uma breve passagem por alguns dos painéis públicos citados, o projeto encontra-se na etapa de mapeamento das escolas utilizando a localização geográfica fornecida pelo <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">cadastro escolar do inep</a> e pelo <a href="https://www.ibge.gov.br/estatisticas/sociais/populacao/38734-cadastro-nacional-de-enderecos-para-fins-estatisticos.html?=&amp;t=downloads">CNEFE do IBGE</a>, mais específicamente, opção "Arquivos<sub>CNEFE</sub>/UF".
 </p>
 </div>
 </div>
-<div id="outline-container-orgb5fa497" class="outline-2">
-<h2 id="orgb5fa497"><span class="section-number-2">2.</span> Decisões iniciais</h2>
+<div id="outline-container-org75c536a" class="outline-2">
+<h2 id="org75c536a"><span class="section-number-2">2.</span> Painéis de dados abertos públicos: delimitação do que será utilizado e reusado</h2>
 <div class="outline-text-2" id="text-2">
+<p>
+Existem muitos dados abertos disponíveis no Brasil, publicados por
+órgãos federais, estaduais, municipais e por organizações da sociedade
+civil, inclusive por meio de iniciativas que agregam vários painéis num
+só lugar.  Alguns dos mais importantes:
+</p>
+
+<ul class="org-ul">
+<li>Portal Brasileiro de Dados Abertos — catálogo central do governo federal.
+<a href="https://dados.gov.br">https://dados.gov.br</a></li>
+
+<li>Mapa das Organizações da Sociedade Civil (IPEA).
+<a href="https://mapaosc.ipea.gov.br">https://mapaosc.ipea.gov.br</a></li>
+
+<li>Dados Abertos do INEP (Censo Escolar, Enem, Saeb e outros microdados).
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos</a></li>
+
+<li>Dados Abertos do TSE (eleições).
+<a href="https://dadosabertos.tse.jus.br">https://dadosabertos.tse.jus.br</a></li>
+
+<li>Dados Abertos da Câmara dos Deputados.
+<a href="https://dadosabertos.camara.leg.br">https://dadosabertos.camara.leg.br</a></li>
+</ul>
+
+<p>
+Uma lista bem maior, organizada por tema, está em
+<a href="./README-paineis-publicos-disponiveis-de-dados-abertos.html">README-paineis-publicos-disponiveis-de-dados-abertos.org</a>.
+</p>
+</div>
+<div id="outline-container-org626812f" class="outline-3">
+<h3 id="org626812f"><span class="section-number-3">2.1.</span> Delimitação</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+Diante de tantas fontes, este projeto se delimita a três conjuntos de
+dados:
+</p>
+
+<ol class="org-ol">
+<li><b>Malhas territoriais do IBGE</b> — a base geográfica (municípios, UFs e
+regiões) sobre a qual os demais dados são georreferenciados.</li>
+
+<li>Mapear as escolas</li>
+<li><b>Censo Escolar do INEP</b> — dados de escolas, matrículas e docentes da
+educação básica.</li>
+<li><b>Organizações da Sociedade Civil (OSCs) do IPEA</b> — dados do Mapa das
+OSCs.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgc98b8de" class="outline-3">
+<h3 id="orgc98b8de"><span class="section-number-3">2.2.</span> Decisões iniciais (malhas do IBGE)</h3>
+<div class="outline-text-3" id="text-2-2">
 <ul class="org-ul">
 <li>Ano de referência: MMD 2024</li>
 <li>Ferramenta principal: Python com geopandas</li>
@@ -236,28 +156,428 @@ Emacs)
 </ul>
 </div>
 </div>
-<div id="outline-container-orgac3c9d5" class="outline-2">
-<h2 id="orgac3c9d5"><span class="section-number-2">3.</span> Estrutura do projeto</h2>
+</div>
+<div id="outline-container-org20edb74" class="outline-2">
+<h2 id="org20edb74"><span class="section-number-2">3.</span> Registro e divulgação do processo colaborativo (Contexto de Ciência Aberta)</h2>
 <div class="outline-text-2" id="text-3">
+<p>
+Este projeto segue os princípios da <b>ciência aberta</b>: cada etapa do
+que é feito precisa ser <b>auditável</b>, ou seja, qualquer pessoa deve
+conseguir ver o que foi feito, por que foi feito, com quais dados e
+como reproduzir o resultado.  Para isso usamos o Git e o GitHub, com o
+repositório público e todo o registro das etapas exposto nele.
+</p>
+
+<p>
+O commit sozinho registra tudo, mas é granular demais para contar a
+história do projeto.  Por isso combinamos várias camadas do Git/GitHub,
+cada uma com uma granularidade diferente: <b>o commit é o rastro de
+auditoria, o Pull Request é a unidade de etapa e a Release é a unidade
+de divulgação</b>.
+</p>
+</div>
+<div id="outline-container-org35817de" class="outline-3">
+<h3 id="org35817de"><span class="section-number-3">3.1.</span> Camadas de registro</h3>
+<div class="outline-text-3" id="text-3-1">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Camada</th>
+<th scope="col" class="org-left">O que registra</th>
+<th scope="col" class="org-left">Papel na ciência aberta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Commit</td>
+<td class="org-left">Cada alteração (o "como")</td>
+<td class="org-left">Auditoria completa, linha a linha</td>
+</tr>
+
+<tr>
+<td class="org-left">Issue</td>
+<td class="org-left">Uma pergunta, tarefa ou problema (o "porquê")</td>
+<td class="org-left">Registra a intenção antes do trabalho e a discussão</td>
+</tr>
+
+<tr>
+<td class="org-left">Pull Request</td>
+<td class="org-left">Uma <b>etapa</b> concluída (conjunto de commits)</td>
+<td class="org-left">Resumo legível da etapa: o que, por quê, dados, reprodução</td>
+</tr>
+
+<tr>
+<td class="org-left">Milestone</td>
+<td class="org-left">Uma <b>fase</b> que agrupa issues e PRs</td>
+<td class="org-left">Mostra o andamento de cada fase do projeto</td>
+</tr>
+
+<tr>
+<td class="org-left">Tag + Release</td>
+<td class="org-left">Um marco público, com notas de versão</td>
+<td class="org-left"><b>Divulgação</b>: o que cada versão entrega</td>
+</tr>
+
+<tr>
+<td class="org-left">Zenodo (DOI)</td>
+<td class="org-left">Arquivamento permanente de cada Release</td>
+<td class="org-left">Torna cada versão citável e preservada fora do GitHub</td>
+</tr>
+
+<tr>
+<td class="org-left">GitHub Pages</td>
+<td class="org-left">O site público (pasta <code>web/</code>)</td>
+<td class="org-left">Divulgação dos mapas, da documentação e do diário do projeto</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org4bd9419" class="outline-3">
+<h3 id="org4bd9419"><span class="section-number-3">3.2.</span> Fases (Milestones)</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+As fases seguem a delimitação do projeto:
+</p>
+
+<ol class="org-ol">
+<li><b>Fase 1 — Malhas territoriais do IBGE</b></li>
+<li><b>Fase 2 — Censo Escolar do INEP</b></li>
+<li><b>Fase 3 — Organizações da Sociedade Civil (IPEA)</b></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgd34620f" class="outline-3">
+<h3 id="orgd34620f"><span class="section-number-3">3.3.</span> Fluxo de cada etapa</h3>
+<div class="outline-text-3" id="text-3-3">
+<ol class="org-ol">
+<li><b>Issue</b>: toda etapa começa com uma issue que descreve o objetivo e as
+fontes de dados, ligada à milestone da fase.</li>
+<li><b>Branch</b>: o trabalho é feito num branch próprio, com nome descritivo
+(ex.: <code>inep-censo-matriculas</code>), em commits pequenos.</li>
+<li><p>
+<b>Pull Request</b>: a etapa termina com um PR para o <code>main</code>, seguindo o
+modelo do repositório:
+</p>
+<ul class="org-ul">
+<li>objetivo da etapa;</li>
+<li>dados usados (URL da fonte e data do download);</li>
+<li>como reproduzir (comandos e scripts);</li>
+<li>resultados obtidos;</li>
+<li>decisões tomadas.</li>
+</ul>
+<p>
+O PR fecha a issue correspondente (<code>Closes #N</code> na descrição).
+</p></li>
+<li><b>Release</b>: ao fim de cada fase, publica-se uma release
+(ex.: <code>v0.1.0 — Malhas do IBGE</code>).  As notas da release são o texto
+de divulgação da fase, e o Zenodo gera um DOI para ela.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org9a097ba" class="outline-3">
+<h3 id="org9a097ba"><span class="section-number-3">3.4.</span> Convenção das mensagens de commit</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+As mensagens começam com um prefixo que indica o tipo da mudança,
+seguido de uma descrição curta em português:
+</p>
+
+<ul class="org-ul">
+<li><code>feat:</code> nova funcionalidade (script, mapa, painel)</li>
+<li><code>data:</code> inclusão ou atualização de dados</li>
+<li><code>docs:</code> documentação</li>
+<li><code>fix:</code> correção</li>
+<li><code>chore:</code> manutenção (configuração, organização)</li>
+<li><code>ci:</code> automação (GitHub Actions, Pages)</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org983abda" class="outline-3">
+<h3 id="org983abda"><span class="section-number-3">3.5.</span> Peças que completam a auditabilidade</h3>
+<div class="outline-text-3" id="text-3-5">
+<ul class="org-ul">
+<li><b>Licença</b>: todo o repositório (código, textos e dados derivados) está
+sob a GNU GPL v3 (ver <a href="#org14b429b">Licença</a>).</li>
+<li><b>Citação</b>: um arquivo <code>CITATION.cff</code> na raiz, para o GitHub exibir
+"Cite this repository".  Os metadados usados no Zenodo ficam em
+<code>.zenodo.json</code>.</li>
+<li><b>Proveniência dos dados</b>: os scripts de <code>scripts/commands/</code> baixam os
+dados brutos das fontes oficiais; para cada arquivo, registrar a URL,
+a data do download e um hash (SHA-256).</li>
+<li><b>Registro de decisões</b>: escolhas importantes ganham um arquivo em
+<code>docs/decisoes/</code> (ex.: <code>001-usar-cnefe-para-georreferenciar.org</code>),
+explicando por que se escolheu uma alternativa e não outra.</li>
+<li><b>Modelos no repositório</b>: <code>.github/pull_request_template.md</code> e modelos
+de issue, para que todos registrem as etapas do mesmo jeito.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge09bdc5" class="outline-3">
+<h3 id="orge09bdc5"><span class="section-number-3">3.6.</span> Automação: release → Zenodo (DOI) com trilha de auditoria</h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+O workflow <code>.github/workflows/zenodo-release.yml</code> operacionaliza este
+fluxo.  Sempre que uma release é publicada no GitHub, ele:
+</p>
+
+<ol class="org-ol">
+<li>exporta toda a trilha de auditoria do repositório para Markdown
+(script <code>scripts/commands/github_auditoria__exportar_markdown.py</code>):
+<ul class="org-ul">
+<li>cada issue e cada pull request, com descrição e linha do tempo
+completa (comentários, revisões, comentários em linhas de código,
+commits, rótulos, milestones, referências cruzadas, integração);</li>
+<li>milestones, releases anteriores e o histórico de commits até a tag;</li>
+<li>as respostas brutas da API do GitHub em JSON, sem perdas;</li>
+<li>um arquivo <code>SHA256SUMS</code> para conferir a integridade de tudo;</li>
+</ul></li>
+<li>empacota o código da tag (<code>...-codigo.zip</code>) e a auditoria
+(<code>...-auditoria.zip</code>);</li>
+<li>deposita os dois no Zenodo pela API (script
+<code>scripts/commands/zenodo__publicar_release.py</code>), com os metadados de
+<code>.zenodo.json</code>, e obtém o DOI da versão;</li>
+<li>escreve o DOI nas notas da release e anexa o zip da auditoria a ela.</li>
+</ol>
+
+<p>
+A primeira release cria o registro no Zenodo; as seguintes viram <b>novas
+versões</b> do mesmo registro.  Cada versão tem seu DOI, e o "DOI conceito"
+aponta sempre para a mais recente.
+</p>
+</div>
+<div id="outline-container-orgcac2909" class="outline-4">
+<h4 id="orgcac2909"><span class="section-number-4">3.6.1.</span> Quando o pipeline roda</h4>
+<div class="outline-text-4" id="text-3-6-1">
+<p>
+A publicação é automática, mas o gatilho é <b>publicar uma release</b>, não
+fazer commit ou push: no fluxo do projeto, cada release fecha uma fase.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Ação</th>
+<th scope="col" class="org-left">O pipeline roda?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Publicar uma release ou pré-release (botão Publish)</td>
+<td class="org-left">Sim, automaticamente</td>
+</tr>
+
+<tr>
+<td class="org-left">Commit ou push em qualquer branch</td>
+<td class="org-left">Não</td>
+</tr>
+
+<tr>
+<td class="org-left">Salvar uma release como rascunho (draft)</td>
+<td class="org-left">Não; só ao publicá-la</td>
+</tr>
+
+<tr>
+<td class="org-left">Rodar à mão (Actions → "Release no Zenodo" → Run)</td>
+<td class="org-left">Sim; serve para republicar uma release</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+O GitHub roda o workflow que existe <b>no commit da tag</b> da release.
+Enquanto o workflow estiver só no branch <code>ibge_malhas</code>, a release
+precisa ter Target = <code>ibge_malhas</code>; criada a partir do <code>main</code>, nada
+acontece.  O botão "Run workflow" também só aparece para workflows que
+estão no <code>main</code>.  Depois do merge de <code>ibge_malhas</code> no <code>main</code>, as duas
+restrições deixam de existir.
+</p>
+
+<p>
+Configuração (uma vez só, por quem administra o repositório):
+</p>
+
+<ol class="org-ol">
+<li>Preencher os autores reais em <code>.zenodo.json</code> (campo <code>creators</code>, no
+formato "Sobrenome, Nome"); o workflow se recusa a publicar com o
+texto de exemplo.</li>
+<li>Criar tokens pessoais no <a href="https://sandbox.zenodo.org">sandbox do Zenodo</a> e no <a href="https://zenodo.org">Zenodo</a> (escopos
+<code>deposit:write</code> e <code>deposit:actions</code>) e guardá-los como <i>secrets</i> do
+repositório: <code>ZENODO_SANDBOX_TOKEN</code> e <code>ZENODO_TOKEN</code>.</li>
+<li>Testar no sandbox: enquanto a variável <code>ZENODO_SANDBOX</code> não for
+<code>false</code>, as releases vão para o sandbox, com DOI fictício.  Também é
+possível rodar o workflow à mão (aba Actions → "Run workflow"),
+informando a tag.</li>
+<li>Depois de validar, definir a variável <code>ZENODO_SANDBOX</code> = <code>false</code>.</li>
+<li>Após a primeira publicação, criar a variável <code>ZENODO_CONCEPT_RECID</code>
+(ou <code>ZENODO_SANDBOX_CONCEPT_RECID</code>) com o id indicado no resumo do job.</li>
+<li>Não ativar a integração GitHub do próprio Zenodo: ela criaria um
+segundo depósito, sem a trilha de auditoria.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgdadf5fa" class="outline-4">
+<h4 id="orgdadf5fa"><span class="section-number-4">3.6.2.</span> Sandbox ou Zenodo real: como o destino é escolhido</h4>
+<div class="outline-text-4" id="text-3-6-2">
+<p>
+Ao publicar uma release, quem decide é a variável <code>ZENODO_SANDBOX</code>
+(Settings → Secrets and variables → Actions → Variables).  O padrão é
+sempre o sandbox, para que ninguém gere um DOI permanente por engano:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Variável <code>ZENODO_SANDBOX</code></th>
+<th scope="col" class="org-left">Destino</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">não existe</td>
+<td class="org-left">sandbox</td>
+</tr>
+
+<tr>
+<td class="org-left">qualquer valor diferente de <code>false</code></td>
+<td class="org-left">sandbox</td>
+</tr>
+
+<tr>
+<td class="org-left">exatamente <code>false</code></td>
+<td class="org-left">Zenodo real (zenodo.org)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Ao rodar o workflow à mão (aba Actions → "Run workflow"), a variável é
+ignorada e vale a caixa "Publicar no sandbox do Zenodo", que vem marcada.
+</p>
+
+<p>
+Cada destino tem o seu par de configuração, sem mistura:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Destino</th>
+<th scope="col" class="org-left">Token (Secret)</th>
+<th scope="col" class="org-left">Registro conceito (Variable)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">sandbox</td>
+<td class="org-left"><code>ZENODO_SANDBOX_TOKEN</code></td>
+<td class="org-left"><code>ZENODO_SANDBOX_CONCEPT_RECID</code></td>
+</tr>
+
+<tr>
+<td class="org-left">Zenodo real</td>
+<td class="org-left"><code>ZENODO_TOKEN</code></td>
+<td class="org-left"><code>ZENODO_CONCEPT_RECID</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Como saber onde uma publicação foi parar:
+</p>
+
+<ul class="org-ul">
+<li>nas notas da release, o sandbox aparece como "DOI (sandbox, teste)",
+com link para <code>sandbox.zenodo.org</code>; o Zenodo real, só como "DOI", com
+link para <code>doi.org</code>;</li>
+<li>pelo prefixo do DOI: <code>10.5072/...</code> é do sandbox (fictício, não resolve
+no doi.org); <code>10.5281/...</code> é do Zenodo real (permanente);</li>
+<li>no log do job, o passo "Escolher o destino" mostra
+<code>Destino: sandbox.zenodo.org</code> ou <code>Destino: zenodo.org</code>.</li>
+</ul>
+
+<p>
+Na prática: para testar, apague <code>ZENODO_SANDBOX</code> (ou use <code>true</code>) e
+publique uma pré-release; para publicar uma fase, deixe
+<code>ZENODO_SANDBOX</code> = <code>false</code>.  Uma publicação no Zenodo real não pode ser
+apagada: é possível criar uma nova versão, mas o DOI daquela versão é
+permanente.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgde20664" class="outline-3">
+<h3 id="orgde20664"><span class="section-number-3">3.7.</span> Pendências para pôr o fluxo em prática</h3>
+<div class="outline-text-3" id="text-3-7">
+<ul class="org-ul">
+<li class="off"><code>[&nbsp;]</code> Confirmar o acesso de administrador ao repositório no GitHub
+(necessário para Milestones, secrets do Zenodo e proteção do <code>main</code>).</li>
+<li class="off"><code>[&nbsp;]</code> Preencher os autores em <code>.zenodo.json</code>.</li>
+<li class="off"><code>[&nbsp;]</code> Configurar os tokens do Zenodo e testar uma release no sandbox.</li>
+<li class="off"><code>[&nbsp;]</code> Criar as três milestones das fases.</li>
+<li class="off"><code>[&nbsp;]</code> Criar o <code>CITATION.cff</code> e os modelos de PR e de issue.</li>
+<li class="off"><code>[&nbsp;]</code> Fechar o branch <code>ibge_malhas</code> com um PR para o <code>main</code> e publicar
+a release <code>v0.1.0 — Malhas do IBGE</code>, a primeira etapa já no
+novo fluxo.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org6fdabb1" class="outline-2">
+<h2 id="org6fdabb1"><span class="section-number-2">4.</span> Estrutura do projeto</h2>
+<div class="outline-text-2" id="text-4">
 <div class="org-src-container">
-<pre class="src src-text">georef-artifacts/
+<pre class="src src-text"><code>georef-artifacts/
 |-- README.org              ; este arquivo, índice geral do projeto
 |-- docs/                   ; documentação de estudo em formato Org
 |   |-- 01-dados-ibge-malhas-municipais.org
 |   |-- 02-ambiente-python.org
 |   |-- 03-primeira-exploracao.org
-|   `-- 04-leaflet-explicado.org
+|   |-- 04-leaflet-explicado.org
+|   `-- 05-plano-marcadores-escolas-inep.org
 |-- scripts/                ; scripts auxiliares (download, análise)
 |-- data/                   ; dados baixados do IBGE (veja data/README.org)
 |-- web/                    ; aplicação web estática (Leaflet + GeoJSON)
 `-- .venv/                  ; ambiente virtual Python (não versionado)
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-orgf9066fa" class="outline-2">
-<h2 id="orgf9066fa"><span class="section-number-2">4.</span> Roteiro de estudo</h2>
-<div class="outline-text-2" id="text-4">
+<div id="outline-container-org23eb92c" class="outline-2">
+<h2 id="org23eb92c"><span class="section-number-2">5.</span> Roteiro de estudo</h2>
+<div class="outline-text-2" id="text-5">
 <p>
 O roteiro evolui conforme o projeto avança. Os primeiros passos são:
 </p>
@@ -271,6 +591,16 @@ baixar, formato e características técnicas.</li>
 (ver <a href="./docs/03-primeira-exploracao.html">primeira-exploracao</a>).</li>
 <li><a href="./docs/04-leaflet-explicado.html">Construir mapas web com Leaflet</a> - entender TileLayers, URLs de tiles e
 renderização de GeoJSON no navegador.</li>
+<li><p>
+Exportar a documentação Org para HTML estático em <code>web/docs/</code>:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><code>./scripts/commands/exportar_docs_org_para_html.sh
+</code></pre>
+</div></li>
+<li><a href="./docs/05-plano-marcadores-escolas-inep.html">Marcadores de escolas do Censo Escolar (INEP) no mapa</a> - plano vivo,
+atualizado entre sessões, para adicionar uma camada de escolas
+filtrável por checkbox ao explorador de malhas.</li>
 </ol>
 
 <p>
@@ -278,9 +608,9 @@ Cada novo tema estudado ganha seu próprio arquivo em <code>docs/</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-orgd3a1bee" class="outline-2">
-<h2 id="orgd3a1bee"><span class="section-number-2">5.</span> Referências</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-org834bae3" class="outline-2">
+<h2 id="org834bae3"><span class="section-number-2">6.</span> Referências</h2>
+<div class="outline-text-2" id="text-6">
 <ul class="org-ul">
 <li>Portal de downloads das Malhas do IBGE:
 <a href="https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas">https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas</a></li>
@@ -297,11 +627,34 @@ Cada novo tema estudado ganha seu próprio arquivo em <code>docs/</code>.
 </ul>
 </div>
 </div>
+<div id="outline-container-org14b429b" class="outline-2">
+<h2 id="org14b429b"><span class="section-number-2">7.</span> Licença</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Copyright (C) 2026 os autores e colaboradores do projeto.
+</p>
+
+<p>
+Todo o conteúdo deste repositório — código, documentação e dados
+derivados — é distribuído sob a GNU General Public License, versão 3
+(GPL-3.0).  Você pode usar, estudar, modificar e redistribuir, desde que
+as versões derivadas também sejam distribuídas sob a GPL-3.0.  O texto
+completo está no arquivo <a href="./LICENSE">LICENSE</a>.
+</p>
+
+<p>
+Os dados brutos baixados das fontes oficiais (IBGE, INEP, IPEA) seguem
+as condições de uso definidas por cada órgão.
+</p>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
-<p class="author">Author: Projeto de aprendizagem</p>
-<p class="date">Created: 2026-08-30 dom 23:20</p>
-<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
 </div>
 </body>
 </html>
