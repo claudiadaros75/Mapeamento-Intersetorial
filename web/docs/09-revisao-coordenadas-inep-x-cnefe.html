@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- 2026-11-09 seg 10:34 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Revisão das Coordenadas das Escolas - Catálogo do INEP x CNEFE</title>
+<meta name="author" content="Projeto de aprendizagem" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Revisão das Coordenadas das Escolas - Catálogo do INEP x CNEFE</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org7adcf83">1. Objetivo deste documento</a></li>
+<li><a href="#orgb4e7125">2. Decisão em vigor: coordenadas do Catálogo, comparadas ao CNEFE (09/11/2026)</a>
+<ul>
+<li><a href="#org35629da">2.1. A decisão</a></li>
+<li><a href="#orgcaf0bb2">2.2. Qual cópia do Catálogo</a></li>
+<li><a href="#orgf61f7c5">2.3. O que o Censo 2025 informa</a></li>
+<li><a href="#org5c57b42">2.4. O que esta decisão substitui</a></li>
+<li><a href="#org48f45ac">2.5. Como reproduzir</a></li>
+</ul>
+</li>
+<li><a href="#org09d3934">3. Por que comparar as coordenadas do INEP e do CNEFE</a>
+<ul>
+<li><a href="#orgaeb0bce">3.1. Não existe gabarito</a></li>
+<li><a href="#org461758f">3.2. Cada fonte erra de um jeito</a></li>
+<li><a href="#org7f90b6c">3.3. A comparação já mudou uma decisão</a></li>
+<li><a href="#org3d904c0">3.4. Mas essa decisão foi tomada por estatística, não caso a caso</a></li>
+<li><a href="#orgad01c5d">3.5. O que a comparação também ensina sobre os dados abertos</a></li>
+</ul>
+</li>
+<li><a href="#orgb112676">4. Pergunta: o INEP é melhor no Norte e o IBGE melhor em SP? (02/11/2026)</a></li>
+<li><a href="#orga5fc088">5. Etapa 1: níveis de casamento marcados nos próprios dados (02/11/2026)</a>
+<ul>
+<li><a href="#org0926a37">5.1. A proposta</a></li>
+<li><a href="#org6cb5c99">5.2. Decisões (02/11/2026)</a></li>
+<li><a href="#org8488b3e">5.3. Tarefas</a></li>
+<li><a href="#org3a501eb">5.4. O que foi feito (02/11/2026)</a></li>
+<li><a href="#org6156d1c">5.5. Resultados por nível</a></li>
+<li><a href="#org24c685c">5.6. Exceção: nível 2 com CEP genérico (decidido em 02/11/2026)</a></li>
+<li><a href="#orge6df508">5.7. Escolas e pontos já casados saem das comparações seguintes (02/11/2026)</a></li>
+</ul>
+</li>
+<li><a href="#org3b9ad09">6. Catálogo de Escolas mais novo: dá para baixar automaticamente? (02/11/2026)</a>
+<ul>
+<li><a href="#org2e3eaae">6.1. A pergunta</a></li>
+<li><a href="#org6095e47">6.2. Painel do INEP Data: não automatizável</a></li>
+<li><a href="#org36a63f3">6.3. geobr 2.x: um arquivo por ano, de 2007 a 2025</a></li>
+<li><a href="#orgc8be075">6.4. O que medimos (AM, PA e SP)</a></li>
+<li><a href="#orgc7acde6">6.5. Conclusão e proposta</a></li>
+</ul>
+</li>
+<li><a href="#org33fb926">7. Próximas etapas</a></li>
+<li><a href="#org8a84f66">8. O que foi feito</a>
+<ul>
+<li><a href="#org935f339">8.1. 09/11/2026</a></li>
+<li><a href="#org34eae21">8.2. 02/11/2026</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-org7adcf83" class="outline-2">
+<h2 id="org7adcf83"><span class="section-number-2">1.</span> Objetivo deste documento</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Registrar a revisão do georreferenciamento das escolas: as coordenadas vêm do
+<b>Catálogo de Escolas do INEP</b> e são comparadas às do <b>CNEFE 2022 (IBGE)</b>. O
+<b>Censo Escolar 2025</b> só informa quais escolas divergem do Catálogo.
+</p>
+
+<p>
+O documento começou em 02/11/2026, com o Amazonas e o Pará, e continua o
+<a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">doc 08</a>. As seções estão em ordem cronológica. A decisão em vigor é a da
+próxima seção, e o que ela substituiu está marcado no próprio texto.
+</p>
+
+<p>
+Objetivo final do projeto: plotar todas as escolas do Brasil no mapa, com a
+melhor latitude e longitude possível.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb4e7125" class="outline-2">
+<h2 id="orgb4e7125"><span class="section-number-2">2.</span> Decisão em vigor: coordenadas do Catálogo, comparadas ao CNEFE (09/11/2026)</h2>
+<div class="outline-text-2" id="text-2">
+</div>
+<div id="outline-container-org35629da" class="outline-3">
+<h3 id="org35629da"><span class="section-number-3">2.1.</span> A decisão</h3>
+<div class="outline-text-3" id="text-2-1">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Base</th>
+<th scope="col" class="org-left">Papel</th>
+<th scope="col" class="org-left">Fornece posição?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Catálogo de Escolas</td>
+<td class="org-left">Lista de escolas e fonte da coordenada do INEP</td>
+<td class="org-left">Sim</td>
+</tr>
+
+<tr>
+<td class="org-left">CNEFE 2022</td>
+<td class="org-left">Segunda coordenada, para comparar com a do Catálogo</td>
+<td class="org-left">Sim</td>
+</tr>
+
+<tr>
+<td class="org-left">Censo Escolar 2025</td>
+<td class="org-left">Só informa a situação da escola e as divergências com o Catálogo</td>
+<td class="org-left">Não</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>Justificativa:</b> não há gabarito da posição real, então misturar as fontes em
+uma só "melhor coordenada" esconderia as divergências que queremos medir.
+Mantidas separadas, cada escola mostra o que cada base informa. O Censo 2025
+não tem coordenada nem endereço, mas tem o código INEP, e isso basta para
+responder às perguntas abaixo.
+</p>
+
+<p>
+Com isso, o projeto tem dois mapas para esta comparação:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Mapa</th>
+<th scope="col" class="org-left">O que mostra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><a href="../escolas_inep_cnefe.html?uf=BR">Pareamento INEP × CNEFE</a></td>
+<td class="org-left">Catálogo × CNEFE, com cores por nível de pareamento. Fica como está.</td>
+</tr>
+
+<tr>
+<td class="org-left"><a href="../escolas_catalogo_cnefe_censo.html?uf=BR">Catálogo + CNEFE + Censo 2025</a></td>
+<td class="org-left">A mesma comparação, com cores pela situação da escola no Censo 2025</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orgcaf0bb2" class="outline-3">
+<h3 id="orgcaf0bb2"><span class="section-number-3">2.2.</span> Qual cópia do Catálogo</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+A partir daqui, "Catálogo" é a exportação <code>catalogo-escolas-unificado.csv</code>,
+usada no <a href="10-mapa-nacional-censo-cnefe.html">doc 10</a>. O conteúdo dela corresponde ao Censo Escolar 2024, sem as
+escolas extintas (<a href="11-censo-escolar-x-cnefe.html">doc 11</a>).
+</p>
+
+<p>
+As seções seguintes, de 02/11/2026, usam outra cópia: o cadastro de 2023
+redistribuído pelo geobr, em AM, PA e SP. Os números das duas não se comparam
+diretamente. Os níveis também mudaram: aqui, o nível 2 é CEP + número; no doc
+10, N2 é CEP + logradouro.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf61f7c5" class="outline-3">
+<h3 id="orgf61f7c5"><span class="section-number-3">2.3.</span> O que o Censo 2025 informa</h3>
+<div class="outline-text-3" id="text-2-3">
+<p>
+Comparação pelo código INEP, com a tabela de escolas conferida pelo MD5
+publicado pelo INEP:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Situação</th>
+<th scope="col" class="org-right">Brasil</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Escolas no Catálogo</td>
+<td class="org-right">212.386</td>
+<td class="org-right">6.115</td>
+<td class="org-right">11.801</td>
+<td class="org-right">33.357</td>
+</tr>
+
+<tr>
+<td class="org-left">Escolas no Censo 2025</td>
+<td class="org-right">214.192</td>
+<td class="org-right">6.104</td>
+<td class="org-right">11.817</td>
+<td class="org-right">33.616</td>
+</tr>
+
+<tr>
+<td class="org-left">Nas duas bases</td>
+<td class="org-right">209.207</td>
+<td class="org-right">6.012</td>
+<td class="org-right">11.612</td>
+<td class="org-right">33.052</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>No Catálogo, não consta no Censo 2025</b></td>
+<td class="org-right">3.179</td>
+<td class="org-right">103</td>
+<td class="org-right">189</td>
+<td class="org-right">305</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>No Censo 2025, não consta no Catálogo</b></td>
+<td class="org-right">4.985</td>
+<td class="org-right">92</td>
+<td class="org-right">205</td>
+<td class="org-right">564</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>Nas duas bases, sem coordenada no Catálogo</b></td>
+<td class="org-right">52.391</td>
+<td class="org-right">2.066</td>
+<td class="org-right">2.275</td>
+<td class="org-right">4.526</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Detalhes do Brasil:
+</p>
+
+<ul class="org-ul">
+<li><b>No Catálogo, não consta no Censo 2025:</b> 1.366 das 3.179 têm coordenada e
+aparecem no mapa, em vermelho.</li>
+<li><b>No Censo 2025, não consta no Catálogo:</b> 3.737 das 4.985 estão em atividade.
+Como o Catálogo também é a fonte da posição, elas ficam só na lista.</li>
+<li><b>Sem coordenada no Catálogo:</b> 31.069 das 52.391 estão em atividade. Dessas
+52.391, 21.956 têm par no CNEFE e aparecem como círculo vazado, na posição do
+par. As demais ficam só na lista.</li>
+<li><b>Situação das escolas nas duas bases:</b> 176.803 em atividade, 28.727
+paralisadas e 3.677 extintas em 2025.</li>
+</ul>
+
+<p>
+<b>Até onde isso vale:</b> o Catálogo está um ano atrás do Censo 2025. Por isso, uma
+escola "só no Censo" pode ser nova, e uma "só no Catálogo" pode ter deixado de
+existir. Nenhuma das duas situações é, por si só, um erro de uma das bases.
+</p>
+</div>
+</div>
+<div id="outline-container-org5c57b42" class="outline-3">
+<h3 id="org5c57b42"><span class="section-number-3">2.4.</span> O que esta decisão substitui</h3>
+<div class="outline-text-3" id="text-2-4">
+<ul class="org-ul">
+<li><b>Coordenada escolhida:</b> as regras "INEP primeiro, CNEFE como reserva"
+(26/10/2026) e "coordenada por nível" (02/11/2026) não valem para este
+trabalho. Elas ficam abaixo como registro, porque explicam o caminho até aqui.</li>
+<li><b>Levar o ETL ao Censo 2025 usando o endereço do geobr:</b> não é mais necessário.
+A comparação com o Censo usa só o código INEP.</li>
+<li><b>Mapa em cascata do <a href="12-censo-2025-georreferenciado.html">doc 12</a>:</b> parte da lista do Censo e usa o CNEFE como
+reserva, então responde a outra pergunta. O mapa novo não o altera.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org48f45ac" class="outline-3">
+<h3 id="org48f45ac"><span class="section-number-3">2.5.</span> Como reproduzir</h3>
+<div class="outline-text-3" id="text-2-5">
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/catalogo_censo_2025__comparar.py
+</code></pre>
+</div>
+
+<p>
+O script lê o zip do Censo 2025 e <code>web/data/escolas/&lt;UF&gt;.json</code>, e grava
+<code>web/data/catalogo_censo_2025/</code>. Ele não grava nada se as contagens não fecharem.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org09d3934" class="outline-2">
+<h2 id="org09d3934"><span class="section-number-2">3.</span> Por que comparar as coordenadas do INEP e do CNEFE</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-orgaeb0bce" class="outline-3">
+<h3 id="orgaeb0bce"><span class="section-number-3">3.1.</span> Não existe gabarito</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Não temos a posição verdadeira de cada escola. Temos duas fontes oficiais,
+produzidas de formas diferentes:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Fonte</th>
+<th scope="col" class="org-left">Como o ponto é obtido</th>
+<th scope="col" class="org-left">Como chega à escola</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Catálogo de Escolas do INEP</td>
+<td class="org-left">a própria escola marca o ponto num aplicativo</td>
+<td class="org-left">pelo código da escola (<code>CO_ENTIDADE</code>): ligação direta</td>
+</tr>
+
+<tr>
+<td class="org-left">CNEFE 2022 (IBGE)</td>
+<td class="org-left">o recenseador registra o ponto no local, no Censo 2022</td>
+<td class="org-left">pelo nosso casamento (CEP + número, nome exato, nome ajustado)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Comparar as duas é a única forma objetiva de medir a qualidade do que
+plotamos. Onde concordam, temos confiança; onde divergem, uma das duas (ou
+o nosso casamento) está errada.
+</p>
+</div>
+</div>
+<div id="outline-container-org461758f" class="outline-3">
+<h3 id="org461758f"><span class="section-number-3">3.2.</span> Cada fonte erra de um jeito</h3>
+<div class="outline-text-3" id="text-3-2">
+<ul class="org-ul">
+<li><b>INEP</b>: o ponto é ligado pelo código, sem ambiguidade, mas a precisão é
+heterogênea (depende de quem marcou); há pontos repetidos por várias
+escolas (marcação genérica); o cadastro é de 2023 e 20-35% das nossas
+escolas não têm ponto nele.</li>
+<li><b>CNEFE</b>: a coordenada é boa (no AM, 99,6% dos pontos de ensino com
+<code>NV_GEO_COORD = 1</code>), mas o CNEFE não tem o código do INEP. A ligação é
+feita por nós, por endereço e nome, e no Norte o endereço quase não
+existe: ~80% das escolas sem número, 75-81% com CEP genérico do
+município. O endereço é a comunidade, a aldeia, o rio.</li>
+</ul>
+
+<p>
+Por isso a comparação testa duas coisas ao mesmo tempo: <b>a coordenada do
+INEP</b> e <b>o nosso casamento com o CNEFE</b>.
+</p>
+</div>
+</div>
+<div id="outline-container-org7f90b6c" class="outline-3">
+<h3 id="org7f90b6c"><span class="section-number-3">3.3.</span> A comparação já mudou uma decisão</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Em 26/10/2026, a comparação mostrou que:
+</p>
+<ul class="org-ul">
+<li>quando as duas fontes acertam, ficam a ~20 m uma da outra;</li>
+<li>quando divergem mais de 10 km, o ponto do INEP fica sobre um prédio de
+ensino em 90% (AM) e 84% (PA) dos casos - o erro estava no nosso
+casamento (ex.: escolas homônimas em comunidades diferentes de Altamira,
+ligadas a até 362 km; CEP genérico em Novo Airão, 172 km).</li>
+</ul>
+
+<p>
+Daí a regra do ETL naquele momento: <b>INEP primeiro, CNEFE como reserva</b> (doc
+08, "Qual coordenada usar"). <i>Substituída em 09/11/2026: ver "Decisão em vigor".</i>
+</p>
+</div>
+</div>
+<div id="outline-container-org3d904c0" class="outline-3">
+<h3 id="org3d904c0"><span class="section-number-3">3.4.</span> Mas essa decisão foi tomada por estatística, não caso a caso</h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Os 84-90% vêm de um critério indireto (o ponto do INEP estar a até 300 m
+de <i>algum</i> prédio de ensino do CNEFE). Isso não prova que é o prédio
+<i>daquela</i> escola. Falta olhar os casos:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Escolas com os dois pontos</th>
+<th scope="col" class="org-right">Divergência &gt; 1 km</th>
+<th scope="col" class="org-right">&gt; 10 km</th>
+<th scope="col" class="org-right">&gt; 50 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">1.560</td>
+<td class="org-right">156</td>
+<td class="org-right">104</td>
+<td class="org-right">42</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">3.613</td>
+<td class="org-right">253</td>
+<td class="org-right">121</td>
+<td class="org-right">29</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Se a regra estiver errada numa parte desses casos, o mapa mostra escolas
+no lugar errado - e, ao levar a mesma regra para as outras 25 UFs, o erro
+se multiplica. Conferir agora, em AM e PA, é mais barato do que corrigir
+depois em todo o Brasil.
+</p>
+</div>
+</div>
+<div id="outline-container-orgad01c5d" class="outline-3">
+<h3 id="orgad01c5d"><span class="section-number-3">3.5.</span> O que a comparação também ensina sobre os dados abertos</h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+A comparação é, ela mesma, parte do objetivo cívico do projeto (<b>reuso</b>
+dos dados abertos): cada divergência confirmada é um retorno possível às
+fontes - um ponto do INEP a corrigir, uma escola que não está no CNEFE,
+um CEP genérico que impede a ligação. São oportunidades de melhoria no
+processo de produção dos dados abertos.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb112676" class="outline-2">
+<h2 id="orgb112676"><span class="section-number-2">4.</span> Pergunta: o INEP é melhor no Norte e o IBGE melhor em SP? (02/11/2026)</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Medido nas escolas que têm os dois pontos:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Medida</th>
+<th scope="col" class="org-left">AM</th>
+<th scope="col" class="org-left">PA</th>
+<th scope="col" class="org-left">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Escolas com ponto do INEP</td>
+<td class="org-left">64%</td>
+<td class="org-left">80%</td>
+<td class="org-left">86%</td>
+</tr>
+
+<tr>
+<td class="org-left">Escolas com os dois pontos</td>
+<td class="org-left">1.560</td>
+<td class="org-left">3.613</td>
+<td class="org-left">16.550</td>
+</tr>
+
+<tr>
+<td class="org-left">Os dois a até 300 m</td>
+<td class="org-left">87,4%</td>
+<td class="org-left">90,3%</td>
+<td class="org-left">96,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">Distância mediana</td>
+<td class="org-left">20 m</td>
+<td class="org-left">19 m</td>
+<td class="org-left">26 m</td>
+</tr>
+
+<tr>
+<td class="org-left">P90 da distância</td>
+<td class="org-left">984 m</td>
+<td class="org-left">251 m</td>
+<td class="org-left">84 m</td>
+</tr>
+
+<tr>
+<td class="org-left">Divergência &gt; 1 km</td>
+<td class="org-left">10,0%</td>
+<td class="org-left">7,0%</td>
+<td class="org-left">1,6%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li><b>Norte</b>: sim, mas por um motivo específico. O ponto do INEP não é mais
+preciso que o do CNEFE (quando os dois acertam, ficam a ~20 m). Ele é
+mais <b>confiável</b> porque é ligado pelo código da escola, enquanto o
+ponto do CNEFE depende do nosso casamento, que no Norte falha (sem CEP
+e sem número). Nas divergências &gt; 10 km, o INEP estava certo em 84-90%.</li>
+<li><b>SP</b>: os dados ainda não mostram o CNEFE melhor. As duas fontes
+concordam em 96% das escolas, porque em SP o casamento por CEP + número
+funciona. Nas 25 divergências &gt; 10 km, o ponto do INEP ficou sobre um
+prédio de ensino em 88%. O que há em SP são sinais de marcação menos
+cuidadosa no INEP: 131 pontos com até 3 casas decimais (precisão de
+~100 m), contra 0 no AM e 4 no PA.</li>
+<li>Hipótese a testar: em SP o CNEFE pode ser melhor nas divergências
+<i>pequenas</i> (300 m a 1 km), em que o INEP marca a quadra ou o bairro e
+o CNEFE, o prédio. Isso só se confirma olhando os casos no satélite.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga5fc088" class="outline-2">
+<h2 id="orga5fc088"><span class="section-number-2">5.</span> Etapa 1: níveis de casamento marcados nos próprios dados (02/11/2026)</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+<i>Registro: a regra de coordenada por nível desta seção foi substituída em
+09/11/2026 (ver "Decisão em vigor"). O ETL descrito aqui é o do branch
+<code>mapeamento-intersetorial-nacional</code>.</i>
+</p>
+</div>
+<div id="outline-container-org0926a37" class="outline-3">
+<h3 id="org0926a37"><span class="section-number-3">5.1.</span> A proposta</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+Os níveis de casamento já existiam no ETL, mas só no CSV juntado. A
+proposta é deixar explícito, <b>em cada base</b>, em que nível cada registro
+casou, com a distância entre os dois pontos ao lado, para filtrar e
+auditar direto nos dados:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Nível</th>
+<th scope="col" class="org-left">Nome</th>
+<th scope="col" class="org-left">Regra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left"><code>endereco_exato</code></td>
+<td class="org-left">município + CEP + número + nome da rua iguais (novo)</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left"><code>cep_numero</code></td>
+<td class="org-left">município + CEP + número iguais, rua diferente</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left"><code>nome_exato</code></td>
+<td class="org-left">nome igual e único no município</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left"><code>nome_ajustado</code></td>
+<td class="org-left">núcleo do nome igual e único no município</td>
+</tr>
+
+<tr>
+<td class="org-right">-</td>
+<td class="org-left">sem casamento</td>
+<td class="org-left">nenhum nível</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org6cb5c99" class="outline-3">
+<h3 id="org6cb5c99"><span class="section-number-3">5.2.</span> Decisões (02/11/2026)</h3>
+<div class="outline-text-3" id="text-5-2">
+<ol class="org-ol">
+<li><b>Endereço exato</b> = município + CEP + número + nome da rua normalizado
+(sem acento, abreviações como "R." e "AV." expandidas).</li>
+<li><p>
+<b>Coordenada escolhida depende do nível</b>:
+</p>
+<ul class="org-ul">
+<li>níveis 1 e 2 (endereço): ponto do <b>CNEFE</b>, que marca o prédio;</li>
+<li>níveis 3 e 4 (nome): ponto do <b>INEP</b>, porque o casamento por nome é
+menos seguro (CNEFE se a escola não tem ponto no INEP, ou se o ponto
+do INEP é repetido por 5+ escolas);</li>
+<li>sem casamento: ponto do <b>INEP</b>, quando houver.</li>
+</ul>
+<p>
+Substitui a regra "INEP primeiro" de 26/10/2026 para os níveis 1 e 2, e
+testa a hipótese levantada para SP.
+</p></li>
+<li><b>Bases primárias marcadas</b>: o Catálogo de Escolas do INEP (geobr, com a
+coordenada do INEP) e os pontos de ensino do CNEFE. Os arquivos baixados
+não são alterados; o ETL grava cópias com as colunas novas.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8488b3e" class="outline-3">
+<h3 id="org8488b3e"><span class="section-number-3">5.3.</span> Tarefas</h3>
+<div class="outline-text-3" id="text-5-3">
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">#</th>
+<th scope="col" class="org-left">Tarefa</th>
+<th scope="col" class="org-left">Justificativa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Nível 1 <code>endereco_exato</code> no estágio de endereço do ETL</td>
+<td class="org-left">Separa o casamento mais seguro (até a rua bate) do CEP + número, que erra com CEP genérico (caso de Novo Airão, 172 km).</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Coluna <code>NIVEL_CASAMENTO</code> (1-4) no CSV juntado</td>
+<td class="org-left">Filtrar pelo nível sem decorar os nomes dos status.</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Nova regra da coordenada escolhida, por nível</td>
+<td class="org-left">Decisão 2: usar o ponto do prédio (CNEFE) quando o endereço garante que é a mesma escola.</td>
+</tr>
+
+<tr>
+<td class="org-right">4</td>
+<td class="org-left">Cópia marcada do Catálogo de Escolas do INEP</td>
+<td class="org-left">Decisão 3: ver, na base do INEP, quais escolas casaram, em que nível, com qual ponto do CNEFE e a que distância.</td>
+</tr>
+
+<tr>
+<td class="org-right">5</td>
+<td class="org-left">Cópia marcada dos pontos de ensino do CNEFE</td>
+<td class="org-left">O mesmo do lado do CNEFE; um ponto pode servir a várias escolas (mesmo prédio), por isso os códigos ficam separados por "&vert;".</td>
+</tr>
+
+<tr>
+<td class="org-right">6</td>
+<td class="org-left">Manter os CSVs de auditoria e o de pontos do CNEFE não usados</td>
+<td class="org-left">Pedido explícito; são a base da conferência caso a caso.</td>
+</tr>
+
+<tr>
+<td class="org-right">7</td>
+<td class="org-left">Mapas web: novo status <code>endereco_exato</code></td>
+<td class="org-left">Sem isso o mapa não mostra as escolas do nível 1.</td>
+</tr>
+
+<tr>
+<td class="org-right">8</td>
+<td class="org-left">Rodar AM, PA e SP e registrar os números aqui</td>
+<td class="org-left">Medir o efeito da nova regra antes de levar para outras UFs.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org3a501eb" class="outline-3">
+<h3 id="org3a501eb"><span class="section-number-3">5.4.</span> O que foi feito (02/11/2026)</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+Tarefas 1 a 8 concluídas.
+</p>
+
+<p>
+<b>Arquivos modificados</b>
+</p>
+<ul class="org-ul">
+<li><code>scripts/commands/escolas_dados__cruzar_inep_cnefe.py</code>: <code>palavras_logradouro</code>
+e <code>mesmo_logradouro</code> (comparação da rua); <code>estagio_endereco</code> (níveis 1 e
+2, substitui <code>estagio1_cep_numero</code>); <code>escolher_coordenada</code> com a regra por
+nível; <code>carregar_coordenadas_inep</code> devolve também o catálogo inteiro;
+coluna <code>NIVEL_CASAMENTO</code>; gravação das duas cópias marcadas.</li>
+<li><code>scripts/commands/escolas_mapa__gerar_dados_web.py</code> e
+<code>escolas_mapa__gerar_dados_auditoria.py</code>: status <code>endereco_exato</code>.</li>
+<li><code>web/js/escolas_mapa.js</code>, <code>web/js/escolas_auditoria.js</code>,
+<code>web/escolas_auditoria.html</code>, <code>web/index.html</code>: nível 1 (azul-marinho),
+níveis renumerados de 1 a 4.</li>
+</ul>
+
+<p>
+<b>Arquivos gerados</b> (além dos que já existiam, regerados)
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Arquivo</th>
+<th scope="col" class="org-right">Linhas (AM+PA+SP)</th>
+<th scope="col" class="org-left">Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>data/inep_catalogo_escolas_2023_marcado.csv</code></td>
+<td class="org-right">51.016</td>
+<td class="org-left">Catálogo do INEP + <code>NO_CENSO_ESCOLAR_2024</code>, <code>NIVEL_CASAMENTO</code>, <code>STATUS_CNEFE</code>, <code>CNEFE_COD_UNICO_ENDERECO</code>, <code>DIST_INEP_CNEFE_KM</code>, <code>FONTE_COORDENADA</code>, <code>STATUS_GEOLOCALIZACAO</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>data/cnefe_2022_ensino_marcado.csv</code></td>
+<td class="org-right">61.948</td>
+<td class="org-left">Todos os pontos de ensino do CNEFE (colunas originais) + <code>CO_ENTIDADE</code>, <code>NIVEL_CASAMENTO</code>, <code>STATUS_CNEFE</code>, <code>DIST_INEP_CNEFE_KM</code> (separados por "&vert;")</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+<b>Comandos</b>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp   # ~3,5 min
+.venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+.venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+node --check web/js/escolas_mapa.js web/js/escolas_auditoria.js
+</code></pre>
+</div>
+
+<p>
+<b>Verificação</b>: os antigos <code>cep_numero</code> se dividiram em nível 1 + nível 2
+sem perda (AM 300 = 177 + 123; PA 809 = 486 + 323; SP 15.218 = 13.453 +
+1.765); a cobertura não mudou (AM 4.513, PA 9.970, SP 31.060 escolas no
+mapa).
+</p>
+</div>
+</div>
+<div id="outline-container-org6156d1c" class="outline-3">
+<h3 id="org6156d1c"><span class="section-number-3">5.5.</span> Resultados por nível</h3>
+<div class="outline-text-3" id="text-5-5">
+<p>
+Distância INEP x CNEFE, nas escolas que têm os dois pontos:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Nível</th>
+<th scope="col" class="org-right">n</th>
+<th scope="col" class="org-left">Até 300 m</th>
+<th scope="col" class="org-left">Mediana</th>
+<th scope="col" class="org-left">P90</th>
+<th scope="col" class="org-right">&gt; 1 km</th>
+<th scope="col" class="org-right">&gt; 10 km</th>
+<th scope="col" class="org-right">&gt; 50 km</th>
+<th scope="col" class="org-left">Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">1</td>
+<td class="org-right">126</td>
+<td class="org-left">95,2%</td>
+<td class="org-left">20 m</td>
+<td class="org-left">170 m</td>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+<td class="org-left">1,4 km</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">2</td>
+<td class="org-right">100</td>
+<td class="org-left">81,0%</td>
+<td class="org-left">22 m</td>
+<td class="org-left">11,0 km</td>
+<td class="org-right">16</td>
+<td class="org-right">10</td>
+<td class="org-right">6</td>
+<td class="org-left">171,6 km</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">3</td>
+<td class="org-right">473</td>
+<td class="org-left">87,9%</td>
+<td class="org-left">21 m</td>
+<td class="org-left">828 m</td>
+<td class="org-right">45</td>
+<td class="org-right">33</td>
+<td class="org-right">13</td>
+<td class="org-left">177,8 km</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">4</td>
+<td class="org-right">861</td>
+<td class="org-left">86,8%</td>
+<td class="org-left">19 m</td>
+<td class="org-left">1,3 km</td>
+<td class="org-right">93</td>
+<td class="org-right">61</td>
+<td class="org-right">23</td>
+<td class="org-left">186,7 km</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">1</td>
+<td class="org-right">402</td>
+<td class="org-left">95,3%</td>
+<td class="org-left">20 m</td>
+<td class="org-left">72 m</td>
+<td class="org-right">9</td>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+<td class="org-left">28,4 km</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">2</td>
+<td class="org-right">265</td>
+<td class="org-left">78,9%</td>
+<td class="org-left">25 m</td>
+<td class="org-left">9,4 km</td>
+<td class="org-right">45</td>
+<td class="org-right">26</td>
+<td class="org-right">10</td>
+<td class="org-left">155,3 km</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">3</td>
+<td class="org-right">291</td>
+<td class="org-left">87,6%</td>
+<td class="org-left">22 m</td>
+<td class="org-left">356 m</td>
+<td class="org-right">22</td>
+<td class="org-right">7</td>
+<td class="org-right">1</td>
+<td class="org-left">362,0 km</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">4</td>
+<td class="org-right">2.655</td>
+<td class="org-left">91,0%</td>
+<td class="org-left">19 m</td>
+<td class="org-left">164 m</td>
+<td class="org-right">177</td>
+<td class="org-right">86</td>
+<td class="org-right">18</td>
+<td class="org-left">345,6 km</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">1</td>
+<td class="org-right">11.818</td>
+<td class="org-left">96,8%</td>
+<td class="org-left">26 m</td>
+<td class="org-left">81 m</td>
+<td class="org-right">141</td>
+<td class="org-right">4</td>
+<td class="org-right">0</td>
+<td class="org-left">16,5 km</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">2</td>
+<td class="org-right">1.595</td>
+<td class="org-left">93,6%</td>
+<td class="org-left">27 m</td>
+<td class="org-left">120 m</td>
+<td class="org-right">49</td>
+<td class="org-right">10</td>
+<td class="org-right">0</td>
+<td class="org-left">28,1 km</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">3</td>
+<td class="org-right">313</td>
+<td class="org-left">90,7%</td>
+<td class="org-left">30 m</td>
+<td class="org-left">257 m</td>
+<td class="org-right">17</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+<td class="org-left">17,0 km</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">4</td>
+<td class="org-right">2.824</td>
+<td class="org-left">96,8%</td>
+<td class="org-left">28 m</td>
+<td class="org-left">79 m</td>
+<td class="org-right">51</td>
+<td class="org-right">9</td>
+<td class="org-right">0</td>
+<td class="org-left">26,3 km</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li><b>O nível 1 é o melhor nível, nas três UFs</b>: 95-97% das escolas com os
+dois pontos a até 300 m, e nenhuma a mais de 50 km. A comparação da rua
+separou bem o casamento seguro.</li>
+<li><b>O nível 2 no Norte é o pior</b>: P90 de ~10 km, e 36 escolas a mais de
+10 km (AM 10, PA 26). Os nomes mostram que são escolas diferentes no
+mesmo CEP genérico + número (ex.: "ESCOLA ESTADUAL BALBINA MESTRINHO" x
+"ESCOLA MUNICIPAL JAU TAMBOR", Novo Airão, 172 km). Em SP o nível 2 é
+bom (93,6% até 300 m).</li>
+<li><b>Efeito da regra nova</b>: passaram do ponto do INEP para o do CNEFE 225
+escolas no AM, 667 no PA e 13.401 em SP, quase todas a poucas dezenas de
+metros. Nos níveis 1 e 2, 52 escolas ficaram agora num ponto do CNEFE a
+mais de 10 km do ponto do INEP; <b>48 delas têm o alerta <code>cep_generico</code></b>.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org24c685c" class="outline-3">
+<h3 id="org24c685c"><span class="section-number-3">5.6.</span> Exceção: nível 2 com CEP genérico (decidido em 02/11/2026)</h3>
+<div class="outline-text-3" id="text-5-6">
+<p>
+Com a regra da decisão 2, os erros de casamento do nível 2 com CEP
+genérico voltavam para o mapa (eram justamente os exemplos do doc 08 que
+motivaram "INEP primeiro").
+</p>
+
+<p>
+<b>Decisão</b>: no nível 2 com o alerta <code>cep_generico</code>, a coordenada segue a
+regra dos níveis 3 e 4 (ponto do INEP quando existir; senão o do CNEFE).
+O nível 1 não tem exceção: mesmo com CEP genérico, a rua confirma o
+endereço.
+</p>
+
+<p>
+<b>Justificativa</b>: no Norte, o CEP genérico + número junta escolas
+diferentes do município; 48 das 52 escolas de nível 1 ou 2 que ficavam a
+mais de 10 km do ponto do INEP tinham esse alerta.
+</p>
+
+<p>
+<b>Feito</b>: <code>escolher_coordenada</code> (variável <code>endereco_confiavel</code>); ETL e
+geradores web rodados de novo para AM, PA e SP.
+</p>
+
+<p>
+<b>Resultado</b>:
+</p>
+<ul class="org-ul">
+<li>Nível 2 com CEP genérico: AM 62, PA 217, SP 669 escolas; ficaram no
+ponto do INEP AM 54, PA 183 e SP 615 (as outras não têm ponto no INEP).</li>
+<li>Escolas de nível 1 ou 2 no ponto do CNEFE a mais de 10 km do INEP: de
+52 para <b>7</b> (AM 1, PA 2, SP 4). Vão para a conferência caso a caso.</li>
+</ul>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Coordenada final</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>endereco_exato</code></td>
+<td class="org-right">177</td>
+<td class="org-right">486</td>
+<td class="org-right">13.453</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>cep_numero</code></td>
+<td class="org-right">69</td>
+<td class="org-right">140</td>
+<td class="org-right">1.150</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>inep_confirmado</code></td>
+<td class="org-right">1.201</td>
+<td class="org-right">2.805</td>
+<td class="org-right">3.571</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>inep_proximo</code></td>
+<td class="org-right">36</td>
+<td class="org-right">83</td>
+<td class="org-right">75</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>inep_divergente</code></td>
+<td class="org-right">145</td>
+<td class="org-right">241</td>
+<td class="org-right">106</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>inep_sem_cnefe</code></td>
+<td class="org-right">2.410</td>
+<td class="org-right">5.834</td>
+<td class="org-right">12.511</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_exato</code></td>
+<td class="org-right">131</td>
+<td class="org-right">50</td>
+<td class="org-right">67</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_ajustado</code></td>
+<td class="org-right">344</td>
+<td class="org-right">331</td>
+<td class="org-right">127</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sem_correspondencia</code></td>
+<td class="org-right">1.668</td>
+<td class="org-right">1.878</td>
+<td class="org-right">2.803</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-orge6df508" class="outline-3">
+<h3 id="orge6df508"><span class="section-number-3">5.7.</span> Escolas e pontos já casados saem das comparações seguintes (02/11/2026)</h3>
+<div class="outline-text-3" id="text-5-7">
+<p>
+<b>A pergunta</b>: uma escola casada no nível 1 não deveria mais ser
+considerada nas comparações seguintes?
+</p>
+
+<p>
+<b>O que o código fazia</b>: a escola já casada não era comparada de novo, mas
+<b>continuava contando</b> na regra de unicidade dos níveis 3 e 4. Se duas
+escolas do INEP tinham o mesmo nome no município e uma já tinha casado no
+nível 1, a outra era rejeitada como <code>nome_repetido_inep</code>. O mesmo do lado
+do CNEFE: um ponto já usado seguia como candidato e tornava o nome
+"repetido" (<code>nome_repetido_cnefe</code>) ou caía em <code>ponto_ja_usado</code>.
+</p>
+
+<p>
+<b>Justificativa</b>: o que já foi resolvido com segurança não deve impedir o
+casamento do que sobrou.
+</p>
+
+<p>
+<b>Feito</b>: em <code>estagio2_por_nome</code>, o índice do CNEFE deixa de fora os pontos
+já usados e a contagem do INEP só considera as escolas ainda sem
+casamento. O motivo <code>ponto_ja_usado</code> deixou de existir.
+</p>
+
+<p>
+<b>Resultado</b>:
+</p>
+<ul class="org-ul">
+<li>Novos casamentos: AM 13, PA 16, SP 63; nenhum casamento anterior mudou.</li>
+<li>Dos 79 novos com ponto do INEP, 57 (72%) a até 300 m e 11 a mais de
+10 km (ex.: homônimos em São Paulo, "COLEGIO VITORIA", 32 km). Como os
+níveis 3 e 4 usam o ponto do INEP quando existe, esses ficam como
+<code>inep_divergente</code> e o mapa não muda.</li>
+<li>Coordenada final alterada em só 13 escolas (AM 6, SP 7), que não têm
+ponto no INEP. Escolas sem ponto: AM 1.668 -&gt; 1.662, PA 1.878 (igual),
+SP 2.803 -&gt; 2.796.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org3b9ad09" class="outline-2">
+<h2 id="org3b9ad09"><span class="section-number-2">6.</span> Catálogo de Escolas mais novo: dá para baixar automaticamente? (02/11/2026)</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-org2e3eaae" class="outline-3">
+<h3 id="org2e3eaae"><span class="section-number-3">6.1.</span> A pergunta</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+O Censo Escolar 2025 (microdados) não tem latitude/longitude nem endereço
+(ver doc 06). A coordenada do INEP vem do Catálogo de Escolas, e a cópia
+que usamos é a de 2023 (geobr 1.7.0, <code>date_update</code> 2024-03-22). Existe uma
+versão mais nova que possa ser baixada por script?
+</p>
+</div>
+</div>
+<div id="outline-container-org6095e47" class="outline-3">
+<h3 id="org6095e47"><span class="section-number-3">6.2.</span> Painel do INEP Data: não automatizável</h3>
+<div class="outline-text-3" id="text-6-2">
+<ul class="org-ul">
+<li>O Catálogo é um painel de BI (Oracle Analytics,
+<code>https://anonymousdata.inep.gov.br/analytics/saw.dll?Portal&amp;PortalPath</code>&hellip;Catálogo de Escolas=);
+a página do INEP diz só que "é possível exportar os dados", sem arquivo
+para download, formato ou limite documentados.</li>
+<li>A página responde sem login, mas é uma aplicação JavaScript: a exportação
+é manual, pelo navegador. Não vale a pena automatizar, porque existe
+alternativa melhor (abaixo).</li>
+<li>Página informativa:
+<a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org36a63f3" class="outline-3">
+<h3 id="org36a63f3"><span class="section-number-3">6.3.</span> geobr 2.x: um arquivo por ano, de 2007 a 2025</h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+O geobr mudou de versão (pacote 2.1.0; release de dados <code>v2.0.0</code>,
+publicada em 15/09/2026). As escolas agora vêm em um arquivo parquet por
+ano, baixável direto:
+</p>
+
+<pre class="example" id="org2aeeb37">
+https://github.com/ipea/geobr_prep_data/releases/download/v2.0.0/schools_&lt;ano&gt;.parquet
+</pre>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">Ano</th>
+<th scope="col" class="org-right">Escolas (Brasil)</th>
+<th scope="col" class="org-left">Tamanho</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">2024</td>
+<td class="org-right">215.545</td>
+<td class="org-left">18,1 MB</td>
+</tr>
+
+<tr>
+<td class="org-right">2025</td>
+<td class="org-right">214.192</td>
+<td class="org-left">17,5 MB</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Colunas (29): código e nome da escola e do município, UF,
+<code>tp_dependencia</code>, <code>tp_situacao_funcionamento</code>, <code>tp_localizacao</code>,
+<code>tp_localizacao_diferenciada</code>, <b><code>ds_endereco</code>, <code>nu_endereco</code>,
+<code>ds_complemento</code>, <code>no_bairro</code>, <code>co_cep</code></b>, <b><code>lat_inep</code>, <code>lon_inep</code></b> (ponto
+do INEP), <b><code>lat_geocodebr</code>, <code>lon_geocodebr</code>, <code>precisao_geocodebr</code>,
+<code>tipo_resultado_geocodebr</code>, <code>desvio_metros_geocodebr</code></b> (geocodificação
+do Ipea pelo endereço), <b><code>coords_source</code></b> (qual das duas está em
+<code>geometry</code>), <code>year</code>, <code>geometry</code>.
+</p>
+
+<p>
+<b>Atenção</b>: a <code>geometry</code> do geobr 2.x não é mais só o ponto do INEP. Segundo
+a documentação de <code>read_schools</code>, o geobr usa o ponto do INEP quando ele e
+a geocodificação ficam a menos de 800 m; acima disso, usa a geocodificação
+se ela for mais precisa que 800 m; sem ponto do INEP, usa a geocodificação
+de qualquer precisão. Para nós, o certo é ler <code>lat_inep=/=lon_inep</code> e
+<code>lat_geocodebr=/=lon_geocodebr</code> separados, nunca a <code>geometry</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc8be075" class="outline-3">
+<h3 id="orgc8be075"><span class="section-number-3">6.4.</span> O que medimos (AM, PA e SP)</h3>
+<div class="outline-text-3" id="text-6-4">
+<ol class="org-ol">
+<li><b>O ponto do INEP não mudou.</b> Comparando a mesma escola, <code>lat_inep</code> de
+2025 é igual ao ponto do cadastro de 2023 em 100% dos casos (AM 3.939,
+PA 9.327, SP 28.513 escolas; nenhuma diferença acima de 1 m). Também não
+há ganho de cobertura: das escolas do Censo 2024 hoje sem ponto, só 16
+ganham ponto do INEP no arquivo de 2025 (AM 4, PA 4, SP 8). <b>Trocar o
+cadastro de 2023 pelo de 2025 não melhora as coordenadas do INEP.</b></li>
+<li><b>O arquivo de 2024 cobre exatamente o nosso Censo 2024</b> (AM 6.181, PA
+11.848, SP 33.863 escolas), e o de 2025 traz o <b>endereço</b> que os
+microdados de 2025 deixaram de publicar. É a ponte para fazer o
+casamento por endereço (níveis 1 e 2) com o Censo 2025.</li>
+<li><p>
+<b>A geocodificação depende muito da precisão.</b> Distância até o ponto
+que usamos hoje:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Precisão</th>
+<th scope="col" class="org-left">AM: até 300 m</th>
+<th scope="col" class="org-left">PA: até 300 m</th>
+<th scope="col" class="org-left">SP: até 300 m</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>numero</code></td>
+<td class="org-left">86,6%</td>
+<td class="org-left">90,5%</td>
+<td class="org-left">95,5%</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>numero_aproximado</code></td>
+<td class="org-left">64,7%</td>
+<td class="org-left">58,9%</td>
+<td class="org-left">70,0%</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>logradouro</code></td>
+<td class="org-left">42,9%</td>
+<td class="org-left">32,1%</td>
+<td class="org-left">50,7%</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>cep</code></td>
+<td class="org-left">7,5% (mediana 25,6 km)</td>
+<td class="org-left">9,5% (mediana 16,3 km)</td>
+<td class="org-left">68,6%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+No Norte, o ponto "por CEP" é o centro do CEP genérico do município:
+inútil. Por número, é tão bom quanto o CNEFE.
+</p></li>
+<li><p>
+<b>Escolas em funcionamento hoje sem ponto</b>, pela precisão da
+geocodificação:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Precisão</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>numero</code></td>
+<td class="org-right">15</td>
+<td class="org-right">47</td>
+<td class="org-right">137</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>numero_aproximado</code></td>
+<td class="org-right">51</td>
+<td class="org-right">97</td>
+<td class="org-right">121</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>logradouro</code></td>
+<td class="org-right">169</td>
+<td class="org-right">315</td>
+<td class="org-right">28</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>cep</code>, <code>localidade</code>, <code>municipio</code></td>
+<td class="org-right">1.007</td>
+<td class="org-right">836</td>
+<td class="org-right">1.334</td>
+</tr>
+</tbody>
+</table></li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orgc7acde6" class="outline-3">
+<h3 id="orgc7acde6"><span class="section-number-3">6.5.</span> Conclusão e proposta</h3>
+<div class="outline-text-3" id="text-6-5">
+<p>
+<i>Atualização de 09/11/2026: a medição continua válida, mas a tarefa 3 abaixo não
+é mais necessária, porque o Censo 2025 passou a ser comparado só pelo código
+INEP. As tarefas 1 e 2 também ficam sem efeito neste trabalho: a coordenada vem
+do Catálogo, sem geocodificação como reserva. O geobr 2.x continua como fonte
+conhecida, caso o endereço de 2025 volte a ser necessário.</i>
+</p>
+
+<ul class="org-ul">
+<li>Para a <b>coordenada do INEP</b>, o cadastro de 2023 que já usamos é
+equivalente ao de 2025. Não há o que atualizar.</li>
+<li>O geobr 2.x é a fonte para <b>levar o projeto ao Censo 2025</b>: traz o
+endereço por escola e é baixável por script, um arquivo por ano.</li>
+<li>A geocodificação do Ipea pode ser uma <b>reserva</b> para quem fica sem
+ponto, mas só com precisão <code>numero</code> (e talvez <code>numero_aproximado</code>):
+~470 escolas em funcionamento nas três UFs. Não resolve o Norte rural.</li>
+</ul>
+
+<p>
+Tarefas propostas (a decidir):
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-right">#</th>
+<th scope="col" class="org-left">Tarefa</th>
+<th scope="col" class="org-left">Justificativa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-right">1</td>
+<td class="org-left">Script <code>ipea_geobr_escolas__baixar_dados.py</code> baixar também os parquet do geobr 2.x (<code>pyarrow</code> no <code>.venv</code>)</td>
+<td class="org-left">Fonte oficial, por ano, sem exportação manual do painel.</td>
+</tr>
+
+<tr>
+<td class="org-right">2</td>
+<td class="org-left">Reserva "geocodificação do Ipea" com precisão <code>numero</code> para escolas sem ponto</td>
+<td class="org-left">~200 escolas em funcionamento ganham um ponto confiável (86-96% até 300 m).</td>
+</tr>
+
+<tr>
+<td class="org-right">3</td>
+<td class="org-left">Pipeline do Censo 2025 usando o endereço do arquivo do geobr 2025</td>
+<td class="org-left">Os microdados de 2025 não têm endereço; sem isso, só restam os níveis 3 e 4.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="outline-container-org33fb926" class="outline-2">
+<h2 id="org33fb926"><span class="section-number-2">7.</span> Próximas etapas</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+A decidir, a partir da decisão de 09/11/2026:
+</p>
+
+<ol class="org-ol">
+<li>Conferir caso a caso uma amostra das divergências Catálogo × CNEFE, no mapa
+novo, com o filtro de distância e a imagem de satélite.</li>
+<li>Estudar as escolas em atividade sem posição conhecida: as 3.737 só no Censo e
+as que estão entre as 31.069 sem coordenada no Catálogo e não têm par no CNEFE.</li>
+<li>Refazer a comparação quando o Catálogo incorporar o Censo 2025.</li>
+</ol>
+
+<p>
+Lista anterior, de 02/11/2026, com números da cópia de 2023 do cadastro:
+</p>
+
+<ol class="org-ol">
+<li>Conferir caso a caso uma amostra das divergências INEP x CNEFE (as 71
+escolas a mais de 50 km e uma amostra das 663 <code>inep_divergente</code>), com
+imagem de satélite, registrando qual ponto está certo.</li>
+<li>Separar as escolas paralisadas e extintas na contagem de cobertura.</li>
+<li>Casamento por localidade (comunidade, aldeia, rio, ramal) para as
+~2.500 escolas rurais em funcionamento ainda sem ponto.</li>
+<li>Só depois, expandir para outras UFs.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8a84f66" class="outline-2">
+<h2 id="org8a84f66"><span class="section-number-2">8.</span> O que foi feito</h2>
+<div class="outline-text-2" id="text-8">
+</div>
+<div id="outline-container-org935f339" class="outline-3">
+<h3 id="org935f339"><span class="section-number-3">8.1.</span> 09/11/2026</h3>
+<div class="outline-text-3" id="text-8-1">
+<ul class="org-ul">
+<li>Decidido que as coordenadas vêm do Catálogo e são comparadas ao CNEFE, com o
+Censo 2025 só como informação (ver "Decisão em vigor").</li>
+<li>Criados <code>scripts/commands/catalogo_censo_2025__comparar.py</code>,
+<code>web/escolas_catalogo_cnefe_censo.html</code> e
+<code>web/js/escolas_catalogo_cnefe_censo.js</code>.</li>
+<li>Gerados os dados em <code>web/data/catalogo_censo_2025/</code>. O CSV de divergências tem
+60.555 escolas: as três situações somadas.</li>
+<li>Verificação: os totais batem com os do doc 11 e nenhuma escola muda de UF entre
+o Catálogo e o Censo. O mapa <code>escolas_inep_cnefe.html</code> não foi alterado.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org34eae21" class="outline-3">
+<h3 id="org34eae21"><span class="section-number-3">8.2.</span> 02/11/2026</h3>
+<div class="outline-text-3" id="text-8-2">
+<ul class="org-ul">
+<li>Criado este documento.</li>
+<li>Números conferidos no CSV atual
+(<code>data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv</code>):
+batem com os do doc 08. Novo: cobertura só entre escolas em
+funcionamento (<code>TP_SITUACAO_FUNCIONAMENTO = 1</code>) é de 77,5% no AM e 87,8%
+no PA; das escolas sem ponto, 1.248 (AM) e 1.295 (PA) estão em
+funcionamento, ~85% rurais, quase todas com motivo <code>nome_nao_encontrado</code>.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>
