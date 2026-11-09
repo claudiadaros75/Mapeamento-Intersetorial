@@ -1,0 +1,76 @@
+#+TITLE: Documentação do estudo e mapa nacional Censo Escolar × CNEFE
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:nil ^:{}
+#+STARTUP: overview
+
+- *Branch:* ~feat/documentacao-censo-cnefe-mapa-nacional~
+- *Início:* 2026-11-08
+- *Status:* implementado, aguardando revisão e commit
+
+* Objetivo (Goal)
+
+1. Levar para a Documentação do Estudo o que foi feito na sessão do mapa INEP × CNEFE.
+2. Criar um mapa com todas as escolas do Censo Escolar e todos os estabelecimentos de ensino do CNEFE, reaproveitando os dados existentes.
+3. Explicar de qual censo vem o Catálogo de Escolas e comparar as duas bases teoricamente.
+
+* Escopo (Scope)
+
+** Dentro do escopo
+- Dois documentos novos (10 e 11), exportados para o portal, e a exportação dos docs 05 a 08, para os links entre documentos funcionarem.
+- Uma página de mapa nacional, com um arquivo leve de coordenadas.
+- A conclusão da T12 da feature ~mapa-escolas-inep-cnefe~.
+
+** Fora do escopo
+- Baixar uma nova exportação do catálogo.
+- Refazer o pareamento.
+- Comparar com a branch ~mapeamento-intersetorial-nacional~.
+- Trocar a base CARTO dos mapas antigos.
+
+* Tarefas (Task Breakdown)
+
+** T1 — Verificar o ano do catálogo ✅
+- *Justificativa:* o pedido partia de o catálogo ser do Censo 2025, e o documento publicado precisava dizer o que os dados mostram.
+
+** T2 — Ler o dicionário oficial do CNEFE ✅
+- *Justificativa:* a comparação depende do significado de ~COD_ESPECIE~ e ~NV_GEO_COORD~, que até então eram inferidos.
+
+** T3 — Gerar o arquivo leve do mapa ✅
+- *Justificativa:* abrir o Brasil inteiro pelos arquivos por UF exige baixar 69 MB. Só as coordenadas ocupam 11 MB, ou 4,1 MB comprimidos.
+
+** T4 — Criar o mapa nacional ✅
+- *Justificativa:* é o entregável pedido. O mapa de pareamento já mostra as duas bases, mas é organizado em torno dos pares e pesa mais para abrir.
+
+** T5 — Escrever os docs 10 e 11 ✅
+- *Justificativa:* o doc 10 registra o trabalho da sessão, e o doc 11, a explicação e a comparação pedidas. Separados, cada um tem um leitor e um assunto.
+
+** T6 — Permitir exportar só alguns documentos ✅
+- *Justificativa:* permite atualizar um documento sem reexportar todos. A reexportação geral só foi feita depois, por causa da T9.
+
+** T7 — Ligar tudo ao portal ✅
+- *Justificativa:* a página inicial é onde o leitor encontra mapas e documentos.
+
+** T8 — Atualizar os docs 05, 06 e 07 ✅
+- *Justificativa:* o doc 06 ainda tratava o dicionário como não lido, e os três precisavam apontar para os resultados novos.
+
+** T9 — Corrigir o exportador e o estilo dos documentos ✅
+- *Justificativa:* o ~--eval~ do Emacs só executava a primeira expressão da configuração, e todos os documentos saíam sem o estilo e o cabeçalho do portal. Com o estilo ativo, o ~body~ herdado dos mapas impedia a rolagem, então as duas correções precisam andar juntas.
+
+* Progresso — What Was Done
+
+** 2026-11-08 — Verificação do catálogo e do dicionário
+- *Teste do catálogo:* códigos cruzados com os microdados de 2023, 2024 e 2025. Em 2024, os 212.386 códigos existem no censo, e as 3.159 escolas restantes são todas extintas. As contagens de funcionamento (181.065) e paralisadas (31.321) são idênticas.
+- *Censo 2025:* a ~Tabela_Escola_2025_V2.csv~ tem 214.192 escolas, sem colunas de coordenada, endereço ou CEP.
+- *Dicionário:* ~COD_ESPECIE = 4~ é "Estabelecimento de ensino". O ~xlrd~ foi instalado só em uma pasta temporária, fora do ~.venv~ e do ~requirements.txt~.
+
+** 2026-11-08 — Mapa e documentos
+- *Criados:* ~scripts/commands/escolas__gerar_dados_mapa_nacional.py~, ~web/escolas_brasil_censo_cnefe.html~, ~web/js/escolas_brasil_censo_cnefe.js~, ~web/data/escolas_brasil/pontos.json~, ~docs/10-mapa-nacional-censo-cnefe.org~ e ~docs/11-censo-escolar-x-cnefe.org~.
+- *Verificação do gerador:* ~{'escolas_censo': 212386, 'censo': 158182, 'censo_par': 22744, 'sem_coordenada': 31460, 'cnefe': 264445}~.
+- *Alterados:* ~scripts/commands/exportar_docs_org_para_html.sh~, ~web/index.html~ e os docs 05, 06 e 07.
+
+** 2026-11-08 — Exportador e estilo
+- *Causa:* ~emacs --eval~ lê uma só expressão, e a configuração tinha várias. A correção foi envolvê-las em ~progn~.
+- *Reexportados:* todos os documentos, inclusive os de 01 a 04. Isso também adicionou ~etl-georef-escolas.html~ e ~paines-publicos.html~ a ~web/docs/~, sem link no portal.
+- *Doc 08:* removido um link para uma seção que não existe nele, porque o link abortava a exportação.
+- *~web/css/docs.css~:* rolagem restaurada, largura movida para ~#content~ e tabelas com rolagem própria no celular.
+- *Portal:* o card do mapa antigo virou "Pareamento de Escolas: INEP × CNEFE", para não se confundir com o novo.
+- *Limite conhecido:* ~web/docs/README.html~ tem 7 links relativos quebrados, mas nenhuma página do portal aponta para ele.

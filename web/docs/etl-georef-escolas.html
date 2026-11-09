@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- 2026-11-08 dom 21:58 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Relatório - ETL de Geolocalização de Escolas, Piloto SP</title>
+<meta name="author" content="Projeto de aprendizagem" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Relatório - ETL de Geolocalização de Escolas, Piloto SP</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#orga8562f8">1. Objetivo deste relatório</a></li>
+<li><a href="#orga3f2739">2. Contexto: de onde partimos</a></li>
+<li><a href="#orgb6bb8e3">3. O que foi construído</a>
+<ul>
+<li><a href="#orgba7109f">3.1. Três scripts, cada um com uma responsabilidade</a></li>
+<li><a href="#org8c13cda">3.2. A estratégia de casamento (documentada em detalhe em 06-georeferenciamento-escolas.org)</a></li>
+</ul>
+</li>
+<li><a href="#org92fb4f2">4. Resultado real do piloto (SP, Censo Escolar 2024)</a></li>
+<li><a href="#org8fd65b2">5. Dois problemas encontrados (não estavam previstos)</a>
+<ul>
+<li><a href="#org6b3ef68">5.1. Ambiguidade mais alta que o esperado (18,5%, não ~3%)</a></li>
+<li><a href="#org47285a5">5.2. Desempenho inviável para o Brasil inteiro nos moldes atuais</a></li>
+</ul>
+</li>
+<li><a href="#org6abacee">6. Próximos passos</a></li>
+<li><a href="#orgb7f99e0">7. Referências</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-orga8562f8" class="outline-2">
+<h2 id="orga8562f8"><span class="section-number-2">1.</span> Objetivo deste relatório</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Fechar o ciclo de trabalho desta sessão: sair de "não temos coordenada de
+escola nenhuma fonte oficial confirmada" até um piloto funcionando que
+geolocaliza escolas reais do Censo Escolar usando dados do IBGE, com
+números reais medidos (não estimados) e os problemas encontrados
+documentados para a próxima sessão. É o registro de encerramento; os
+documentos vivos que continuam sendo atualizados são
+<a href="05-plano-marcadores-escolas-inep.html">05-plano-marcadores-escolas-inep.org</a> (plano do recurso de marcadores) e
+<a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a> (detalhe técnico da estratégia de
+geolocalização).
+</p>
+</div>
+</div>
+<div id="outline-container-orga3f2739" class="outline-2">
+<h2 id="orga3f2739"><span class="section-number-2">2.</span> Contexto: de onde partimos</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+O recurso de marcadores de escolas do explorador de malhas
+(<code>web/ibge_malhas.html</code>) precisava de uma fonte de latitude/longitude por
+escola. O Censo Escolar do INEP - a fonte primária de dados sobre escolas
+brasileiras - não publica essa coordenada (confirmado lendo o cabeçalho
+real dos microdados de 2024 e 2025: nenhuma coluna <code>LATITUDE=/=LONGITUDE</code>
+em nenhum dos dois anos). A decisão inicial havia sido contornar isso
+agregando escolas por município (contagem, sem ponto exato).
+</p>
+
+<p>
+Nesta sessão, uma pesquisa das fontes oficiais brasileiras (dados.gov.br,
+INEP, MEC, e-MEC, FNDE, IBGE) encontrou uma alternativa real: o <b>CNEFE</b>
+(Cadastro Nacional de Endereços para Fins Estatísticos) do IBGE, que desde
+o Censo Demográfico 2022 publica coordenadas por endereço, incluindo
+estabelecimentos de ensino. Isso motivou trocar a estratégia: em vez de
+agregar por município, montar uma base com uma linha por escola,
+enriquecida com coordenada do CNEFE via ETL.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb6bb8e3" class="outline-2">
+<h2 id="orgb6bb8e3"><span class="section-number-2">3.</span> O que foi construído</h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-orgba7109f" class="outline-3">
+<h3 id="orgba7109f"><span class="section-number-3">3.1.</span> Três scripts, cada um com uma responsabilidade</h3>
+<div class="outline-text-3" id="text-3-1">
+<ul class="org-ul">
+<li><code>scripts/commands/inep_censo_escolar__baixar_dados.py</code> - baixa os
+microdados do Censo Escolar (todos os anos 1995-2025), confere o MD5
+publicado e extrai. Já existia; usado aqui para o ano de referência,
+<ol class="org-ol">
+<li></li>
+</ol></li>
+<li><code>scripts/commands/ibge_cnefe__baixar_dados.py</code> (novo) - baixa o CNEFE do
+IBGE por UF, download retomável, mesmo padrão de interface dos demais
+scripts do projeto (<code>--extrair</code>, <code>--forcar</code>, <code>--listar</code>).</li>
+<li><code>scripts/commands/escolas_dados__cruzar_inep_cnefe.py</code> (novo, o ETL) -
+lê os dados já baixados pelos dois scripts acima (não baixa nada
+sozinho) e produz <code>data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv</code>: uma linha por escola do
+Censo Escolar, com <code>LATITUDE=/=LONGITUDE</code> do CNEFE quando encontrada uma
+correspondência confiável.</li>
+</ul>
+
+<p>
+Download e ETL são scripts deliberadamente separados - o download é
+genérico e reaproveitável em qualquer contexto que precise dos dados
+brutos; o ETL concentra toda a lógica de negócio deste recurso específico.
+</p>
+</div>
+</div>
+<div id="outline-container-org8c13cda" class="outline-3">
+<h3 id="org8c13cda"><span class="section-number-3">3.2.</span> A estratégia de casamento (documentada em detalhe em <a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a>)</h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+O problema central: nenhuma escola tem um identificador em comum entre o
+Censo Escolar do INEP e o CNEFE do IBGE. A primeira ideia (casar por nome
+de escola dentro do mesmo município) foi descartada por ser frágil - nome
+é texto livre, digitado por pessoas diferentes em cada base, sem garantia
+de coincidir.
+</p>
+
+<p>
+A alternativa validada com dados reais: usar <b>endereço</b> (CEP + número, que
+o Censo Escolar 2024 ainda tem, embora 2025 os tenha removido) como sinal
+principal, com nome entrando só para desempate. Testado nesta sessão com
+os dados de SP antes de implementar o ETL de verdade:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Estratégia de casamento (validação prévia)</th>
+<th scope="col" class="org-left">Cobertura sobre 30.746 escolas ativas em SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Endereço exato: CEP + número</td>
+<td class="org-left">46,7%</td>
+</tr>
+
+<tr>
+<td class="org-left">… dos quais já é candidato único (sem nome)</td>
+<td class="org-left">96,7% desses matches</td>
+</tr>
+
+<tr>
+<td class="org-left">Município + CEP (sem exigir número)</td>
+<td class="org-left">76,6%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Com base nisso, o ETL foi implementado em três camadas de confiança
+decrescente (alta -&gt; média -&gt; baixa), descartando o caso de empate como
+"ambíguo" em vez de escolher arbitrariamente - ver a lógica completa
+documentada em
+<a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org92fb4f2" class="outline-2">
+<h2 id="org92fb4f2"><span class="section-number-2">4.</span> Resultado real do piloto (SP, Censo Escolar 2024)</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+33.863 escolas (todas do Censo Escolar 2024 em SP, sem filtrar por
+situação de funcionamento) contra 40.746 estabelecimentos de ensino do
+CNEFE:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-right">Qtde</th>
+<th scope="col" class="org-left">% das escolas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">alta (endereço exato)</td>
+<td class="org-right">15098</td>
+<td class="org-left">44,6%</td>
+</tr>
+
+<tr>
+<td class="org-left">media (só CEP)</td>
+<td class="org-right">8595</td>
+<td class="org-left">25,4%</td>
+</tr>
+
+<tr>
+<td class="org-left">baixa (fallback por nome)</td>
+<td class="org-right">3775</td>
+<td class="org-left">11,1%</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>geolocalizadas (soma)</b></td>
+<td class="org-right">27468</td>
+<td class="org-left"><b>81,1%</b></td>
+</tr>
+
+<tr>
+<td class="org-left">ambiguo</td>
+<td class="org-right">6263</td>
+<td class="org-left">18,5%</td>
+</tr>
+
+<tr>
+<td class="org-left">sem<sub>correspondencia</sub></td>
+<td class="org-right">132</td>
+<td class="org-left">0,4%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+81,1% de cobertura é um resultado bom para um primeiro piloto - acima dos
+76,6% estimados na validação prévia (o fallback por nome recupera mais
+alguns casos que a validação, feita só com CEP, não contava). E só 0,4%
+das escolas ficaram <b>sem nenhum</b> candidato - a grande maioria dos casos não
+resolvidos caiu em "ambíguo", não em "não achou nada".
+</p>
+</div>
+</div>
+<div id="outline-container-org8fd65b2" class="outline-2">
+<h2 id="org8fd65b2"><span class="section-number-2">5.</span> Dois problemas encontrados (não estavam previstos)</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-org6b3ef68" class="outline-3">
+<h3 id="org6b3ef68"><span class="section-number-3">5.1.</span> Ambiguidade mais alta que o esperado (18,5%, não ~3%)</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+A validação prévia só tinha medido colisão em endereço <b>exato</b> (~3% dos
+casos). O ETL de verdade expôs uma fonte de ambiguidade bem maior: alguns
+municípios usam um <b>CEP genérico</b> (ex.: <code>17800000</code>, terminando em zeros)
+para várias escolas ao mesmo tempo - não é o CEP real do logradouro, é um
+CEP-base do município inteiro. Quando isso acontece, a camada "média"
+(que confia em CEP como sinal razoavelmente forte) vira uma cesta grande
+e pouco discriminativa; como os nomes de escola compartilham vocabulário
+comum ("EMEI", "PROF", "CICLO I/II"), vários candidatos empatam por
+semelhança de nome sem nenhum ser claramente correto.
+</p>
+
+<p>
+O comportamento do ETL diante disso está <b>correto</b> - preferimos marcar
+"ambíguo" a escolher errado -, mas o desempenho da camada "média" pode
+melhorar: ela precisa aprender a desconfiar de CEP genérico em vez de
+tratá-lo como sinal forte equivalente a um CEP de rua real.
+</p>
+</div>
+</div>
+<div id="outline-container-org47285a5" class="outline-3">
+<h3 id="org47285a5"><span class="section-number-3">5.2.</span> Desempenho inviável para o Brasil inteiro nos moldes atuais</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+Rodar o ETL só para SP levou <b>quase 28 minutos</b>, majoritariamente lendo e
+comparando nomes dentro do CNEFE de SP (3,8 GB descompactado). Nesse
+ritmo, os 27 estados provavelmente levariam várias horas - inviável para
+iteração rápida. As causas prováveis: recomputar a normalização de nome
+do CNEFE a cada comparação (em vez de cachear), e não podar candidatos
+antes de rodar o comparador de string (<code>difflib</code>) em listas grandes.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org6abacee" class="outline-2">
+<h2 id="org6abacee"><span class="section-number-2">6.</span> Próximos passos</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+Registrados com mais detalhe em
+<a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a>:
+</p>
+
+<ul class="org-ul">
+<li>Detectar CEP genérico de município e não tratá-lo como sinal forte na
+camada "média" - deve reduzir a ambiguidade sem piorar a cobertura.</li>
+<li>Otimizar o desempenho do ETL (cachear nomes normalizados, podar
+candidatos antes do <code>difflib</code>, ler o CNEFE em bloco) antes de rodar o
+Brasil inteiro.</li>
+<li>Ler o dicionário oficial do CNEFE para confirmar os códigos usados
+(<code>COD_ESPECIE</code>, <code>NV_GEO_COORD</code>) - hoje inferidos empiricamente.</li>
+<li>Só depois de rodar o Brasil inteiro com esses ajustes: decidir a forma
+final de visualização no mapa (marcador por escola, cluster, heatmap, ou
+manter contagem por município como reforço) - decisão explicitamente
+adiada até sabermos a cobertura nacional real.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgb7f99e0" class="outline-2">
+<h2 id="orgb7f99e0"><span class="section-number-2">7.</span> Referências</h2>
+<div class="outline-text-2" id="text-7">
+<ul class="org-ul">
+<li><a href="05-plano-marcadores-escolas-inep.html">05-plano-marcadores-escolas-inep.org</a> - plano do recurso de marcadores de
+escolas (decisões de escopo, ano de referência, fases).</li>
+<li><a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a> - panorama de fontes oficiais
+pesquisadas, estrutura de dados do CNEFE, estratégia de casamento
+completa e pendências técnicas.</li>
+<li><code>scripts/commands/inep_censo_escolar__baixar_dados.py</code>,
+<code>scripts/commands/ibge_cnefe__baixar_dados.py</code>,
+<code>scripts/commands/escolas_dados__cruzar_inep_cnefe.py</code> - os três scripts
+produzidos.</li>
+<li><code>data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv</code> - resultado do piloto (SP, Censo Escolar 2024).</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>

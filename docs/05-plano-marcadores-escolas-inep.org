@@ -30,6 +30,7 @@ Este é um documento *vivo*, mantido entre sessões de trabalho:
 
 * Estado atual (resumo rápido)
 
+- *Atualização (08/11/2026):* o pareamento nacional com o Catálogo de Escolas e o CNEFE está concluído e publicado. Ver o [[file:10-mapa-nacional-censo-cnefe.org][doc 10]] e o [[file:11-censo-escolar-x-cnefe.org][doc 11]]. Os itens abaixo registram o estado do plano antes desse trabalho.
 - Fase em andamento: *Fase 1 - Obtenção de Dados* (Censo Escolar e CNEFE).
 - Já decidido: ano de referência =2024= para os microdados do Censo
   Escolar; geolocalização passa a ser *ponto exato por escola via CNEFE*

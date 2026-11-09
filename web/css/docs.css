@@ -9,15 +9,20 @@ body {
   line-height: 1.7;
   margin: 0;
   padding: 0;
+  /* style.css trava o body na altura da tela para os mapas; documentos precisam rolar */
+  display: block;
+  height: auto;
+  overflow: visible;
 }
 
+/* O Org fecha este contêiner junto com o preâmbulo, então a largura fica em #content */
 .doc-page-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem 5rem 1.5rem;
+  padding: 0;
 }
 
 #content {
+  max-width: 900px;
+  margin: 2rem auto 3rem;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -202,7 +207,21 @@ li {
 
 @media (max-width: 768px) {
   #content {
-    padding: 1.5rem;
+    margin: 1rem 0.75rem 2rem;
+    padding: 1.5rem 1rem;
+  }
+  /* Tabelas largas rolam dentro do próprio bloco, sem alargar a página */
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+  /* Textos sem espaço (fórmulas, caminhos, URLs) quebram em vez de alargar a página */
+  #content {
+    overflow-wrap: anywhere;
+  }
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
   }
   h1.title {
     font-size: 1.6rem;

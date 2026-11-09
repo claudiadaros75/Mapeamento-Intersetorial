@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<!-- 2026-11-08 dom 21:58 -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mapeamento Intersetorial Nacional - Diagnóstico do Cruzamento INEP x CNEFE no Norte (AM e PA)</title>
+<meta name="author" content="Projeto de aprendizagem" />
+<meta name="generator" content="Org Mode" />
+
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/docs.css">
+</head>
+<body>
+<div id="preamble" class="status">
+
+<header class="app-header">
+  <div class="header-title">
+    <a href="../index.html" class="btn-home-link" title="Voltar ao Portal de Mapas">🏠 Início</a>
+    <a href="../ibge_malhas.html" class="btn-home-link" title="Abrir Mapa Interativo">🗺️ Mapa</a>
+    <h1>📚 Documentação do Projeto</h1>
+  </div>
+</header>
+<div class="doc-page-container">
+</div>
+<div id="content" class="content">
+<header>
+<h1 class="title">Mapeamento Intersetorial Nacional - Diagnóstico do Cruzamento INEP x CNEFE no Norte (AM e PA)</h1>
+</header><nav id="table-of-contents" role="doc-toc">
+<h2>Sumário</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org31eb990">1. Objetivo deste documento</a></li>
+<li><a href="#orge72a190">2. Objetivo da branch</a></li>
+<li><a href="#org4ac5593">3. O que já existia (ponto de partida)</a></li>
+<li><a href="#orga68b11f">4. Como o diagnóstico foi feito</a></li>
+<li><a href="#org613e043">5. Como cada status é atribuído</a></li>
+<li><a href="#orgc01da64">6. Resultado: o cruzamento atual quase não funciona no Norte</a></li>
+<li><a href="#org2b41362">7. Por que falha: o endereço no Norte é outro</a></li>
+<li><a href="#orgd2967ca">8. Escolas que existem em uma base e não na outra</a>
+<ul>
+<li><a href="#org2c261e2">8.1. Escola do INEP sem ponto no CNEFE</a></li>
+<li><a href="#orgb775427">8.2. Ponto de ensino do CNEFE sem escola do INEP</a></li>
+</ul>
+</li>
+<li><a href="#org63b79cb">9. Problema: o mesmo ponto do CNEFE é dado a várias escolas</a>
+<ul>
+<li><a href="#org296ef26">9.1. Correção proposta inicialmente (substituída pela lógica de dois estágios, ver seção seguinte)</a></li>
+</ul>
+</li>
+<li><a href="#org4941fd2">10. Nova lógica de casamento: dois estágios (especificação)</a>
+<ul>
+<li><a href="#org2a81d17">10.1. A proposta</a></li>
+<li><a href="#orga9b54fb">10.2. Avaliação: quanto cada estágio resolveria (antes dos ajustes)</a></li>
+<li><a href="#org474cf14">10.3. Ajustes aceitos</a></li>
+<li><a href="#org8f848f1">10.4. Núcleo do nome</a></li>
+<li><a href="#orgab458a1">10.5. Regras implementadas</a></li>
+<li><a href="#org987a7bd">10.6. Arquivos gerados</a></li>
+<li><a href="#orga6dc9cb">10.7. Como auditar</a></li>
+<li><a href="#org397e339">10.8. Resultados da primeira versão, com estágio 2 único (25/10/2026)</a></li>
+<li><a href="#org0441536">10.9. Mudanças no mapa web</a></li>
+</ul>
+</li>
+<li><a href="#orgecb9fab">11. Estágio 2 dividido em 2a (nome exato) e 2b (nome ajustado)</a>
+<ul>
+<li><a href="#org4267019">11.1. A proposta</a></li>
+<li><a href="#org93fa86d">11.2. Regras</a></li>
+<li><a href="#org47ba7cf">11.3. Resultados (25/10/2026)</a></li>
+<li><a href="#orgf87cf30">11.4. Mudanças no mapa web</a></li>
+</ul>
+</li>
+<li><a href="#orgfd59f93">12. Plotagem no mapa web (AM, PA e SP)</a>
+<ul>
+<li><a href="#org648f224">12.1. Estratégia</a></li>
+<li><a href="#orgb2f06a9">12.2. Correção: enquadramento de várias UFs</a></li>
+<li><a href="#org3976b1c">12.3. Verificação geográfica dos pontos (25/10/2026)</a></li>
+<li><a href="#orgf63c70a">12.4. Problemas encontrados (pendentes)</a></li>
+<li><a href="#org0e40a42">12.5. Como testar localmente</a></li>
+</ul>
+</li>
+<li><a href="#orgea9acfb">13. Publicação no GitHub Pages: uma versão por branch</a>
+<ul>
+<li><a href="#org88148fa">13.1. Como era</a></li>
+<li><a href="#org3e40a0c">13.2. Como ficou</a></li>
+</ul>
+</li>
+<li><a href="#org5fc0c34">14. Coordenadas do INEP (Catálogo de Escolas, via geobr)</a>
+<ul>
+<li><a href="#org0377c64">14.1. Contexto</a></li>
+<li><a href="#org1165285">14.2. Download</a></li>
+<li><a href="#orgc70e552">14.3. Primeiro cruzamento com o nosso resultado (25/10/2026)</a></li>
+</ul>
+</li>
+<li><a href="#org50064b0">15. Mapa de auditoria do georreferenciamento</a>
+<ul>
+<li><a href="#org45f35a7">15.1. Objetivo</a></li>
+<li><a href="#org3114eb9">15.2. Origem da coordenada (cores)</a></li>
+<li><a href="#orgb303608">15.3. Casos a conferir</a></li>
+<li><a href="#orgcb6e6f9">15.4. Arquivos</a></li>
+<li><a href="#org977feae">15.5. Publicação</a></li>
+<li><a href="#org519924a">15.6. Resultados (25/10/2026)</a></li>
+</ul>
+</li>
+<li><a href="#org978d045">16. Próximos passos</a></li>
+</ul>
+</div>
+</nav>
+<div id="outline-container-org31eb990" class="outline-2">
+<h2 id="org31eb990"><span class="section-number-2">1.</span> Objetivo deste documento</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+Registrar a conversa de abertura da branch <code>mapeamento-intersetorial-nacional</code>
+(24/10/2026): o objetivo da branch, o diagnóstico feito ao rodar o ETL do
+piloto de SP em dois estados do Norte (Amazonas e Pará), as perguntas
+levantadas durante a conversa e as respostas, e os problemas encontrados
+que precisam ser corrigidos antes de levar o mapa para outras UFs.
+</p>
+
+<p>
+Documentos relacionados:
+</p>
+<ul class="org-ul">
+<li><a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a> - estratégia de geolocalização (camadas de confiança)</li>
+<li><a href="07-relatorio-etl-escolas-piloto-sp.html">07-relatorio-etl-escolas-piloto-sp.org</a> - relatório do piloto em SP</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orge72a190" class="outline-2">
+<h2 id="orge72a190"><span class="section-number-2">2.</span> Objetivo da branch</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Levar para os outros estados o que já existe para São Paulo: o plot das
+escolas do Censo Escolar no mapa web (<code>web/escolas_mapa.html</code>), com
+coordenadas obtidas cruzando o Censo Escolar 2024 (INEP) com o CNEFE 2022
+(IBGE).
+</p>
+
+<p>
+Decisões tomadas na conversa:
+</p>
+<ul class="org-ul">
+<li>Começar por <b>alguns estados</b>, não pelos 26 restantes de uma vez.</li>
+<li>Começar pelo <b>Norte</b>, porque o padrão de endereço é muito diferente do de SP
+(zona rural, comunidades ribeirinhas e indígenas).</li>
+<li>Escolhidos <b>Amazonas (AM)</b> e <b>Pará (PA)</b>. Atenção: AM é Amazonas;
+Amapá é AP e ainda não foi testado.</li>
+<li>Antes de expandir, detalhar melhor o casamento de endereços.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org4ac5593" class="outline-2">
+<h2 id="org4ac5593"><span class="section-number-2">3.</span> O que já existia (ponto de partida)</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+O código já estava em grande parte preparado para várias UFs:
+</p>
+<ul class="org-ul">
+<li><code>scripts/commands/ibge_cnefe__baixar_dados.py</code> sabe baixar o CNEFE das 27 UFs.</li>
+<li><code>scripts/commands/escolas_mapa__gerar_dados_web.py</code> já grava um JSON por UF
+(<code>web/data/escolas/escolas_&lt;UF&gt;_2024.json</code>) e um <code>indice.json</code>.</li>
+<li><code>scripts/commands/escolas_dados__cruzar_inep_cnefe.py</code> aceita uma lista de
+UFs, mas suas regras e limiares foram calibrados no piloto de SP.</li>
+<li>Até então só o CNEFE de SP havia sido baixado.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga68b11f" class="outline-2">
+<h2 id="orga68b11f"><span class="section-number-2">4.</span> Como o diagnóstico foi feito</h2>
+<div class="outline-text-2" id="text-4">
+<ol class="org-ol">
+<li><p>
+Download do CNEFE de AM e PA:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py am pa --extrair
+</code></pre>
+</div></li>
+<li><p>
+Execução do ETL existente, <b>sem nenhuma alteração de lógica</b>, gravando em
+um arquivo de teste (para não sobrescrever o CSV de SP):
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa --saida &lt;arquivo-de-teste&gt;.csv
+</code></pre>
+</div></li>
+<li>Os números de SP vieram do <code>web/data/escolas/indice.json</code> (resultado do
+piloto já gerado). Ex.: alta = 15.237 de 33.863 escolas = 45%.</li>
+<li>Scripts Python avulsos (não versionados) para perfilar os endereços do
+INEP e do CNEFE e contar pontos reaproveitados.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org613e043" class="outline-2">
+<h2 id="org613e043"><span class="section-number-2">5.</span> Como cada status é atribuído</h2>
+<div class="outline-text-2" id="text-5">
+<p>
+Para <b>cada escola do INEP</b>, o ETL procura no CNEFE um endereço marcado como
+estabelecimento de ensino (<code>COD_ESPECIE = 4</code>). Se encontra, a escola recebe a
+latitude/longitude desse ponto. As camadas são testadas em ordem; a primeira
+que resolve encerra a busca:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-left">Regra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>alta</code></td>
+<td class="org-left">mesmo município + mesmo CEP + mesmo número. Vários pontos no mesmo endereço exato: escolhe o de nome mais parecido.</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>media</code></td>
+<td class="org-left">mesmo município + mesmo CEP (número ausente ou diferente). Um candidato: aceito. Vários: desempate por nome.</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>baixa</code></td>
+<td class="org-left">CEP não ajudou: procura no <b>município inteiro</b> o ponto de nome mais parecido, aceito se a similaridade for &gt;= 0,5.</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>ambiguo</code></td>
+<td class="org-left">os dois melhores candidatos ficam a menos de 0,05 de similaridade um do outro: não escolhe nenhum.</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sem_correspondencia</code></td>
+<td class="org-left">nenhum candidato serviu.</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+A similaridade de nome compara as palavras dos dois nomes sem acento, sem
+pontuação e em qualquer ordem (<code>difflib.SequenceMatcher</code> sobre as palavras
+ordenadas).
+</p>
+</div>
+</div>
+<div id="outline-container-orgc01da64" class="outline-2">
+<h2 id="orgc01da64"><span class="section-number-2">6.</span> Resultado: o cruzamento atual quase não funciona no Norte</h2>
+<div class="outline-text-2" id="text-6">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-right">SP (piloto)</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">alta (CEP + número batem)</td>
+<td class="org-right">45%</td>
+<td class="org-right">5%</td>
+<td class="org-right">9%</td>
+</tr>
+
+<tr>
+<td class="org-left">média (só CEP bate)</td>
+<td class="org-right">19%</td>
+<td class="org-right">11%</td>
+<td class="org-right">8%</td>
+</tr>
+
+<tr>
+<td class="org-left">baixa (só nome, no município)</td>
+<td class="org-right">16%</td>
+<td class="org-right">44%</td>
+<td class="org-right">49%</td>
+</tr>
+
+<tr>
+<td class="org-left">ambíguo</td>
+<td class="org-right">18%</td>
+<td class="org-right">39%</td>
+<td class="org-right">34%</td>
+</tr>
+
+<tr>
+<td class="org-left">sem correspondência</td>
+<td class="org-right">1%</td>
+<td class="org-right">0,3%</td>
+<td class="org-right">0,7%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Totais: AM 6.181 escolas no INEP / 7.052 pontos de ensino no CNEFE;
+PA 11.848 / 14.150; SP 33.863 / 40.746.
+</p>
+</div>
+</div>
+<div id="outline-container-org2b41362" class="outline-2">
+<h2 id="org2b41362"><span class="section-number-2">7.</span> Por que falha: o endereço no Norte é outro</h2>
+<div class="outline-text-2" id="text-7">
+<p>
+Perfil dos endereços no Censo Escolar 2024:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&nbsp;</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Escolas rurais (<code>TP_LOCALIZACAO = 2</code>)</td>
+<td class="org-right">68%</td>
+<td class="org-right">66%</td>
+<td class="org-right">5%</td>
+</tr>
+
+<tr>
+<td class="org-left">Sem número no endereço</td>
+<td class="org-right">80%</td>
+<td class="org-right">78%</td>
+<td class="org-right">11%</td>
+</tr>
+
+<tr>
+<td class="org-left">CEP genérico do município (termina em 000)</td>
+<td class="org-right">75%</td>
+<td class="org-right">81%</td>
+<td class="org-right">22%</td>
+</tr>
+
+<tr>
+<td class="org-left">Em terra indígena*</td>
+<td class="org-right">18%</td>
+<td class="org-right">3%</td>
+<td class="org-right">~0%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+\* <code>TP_LOCALIZACAO_DIFERENCIADA = 2</code>. O significado do código ainda precisa
+ser confirmado no dicionário do INEP.
+</p>
+
+<p>
+CEP e número, a base das camadas <code>alta</code> e <code>media</code>, praticamente não existem.
+O endereço é a <b>comunidade e o rio</b>. Exemplos reais:
+</p>
+
+<ul class="org-ul">
+<li>INEP: <code>ALDEIA DEUS E AMOR</code> / <code>LAGO DO MIRA</code> (Beruri)</li>
+<li>INEP: <code>COMUNIDADE MATAPI</code> / <code>BAIXO RIO WAUPES</code> (São Gabriel da Cachoeira)</li>
+<li>CNEFE: logradouro <code>RIO TIQUIE</code>, localidade <code>ALDEIA INDIGENA SAO PEDRO</code>, estabelecimento <code>ESCOLA TUYUKA</code></li>
+</ul>
+
+<p>
+O dado de localização do CNEFE, porém, é bom: no AM, 99,6% dos pontos de
+ensino têm <code>NV_GEO_COORD = 1</code> (a confirmar no dicionário do IBGE: coordenada
+coletada no próprio local). O problema está na ligação entre as bases, não
+na coordenada.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd2967ca" class="outline-2">
+<h2 id="orgd2967ca"><span class="section-number-2">8.</span> Escolas que existem em uma base e não na outra</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+O ETL trata as duas direções de forma diferente.
+</p>
+</div>
+<div id="outline-container-org2c261e2" class="outline-3">
+<h3 id="org2c261e2"><span class="section-number-3">8.1.</span> Escola do INEP sem ponto no CNEFE</h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+Nunca é descartada. O INEP é a lista mestra: a escola permanece no CSV sem
+coordenada, com status <code>ambiguo</code> ou <code>sem_correspondencia</code>.
+</p>
+
+<p>
+O INEP também inclui escolas paralisadas ou extintas
+(<code>TP_SITUACAO_FUNCIONAMENTO !</code> 1=): 639 no AM, 1.257 no PA, 3.117 em SP.
+É esperado que muitas não existam no CNEFE.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb775427" class="outline-3">
+<h3 id="orgb775427"><span class="section-number-3">8.2.</span> Ponto de ensino do CNEFE sem escola do INEP</h3>
+<div class="outline-text-3" id="text-8-2">
+<p>
+É descartado sem aviso; o ETL não informa quantos são:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Pontos de ensino no CNEFE</th>
+<th scope="col" class="org-right">Usados por alguma escola</th>
+<th scope="col" class="org-right">Nunca usados</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">7.052</td>
+<td class="org-right">3.030</td>
+<td class="org-right">4.020</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">14.150</td>
+<td class="org-right">5.986</td>
+<td class="org-right">8.160</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">40.746</td>
+<td class="org-right">23.021</td>
+<td class="org-right">17.629</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Parte é esperada (faculdades, autoescolas, cursos livres, pontos marcados
+como <code>ESCOLA DESATIVADA</code>). No Norte, provavelmente há também escolas reais
+que o ETL não conseguiu ligar.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org63b79cb" class="outline-2">
+<h2 id="org63b79cb"><span class="section-number-2">9.</span> Problema: o mesmo ponto do CNEFE é dado a várias escolas</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+O ETL escolhe o melhor ponto para cada escola <b>de forma independente</b>. Nada
+impede que duas ou mais escolas recebam o mesmo ponto.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Pontos usados por &gt;1 escola</th>
+<th scope="col" class="org-right">Escolas nesses pontos</th>
+<th scope="col" class="org-right">Dessas, com endereço INEP idêntico</th>
+<th scope="col" class="org-right">Camada <code>baixa</code></th>
+<th scope="col" class="org-right">Camada <code>media</code></th>
+<th scope="col" class="org-right">Camada <code>alta</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">485</td>
+<td class="org-right">1.197</td>
+<td class="org-right">24</td>
+<td class="org-right">894</td>
+<td class="org-right">253</td>
+<td class="org-right">50</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">1.042</td>
+<td class="org-right">2.774</td>
+<td class="org-right">61</td>
+<td class="org-right">2.112</td>
+<td class="org-right">391</td>
+<td class="org-right">271</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">3.507</td>
+<td class="org-right">7.810</td>
+<td class="org-right">1.166</td>
+<td class="org-right">2.242</td>
+<td class="org-right">2.620</td>
+<td class="org-right">2.948</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li>Compartilhar ponto é legítimo quando várias escolas funcionam no mesmo
+prédio (mesmo endereço). Isso explica parte dos casos em SP (1.166 escolas),
+mas quase nada no Norte (24 no AM, 61 no PA).</li>
+<li>No Norte, ~75% dos casos vêm da camada <code>baixa</code>: um ponto com nome genérico
+"atrai" várias escolas do município inteiro.</li>
+<li>Piores grupos encontrados:
+<ul class="org-ul">
+<li>PA, Altamira: 26 escolas no ponto <code>EMEF NOVO HORIZONTE</code> (ex.: <code>EMEIF NOVO PARAISO</code>, <code>EMEIF INDIGENA NGORARATI</code>, <code>EMEIF NOVO PACTO</code>).</li>
+<li>AM, Envira: 9 escolas no ponto <code>ESCOLA MUNICIPAL RURAL SAO PEDRO</code>.</li>
+<li>SP, São Paulo: 37 unidades da Fundação CASA no ponto <code>CENTRO DE ATENDIMENTO SOCIOEDUCATIVO AO ADOLESCENTE IPE</code>.
+O prefixo comum e longo ("CENTRO DE ATEND SOCIOEDUC AO ADOLESC") domina a similaridade.</li>
+</ul></li>
+</ul>
+</div>
+<div id="outline-container-org296ef26" class="outline-3">
+<h3 id="org296ef26"><span class="section-number-3">9.1.</span> Correção proposta inicialmente (substituída pela lógica de dois estágios, ver seção seguinte)</h3>
+<div class="outline-text-3" id="text-9-1">
+<ol class="org-ol">
+<li><b>Atribuição um-para-um por município</b>: em vez de cada escola escolher
+sozinha, juntar todos os pares (escola, ponto, nota) do município,
+ordenar pela nota e atribuir do melhor para o pior. Um ponto já usado sai
+da disputa.</li>
+<li><b>Exceção para o mesmo prédio</b>: o ponto pode ser compartilhado quando as
+escolas têm o mesmo endereço exato no INEP (mesmo CEP + número). É o caso
+legítimo da camada <code>alta</code>.</li>
+<li><b>A escola que perde a disputa</b> tenta o próximo candidato, ainda sujeito ao
+limiar e à margem de ambiguidade. Se nenhum serve, fica sem coordenada
+com um status próprio (ex.: <code>ponto_disputado</code>), para ficar visível nos
+números.</li>
+<li><b>Ignorar palavras genéricas na comparação de nomes</b> ("ESCOLA", "MUNICIPAL",
+"EMEF", "EMEIF", "RURAL", "INDIGENA", "CENTRO DE ATENDIMENTO" etc.).
+Assim a nota reflete a parte que distingue a escola ("NOVO HORIZONTE" x
+"NOVO PARAISO").</li>
+<li><b>Relatório no fim do ETL</b>, por UF: pontos do CNEFE não usados e pontos
+compartilhados.</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-org4941fd2" class="outline-2">
+<h2 id="org4941fd2"><span class="section-number-2">10.</span> Nova lógica de casamento: dois estágios (especificação)</h2>
+<div class="outline-text-2" id="text-10">
+</div>
+<div id="outline-container-org2a81d17" class="outline-3">
+<h3 id="org2a81d17"><span class="section-number-3">10.1.</span> A proposta</h3>
+<div class="outline-text-3" id="text-10-1">
+<p>
+Proposta feita na conversa (25/10/2026), antes de implementar a correção
+acima:
+</p>
+
+<ol class="org-ol">
+<li><b>Primeiro estágio</b>: mesmo CEP e mesmo número nas duas bases. Mesmo que o
+nome esteja escrito diferente, o endereço exato identifica a escola.</li>
+<li><b>Segundo estágio</b>: quando CEP e número não batem, o nome da escola e o
+município batem.</li>
+<li><b>Um CSV de auditoria</b>, com qual escola do INEP foi associada a qual ponto
+do CNEFE, para conferir depois.</li>
+<li>Outras estratégias (localidade, rio etc.) ficam para uma conversa
+posterior.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-orga9b54fb" class="outline-3">
+<h3 id="orga9b54fb"><span class="section-number-3">10.2.</span> Avaliação: quanto cada estágio resolveria (antes dos ajustes)</h3>
+<div class="outline-text-3" id="text-10-2">
+<p>
+Simulação com a normalização de nomes antiga (só acento e pontuação):
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&nbsp;</th>
+<th scope="col" class="org-left">Estágio 1: CEP + número</th>
+<th scope="col" class="org-left">Estágio 2: nome igual + município</th>
+<th scope="col" class="org-right">Ficariam sem coordenada</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">309 (5%)</td>
+<td class="org-left">606 (10%)</td>
+<td class="org-right">85%</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">1.037 (9%)</td>
+<td class="org-left">340 (3%)</td>
+<td class="org-right">88%</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">15.237 (45%)</td>
+<td class="org-left">392 (1%)</td>
+<td class="org-right">54%</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+O estágio 1 é a antiga camada <code>alta</code>. Os números mostraram três ajustes
+necessários, todos aceitos.
+</p>
+</div>
+</div>
+<div id="outline-container-org474cf14" class="outline-3">
+<h3 id="org474cf14"><span class="section-number-3">10.3.</span> Ajustes aceitos</h3>
+<div class="outline-text-3" id="text-10-3">
+<ol class="org-ol">
+<li><b>Número 0 é "sem número"</b>. No CNEFE, <code>NUM_ENDERECO = 0</code> significa S/N.
+Antes, "CEP genérico + 0" virava casamento exato (228 casos no PA).</li>
+<li><b>CEP genérico no estágio 1</b>: aceito, mas marcado com o alerta
+<code>cep_generico</code>. Numa cidade com um único CEP, duas escolas em ruas
+diferentes podem ter o mesmo número por coincidência.</li>
+<li><b>Nome comparado pelo "núcleo"</b>, depois de padronizar (ver abaixo).</li>
+<li><b>Núcleo único dos dois lados no município</b>: se houver duas escolas no
+INEP, ou dois pontos no CNEFE, com o mesmo núcleo no município, não há
+casamento. Isso resolve, por construção, o problema dos pontos
+compartilhados no estágio 2.</li>
+<li><b>Quem sobra fica sem coordenada</b> nesta versão. As camadas antigas
+(<code>media</code>, <code>baixa</code>, <code>ambiguo</code>, fallback por API de CEP) foram retiradas; a
+versão anterior continua no histórico do git.</li>
+<li><b>CSV de auditoria</b> e <b>CSV de pontos do CNEFE não usados</b>.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org8f848f1" class="outline-3">
+<h3 id="org8f848f1"><span class="section-number-3">10.4.</span> Núcleo do nome</h3>
+<div class="outline-text-3" id="text-10-4">
+<p>
+Função <code>nucleo_nome()</code> em <code>escolas_dados__cruzar_inep_cnefe.py</code>. Passos:
+</p>
+
+<ol class="org-ol">
+<li>Remove acento e pontuação, tudo em maiúsculas.</li>
+<li>Junta letras soltas em sigla: "E.M.E.F." vira "E M E F" e depois "EMEF".
+O INEP escreve muitas siglas com ponto; o CNEFE costuma escrever "EMEF".</li>
+<li>Expande abreviações (<code>ABREVIACOES</code>): ESC → ESCOLA, MUN/MUL → MUNICIPAL,
+PROF → PROFESSOR, DR → DOUTOR, STA → SANTA, NSRA → NOSSA SENHORA etc. A
+lista saiu das palavras mais frequentes nos nomes reais de AM, PA e SP.</li>
+<li>Remove palavras que dizem o <b>tipo</b> da escola, e não <b>qual</b> escola é
+(<code>PALAVRAS_GENERICAS</code>): ESCOLA, MUNICIPAL, ESTADUAL, ENSINO, FUNDAMENTAL,
+INFANTIL, CRECHE, RURAL, INDIGENA, siglas como EMEF, EMEIF, EE, CEI,
+CMEI, títulos (PROFESSOR, DOUTOR) e preposições (DE, DA, DO, E&hellip;).</li>
+</ol>
+
+<p>
+Exemplos reais:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Nome</th>
+<th scope="col" class="org-left">Núcleo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">E.M.E.F. PROF. JOAO DA SILVA</td>
+<td class="org-left">JOAO SILVA</td>
+</tr>
+
+<tr>
+<td class="org-left">ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL PROFESSOR JOAO DA SILVA</td>
+<td class="org-left">JOAO SILVA</td>
+</tr>
+
+<tr>
+<td class="org-left">E M E I F NOVO HORIZONTE</td>
+<td class="org-left">NOVO HORIZONTE</td>
+</tr>
+
+<tr>
+<td class="org-left">ESCOLA ESTADUAL MAGNOLIA VENTURA / E E MAGNOLIA VENTURA</td>
+<td class="org-left">MAGNOLIA VENTURA</td>
+</tr>
+
+<tr>
+<td class="org-left">ESCOLA MUNICIPAL</td>
+<td class="org-left">(vazio: nome genérico)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Núcleo vazio nunca casa (motivo <code>nome_generico</code>).
+</p>
+</div>
+</div>
+<div id="outline-container-orgab458a1" class="outline-3">
+<h3 id="orgab458a1"><span class="section-number-3">10.5.</span> Regras implementadas</h3>
+<div class="outline-text-3" id="text-10-5">
+<p>
+Ordem: o estágio 1 roda para todas as escolas da UF; depois o 2a para as
+que sobraram; depois o 2b para as que ainda sobraram. (Na primeira versão
+havia um único estágio 2, <code>nome_municipio</code>, equivalente ao 2b; a divisão
+está explicada em <a href="#orgecb9fab">Estágio 2 dividido em 2a e 2b</a>.)
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-left">Regra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>cep_numero</code></td>
+<td class="org-left">Estágio 1. Município + CEP + número (diferente de 0) iguais. O nome não precisa bater. Várias escolas do INEP podem dividir o ponto (mesmo prédio).</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_exato</code></td>
+<td class="org-left">Estágio 2a. Nome igual (só sem acento, pontuação e diferença de maiúsculas), único no município no INEP e no CNEFE, ponto ainda não usado.</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_ajustado</code></td>
+<td class="org-left">Estágio 2b. Núcleo do nome igual, único no município no INEP e no CNEFE, ponto ainda não usado (nem no estágio 1, nem no 2a).</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sem_correspondencia</code></td>
+<td class="org-left">Nenhum estágio resolveu. A escola fica sem coordenada; o motivo vai em <code>MOTIVO_GEOLOCALIZACAO</code>.</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Motivos de <code>sem_correspondencia</code> (vêm do estágio 2b, o último a tentar):
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Motivo</th>
+<th scope="col" class="org-left">Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>nome_nao_encontrado</code></td>
+<td class="org-left">nenhum ponto do CNEFE no município tem o mesmo núcleo</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_repetido_inep</code></td>
+<td class="org-left">mais de uma escola do INEP no município tem esse núcleo</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_repetido_cnefe</code></td>
+<td class="org-left">mais de um ponto do CNEFE no município tem esse núcleo</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>ponto_ja_usado</code></td>
+<td class="org-left">o único ponto com esse núcleo já foi dado a outra escola no estágio 1 ou 2a</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_generico</code></td>
+<td class="org-left">o nome só tem palavras genéricas (núcleo vazio)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+(Na primeira versão <code>ponto_ja_usado</code> se chamava <code>ponto_ja_usado_estagio1</code>.)
+</p>
+
+<p>
+Alertas (<code>ALERTAS_GEOLOCALIZACAO</code>, separados por <code>|</code>). Não tiram a
+coordenada, só pedem conferência:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Alerta</th>
+<th scope="col" class="org-left">Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>cep_generico</code></td>
+<td class="org-left">estágio 1 com CEP terminado em 000</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>varios_no_endereco</code></td>
+<td class="org-left">estágio 1 com mais de um ponto do CNEFE no mesmo endereço exato</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>ponto_compartilhado</code></td>
+<td class="org-left">o mesmo ponto do CNEFE foi dado a mais de uma escola</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-org987a7bd" class="outline-3">
+<h3 id="org987a7bd"><span class="section-number-3">10.6.</span> Arquivos gerados</h3>
+<div class="outline-text-3" id="text-10-6">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Arquivo</th>
+<th scope="col" class="org-left">Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>data/escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv</code></td>
+<td class="org-left">todas as colunas do INEP + <code>LATITUDE</code>, <code>LONGITUDE</code>, <code>CNEFE_COD_UNICO_ENDERECO</code>, <code>CNEFE_NV_GEO_COORD</code>, <code>CNEFE_DSC_ESTABELECIMENTO</code>, <code>STATUS_GEOLOCALIZACAO</code>, <code>MOTIVO_GEOLOCALIZACAO</code>, <code>ALERTAS_GEOLOCALIZACAO</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>data/auditoria/escolas_inep_x_cnefe_2024.csv</code></td>
+<td class="org-left">uma linha por escola do INEP com o ponto do CNEFE ao lado (ver colunas abaixo)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>data/auditoria/cnefe_ensino_nao_usados_2024.csv</code></td>
+<td class="org-left">pontos de ensino do CNEFE que nenhuma escola usou</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Colunas do CSV de auditoria:
+</p>
+<ul class="org-ul">
+<li>Escola do INEP: <code>SG_UF</code>, <code>CO_MUNICIPIO</code>, <code>NO_MUNICIPIO</code>, <code>CO_ENTIDADE</code>,
+<code>NO_ENTIDADE</code>, <code>INEP_NOME_NORMALIZADO</code> (chave do 2a), <code>INEP_NUCLEO_NOME</code>
+(chave do 2b), <code>TP_SITUACAO_FUNCIONAMENTO</code>,
+<code>TP_LOCALIZACAO</code>, <code>INEP_ENDERECO</code>, <code>INEP_CEP</code>, <code>INEP_NUMERO</code>.</li>
+<li>Decisão: <code>STATUS_GEOLOCALIZACAO</code>, <code>MOTIVO_GEOLOCALIZACAO</code>,
+<code>ALERTAS_GEOLOCALIZACAO</code>, <code>N_CANDIDATOS</code>, <code>SIMILARIDADE_NOME</code> (só
+informativa; não decide nada).</li>
+<li>Ponto do CNEFE: <code>CNEFE_COD_UNICO_ENDERECO</code> (ID estável do CNEFE),
+<code>CNEFE_DSC_ESTABELECIMENTO</code>, <code>CNEFE_NOME_NORMALIZADO</code>, <code>CNEFE_NUCLEO_NOME</code>,
+<code>CNEFE_ENDERECO</code>,
+<code>CNEFE_CEP</code>, <code>CNEFE_NUMERO</code>, <code>LATITUDE</code>, <code>LONGITUDE</code>, <code>CNEFE_NV_GEO_COORD</code>.</li>
+</ul>
+
+<p>
+As três saídas são <b>mescladas por UF</b>: rodar só <code>am</code> substitui as linhas do
+AM e mantém as das outras UFs (testado: 6.181 linhas novas, 45.711
+mantidas). Isso corrige a sobrescrita que apagava SP quando se rodava só
+<code>am pa</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-orga6dc9cb" class="outline-3">
+<h3 id="orga6dc9cb"><span class="section-number-3">10.7.</span> Como auditar</h3>
+<div class="outline-text-3" id="text-10-7">
+<ul class="org-ul">
+<li>Abrir <code>data/auditoria/escolas_inep_x_cnefe_2024.csv</code> numa planilha (separador <code>;</code>).</li>
+<li>Filtrar por <code>STATUS_GEOLOCALIZACAO</code> e comparar <code>NO_ENTIDADE</code> com
+<code>CNEFE_DSC_ESTABELECIMENTO</code> e <code>INEP_ENDERECO</code> com <code>CNEFE_ENDERECO</code>.</li>
+<li>Para conferir no mapa, colar <code>LATITUDE, LONGITUDE</code> no Google Maps ou no
+OpenStreetMap.</li>
+<li>Prioridade de conferência: linhas com alertas, e estágio 2 com núcleo de
+uma só palavra (ex.: "GUARANI", "CASTANHAL"), que é o caso mais frágil
+(165 no AM, 338 no PA).</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org397e339" class="outline-3">
+<h3 id="org397e339"><span class="section-number-3">10.8.</span> Resultados da primeira versão, com estágio 2 único (25/10/2026)</h3>
+<div class="outline-text-3" id="text-10-8">
+<p>
+Mantidos como registro. Os números atuais estão em
+<a href="#orgecb9fab">Estágio 2 dividido em 2a e 2b</a>.
+</p>
+
+<p>
+Comando:
+</p>
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
+.venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+</code></pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-left">AM</th>
+<th scope="col" class="org-left">PA</th>
+<th scope="col" class="org-left">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>cep_numero</code> (estágio 1)</td>
+<td class="org-left">300 (4,9%)</td>
+<td class="org-left">809 (6,8%)</td>
+<td class="org-left">15.218 (44,9%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_municipio</code> (estágio 2)</td>
+<td class="org-left">1.744 (28,2%)</td>
+<td class="org-left">3.302 (27,9%)</td>
+<td class="org-left">3.283 (9,7%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sem_correspondencia</code></td>
+<td class="org-left">4.137 (66,9%)</td>
+<td class="org-left">7.737 (65,3%)</td>
+<td class="org-left">15.362 (45,4%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>Total no mapa</b></td>
+<td class="org-left"><b>2.044</b></td>
+<td class="org-left"><b>4.111</b></td>
+<td class="org-left"><b>18.501</b></td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Motivos e alertas:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&nbsp;</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">motivo <code>nome_nao_encontrado</code></td>
+<td class="org-right">3.446</td>
+<td class="org-right">6.981</td>
+<td class="org-right">14.646</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_repetido_inep</code></td>
+<td class="org-right">577</td>
+<td class="org-right">566</td>
+<td class="org-right">431</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_repetido_cnefe</code></td>
+<td class="org-right">105</td>
+<td class="org-right">180</td>
+<td class="org-right">233</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>ponto_ja_usado_estagio1</code></td>
+<td class="org-right">7</td>
+<td class="org-right">9</td>
+<td class="org-right">52</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_generico</code></td>
+<td class="org-right">2</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>cep_generico</code></td>
+<td class="org-right">126</td>
+<td class="org-right">451</td>
+<td class="org-right">3.119</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>varios_no_endereco</code></td>
+<td class="org-right">14</td>
+<td class="org-right">46</td>
+<td class="org-right">470</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>ponto_compartilhado</code></td>
+<td class="org-right">18</td>
+<td class="org-right">66</td>
+<td class="org-right">1.507</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Pontos do CNEFE:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&nbsp;</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">usados</td>
+<td class="org-right">2.035</td>
+<td class="org-right">4.078</td>
+<td class="org-right">17.713</td>
+</tr>
+
+<tr>
+<td class="org-left">não usados</td>
+<td class="org-right">5.017</td>
+<td class="org-right">10.072</td>
+<td class="org-right">23.033</td>
+</tr>
+
+<tr>
+<td class="org-left">usados por mais de uma escola</td>
+<td class="org-right">9</td>
+<td class="org-right">33</td>
+<td class="org-right">719</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li><p>
+<b>Pontos compartilhados</b>: no AM caíram de 485 para 9, no PA de 1.042 para
+</p>
+<ol class="org-ol">
+<li>Os que restam são todos do estágio 1 (mesmo endereço exato), que é o</li>
+</ol>
+<p>
+caso legítimo de várias escolas no mesmo prédio. Em SP, 719 (antes 3.507).
+</p></li>
+<li><b>Cobertura</b>: menos escolas no mapa do que na versão antiga (que punha
+quase todas, muitas com camada <code>baixa</code>), mas cada ponto agora tem uma
+evidência forte. Com a normalização de nomes, o estágio 2 rendeu muito
+mais que na simulação (AM de 10% para 28%, PA de 3% para 28%).</li>
+<li>Amostras sorteadas do estágio 2 no AM e PA mostraram nomes coerentes, ex.:
+"E M E I F NOVO HORIZONTE" x "NOVO HORIZONTE", "ESCOLA ESTADUAL EROTILDES
+FROTA AGUIAR" x "EEEFM PROF EROTILDES FROTA AGUIAR". Ainda falta uma
+conferência sistemática no mapa.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org0441536" class="outline-3">
+<h3 id="org0441536"><span class="section-number-3">10.9.</span> Mudanças no mapa web</h3>
+<div class="outline-text-3" id="text-10-9">
+<ul class="org-ul">
+<li><code>escolas_mapa__gerar_dados_web.py</code>: leva para o mapa as escolas com status
+<code>cep_numero</code> ou <code>nome_municipio</code>, e leva também <code>ALERTAS_GEOLOCALIZACAO</code>.</li>
+<li><code>web/js/escolas_mapa.js</code>: legenda e filtro de confiança passam a ser
+"Estágio 1 (CEP + número)" e "Estágio 2 (nome)"; o popup da escola mostra
+os alertas.</li>
+<li>AM e PA entram no <code>web/data/escolas/indice.json</code> e aparecem na lista de UFs
+da página.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgecb9fab" class="outline-2">
+<h2 id="orgecb9fab"><span class="section-number-2">11.</span> Estágio 2 dividido em 2a (nome exato) e 2b (nome ajustado)</h2>
+<div class="outline-text-2" id="text-11">
+</div>
+<div id="outline-container-org4267019" class="outline-3">
+<h3 id="org4267019"><span class="section-number-3">11.1.</span> A proposta</h3>
+<div class="outline-text-3" id="text-11-1">
+<p>
+Proposta feita na conversa (25/10/2026): dividir o estágio 2 em dois.
+Primeiro tentar o <b>nome exato</b>; só depois o <b>nome ajustado</b> (o núcleo, com
+abreviações expandidas e palavras genéricas removidas).
+</p>
+
+<p>
+Vantagens:
+</p>
+<ul class="org-ul">
+<li><b>Auditoria</b>: o status diz se o nome bateu como está escrito ou só depois
+do ajuste. O casamento por nome exato é a evidência mais forte; o ajustado
+é o que merece mais conferência.</li>
+<li><b>Mais acertos</b>: um nome exato pode ser único no município mesmo quando o
+núcleo não é. Ex.: "EMEF SAO JOSE" e "EMEI SAO JOSE" têm o mesmo núcleo
+("SAO JOSE"), então no 2b nenhuma das duas casa; no 2a, cada uma pode
+casar com o ponto de nome idêntico.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org93fa86d" class="outline-3">
+<h3 id="org93fa86d"><span class="section-number-3">11.2.</span> Regras</h3>
+<div class="outline-text-3" id="text-11-2">
+<ul class="org-ul">
+<li><b>2a <code>nome_exato</code></b>: compara o nome depois de <code>normalizar_nome()</code>, que só
+remove acento, pontuação e diferença de maiúsculas. "Exato" quer dizer
+isso: "Escola Municipal São João" e "ESCOLA MUNICIPAL SAO JOAO" são o
+mesmo nome; "ESC MUN SAO JOAO" não é.</li>
+<li><b>2b <code>nome_ajustado</code></b>: compara o núcleo (<code>nucleo_nome()</code>), como o antigo
+estágio 2.</li>
+<li>Nos dois: nome único dos dois lados no município, e o ponto do CNEFE não
+pode ter sido usado em um estágio anterior.</li>
+<li>O 2a só registra acertos. Quem não casa no 2a segue para o 2b, e o motivo
+de quem fica sem coordenada é o do 2b.</li>
+<li>Implementação: a mesma função <code>estagio2_por_nome()</code> roda duas vezes, só
+mudando a função que transforma o nome (<code>normalizar_nome</code> ou
+<code>nucleo_nome</code>).</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org47ba7cf" class="outline-3">
+<h3 id="org47ba7cf"><span class="section-number-3">11.3.</span> Resultados (25/10/2026)</h3>
+<div class="outline-text-3" id="text-11-3">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-left">AM</th>
+<th scope="col" class="org-left">PA</th>
+<th scope="col" class="org-left">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>cep_numero</code> (estágio 1)</td>
+<td class="org-left">300 (4,9%)</td>
+<td class="org-left">809 (6,8%)</td>
+<td class="org-left">15.218 (44,9%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_exato</code> (estágio 2a)</td>
+<td class="org-left">604 (9,8%)</td>
+<td class="org-left">341 (2,9%)</td>
+<td class="org-left">380 (1,1%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_ajustado</code> (estágio 2b)</td>
+<td class="org-left">1.199 (19,4%)</td>
+<td class="org-left">2.986 (25,2%)</td>
+<td class="org-left">2.951 (8,7%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sem_correspondencia</code></td>
+<td class="org-left">4.078 (66,0%)</td>
+<td class="org-left">7.712 (65,1%)</td>
+<td class="org-left">15.314 (45,2%)</td>
+</tr>
+
+<tr>
+<td class="org-left"><b>Total no mapa</b></td>
+<td class="org-left"><b>2.103</b></td>
+<td class="org-left"><b>4.136</b></td>
+<td class="org-left"><b>18.549</b></td>
+</tr>
+</tbody>
+</table>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Motivo / alerta</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">motivo <code>nome_nao_encontrado</code></td>
+<td class="org-right">3.446</td>
+<td class="org-right">6.981</td>
+<td class="org-right">14.646</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_repetido_inep</code></td>
+<td class="org-right">541</td>
+<td class="org-right">556</td>
+<td class="org-right">398</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_repetido_cnefe</code></td>
+<td class="org-right">82</td>
+<td class="org-right">166</td>
+<td class="org-right">218</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>ponto_ja_usado</code></td>
+<td class="org-right">7</td>
+<td class="org-right">9</td>
+<td class="org-right">52</td>
+</tr>
+
+<tr>
+<td class="org-left">motivo <code>nome_generico</code></td>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>cep_generico</code></td>
+<td class="org-right">126</td>
+<td class="org-right">451</td>
+<td class="org-right">3.119</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>varios_no_endereco</code></td>
+<td class="org-right">14</td>
+<td class="org-right">46</td>
+<td class="org-right">470</td>
+</tr>
+
+<tr>
+<td class="org-left">alerta <code>ponto_compartilhado</code></td>
+<td class="org-right">18</td>
+<td class="org-right">66</td>
+<td class="org-right">1.507</td>
+</tr>
+</tbody>
+</table>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">&nbsp;</th>
+<th scope="col" class="org-right">AM</th>
+<th scope="col" class="org-right">PA</th>
+<th scope="col" class="org-right">SP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">pontos do CNEFE usados</td>
+<td class="org-right">2.094</td>
+<td class="org-right">4.103</td>
+<td class="org-right">17.761</td>
+</tr>
+
+<tr>
+<td class="org-left">não usados</td>
+<td class="org-right">4.958</td>
+<td class="org-right">10.047</td>
+<td class="org-right">22.985</td>
+</tr>
+
+<tr>
+<td class="org-left">usados por mais de uma escola</td>
+<td class="org-right">9</td>
+<td class="org-right">33</td>
+<td class="org-right">719</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Comparando com a primeira versão (estágio 2 único):
+</p>
+<ul class="org-ul">
+<li>Escolas no mapa: AM 2.044 → 2.103 (+59), PA 4.111 → 4.136 (+25),
+SP 18.501 → 18.549 (+48). São escolas cujo núcleo se repetia no município,
+mas cujo nome exato é único (o motivo <code>nome_repetido_inep</code> caiu de 577
+para 541 no AM).</li>
+<li>Os pontos compartilhados não mudaram (9 / 33 / 719): continuam sendo só os
+do estágio 1, mesmo endereço exato.</li>
+<li>No AM, cerca de 1 em cada 3 escolas casadas por nome casou pelo nome
+exato (604 de 1.803); no PA, só 1 em cada 10 (341 de 3.327). O PA usa
+muito "E M E I F", que só casa depois do ajuste.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgf87cf30" class="outline-3">
+<h3 id="orgf87cf30"><span class="section-number-3">11.4.</span> Mudanças no mapa web</h3>
+<div class="outline-text-3" id="text-11-4">
+<ul class="org-ul">
+<li><code>escolas_mapa__gerar_dados_web.py</code>: leva para o mapa os status
+<code>cep_numero</code>, <code>nome_exato</code> e <code>nome_ajustado</code>.</li>
+<li><code>web/js/escolas_mapa.js</code>: legenda e filtro com três cores: Estágio 1
+(verde), Estágio 2a, nome exato (azul), Estágio 2b, nome ajustado
+(amarelo).</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfd59f93" class="outline-2">
+<h2 id="orgfd59f93"><span class="section-number-2">12.</span> Plotagem no mapa web (AM, PA e SP)</h2>
+<div class="outline-text-2" id="text-12">
+</div>
+<div id="outline-container-org648f224" class="outline-3">
+<h3 id="org648f224"><span class="section-number-3">12.1.</span> Estratégia</h3>
+<div class="outline-text-3" id="text-12-1">
+<p>
+A estratégia de plotagem de SP foi mantida para todas as UFs. Ela foi feita
+para muitos pontos:
+</p>
+<ul class="org-ul">
+<li>um arquivo JSON leve por UF (<code>web/data/escolas/escolas_&lt;UF&gt;_2024.json</code>),
+carregado só quando a UF é marcada;</li>
+<li>agrupamento em clusters (Supercluster), que se abrem ao aproximar o zoom;</li>
+<li>pontos desenhados em canvas, não em elementos HTML.</li>
+</ul>
+
+<p>
+A página monta a lista de UFs a partir de <code>web/data/escolas/indice.json</code>.
+Por isso AM e PA apareceram sem mudança na lógica de plotagem: bastou
+rodar <code>escolas_mapa__gerar_dados_web.py</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb2f06a9" class="outline-3">
+<h3 id="orgb2f06a9"><span class="section-number-3">12.2.</span> Correção: enquadramento de várias UFs</h3>
+<div class="outline-text-3" id="text-12-2">
+<p>
+Ao marcar AM e depois PA, o mapa enquadrava só a última UF marcada, e
+metade do AM ficava fora da tela. Agora a função <code>enquadrarUfsAtivas()</code>
+(<code>web/js/escolas_mapa.js</code>) enquadra todas as UFs marcadas, ao marcar e ao
+desmarcar.
+</p>
+</div>
+</div>
+<div id="outline-container-org3976b1c" class="outline-3">
+<h3 id="org3976b1c"><span class="section-number-3">12.3.</span> Verificação geográfica dos pontos (25/10/2026)</h3>
+<div class="outline-text-3" id="text-12-3">
+<p>
+Cada ponto foi cruzado com a malha municipal simplificada da página
+(<code>web/data/BR_municipios_2024_minima.geojson</code>), com geopandas:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Com coordenada</th>
+<th scope="col" class="org-left">Fora do município declarado</th>
+<th scope="col" class="org-right">A mais de 5 km</th>
+<th scope="col" class="org-right">A mais de 50 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">2.103</td>
+<td class="org-left">22 (1,0%)</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">4.136</td>
+<td class="org-left">39 (0,9%)</td>
+<td class="org-right">0</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">18.549</td>
+<td class="org-left">328 (1,8%)</td>
+<td class="org-right">1</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+
+<ul class="org-ul">
+<li>Os pontos fora do município ficam a 1 ou 2 km da divisa, o que é
+compatível com o contorno simplificado da malha "mínima".</li>
+<li>O caso de 22 km (Ilhabela, SP) caiu no mar: a ilha é muito simplificada
+nessa malha.</li>
+<li>Nenhuma escola caiu em outro estado.</li>
+<li>Limite do teste: o casamento já exige o mesmo município, então este teste
+confirma que as coordenadas do CNEFE são coerentes, mas não prova que cada
+escola foi ligada ao ponto certo.</li>
+</ul>
+
+<p>
+Inspeção visual (Tefé, AM, com imagem de satélite): as escolas aparecem ao
+longo do Solimões e do Lago de Tefé, como esperado para escolas
+ribeirinhas.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf63c70a" class="outline-3">
+<h3 id="orgf63c70a"><span class="section-number-3">12.4.</span> Problemas encontrados (pendentes)</h3>
+<div class="outline-text-3" id="text-12-4">
+<ol class="org-ol">
+<li><b>Mapa de fundo padrão quebrado</b>: o CartoDB Positron (e o Dark Matter)
+aparece coberto de "API KEY REQUIRED"; o serviço passou a exigir chave.
+OpenStreetMap, Esri Satélite e OpenTopoMap funcionam. Proposta: trocar o
+padrão para OpenStreetMap.</li>
+<li><b>Municípios coloridos por cima do satélite</b>: o preenchimento dos
+polígonos esconde os rios. Proposta: opção de mostrar só o contorno.</li>
+<li><b>Escolas sem coordenada invisíveis</b>: no Norte, cerca de 65% das escolas
+não aparecem no mapa e o painel mostra só o total. Proposta: colorir cada
+município pela porcentagem de escolas no mapa, para mostrar onde o mapa
+está incompleto em vez de parecer que ali não há escolas.</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org0e40a42" class="outline-3">
+<h3 id="org0e40a42"><span class="section-number-3">12.5.</span> Como testar localmente</h3>
+<div class="outline-text-3" id="text-12-5">
+<div class="org-src-container">
+<pre class="src src-sh"><code>cd web &amp;&amp; python3 -m http.server 8765
+# abrir http://127.0.0.1:8765/escolas_mapa.html
+# se aparecer a versao antiga da pagina: Ctrl+Shift+R
+</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea9acfb" class="outline-2">
+<h2 id="orgea9acfb"><span class="section-number-2">13.</span> Publicação no GitHub Pages: uma versão por branch</h2>
+<div class="outline-text-2" id="text-13">
+</div>
+<div id="outline-container-org88148fa" class="outline-3">
+<h3 id="org88148fa"><span class="section-number-3">13.1.</span> Como era</h3>
+<div class="outline-text-3" id="text-13-1">
+<p>
+<code>.github/workflows/pages.yml</code> publicava a pasta <code>web/</code> só em push na <code>main</code>.
+Push em outra branch não publicava nada, e cada deploy substituía o site
+inteiro.
+</p>
+</div>
+</div>
+<div id="outline-container-org3e40a0c" class="outline-3">
+<h3 id="org3e40a0c"><span class="section-number-3">13.2.</span> Como ficou</h3>
+<div class="outline-text-3" id="text-13-2">
+<p>
+O GitHub Pages tem <b>um único site por repositório</b>, e o ambiente
+<code>github-pages</code> só aceita deploy da <code>main</code>. Para ter várias versões, o
+deploy roda sempre na <code>main</code> e monta um site com todas elas:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Endereço</th>
+<th scope="col" class="org-left">Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>https://claudiadaros75.github.io/Mapeamento-Intersetorial/</code></td>
+<td class="org-left"><code>web/</code> da <code>main</code> (versão principal)</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>.../Mapeamento-Intersetorial/versoes/</code></td>
+<td class="org-left">lista de versões, com o último commit de cada uma</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>.../Mapeamento-Intersetorial/versoes/mapeamento-intersetorial-nacional/</code></td>
+<td class="org-left"><code>web/</code> desta branch</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>.../Mapeamento-Intersetorial/versoes/ibge_malhas/</code></td>
+<td class="org-left"><code>web/</code> da branch <code>ibge_malhas</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Funcionamento:
+</p>
+<ul class="org-ul">
+<li><b>Push na <code>main</code></b> (alterando <code>web/</code> ou o workflow): monta e publica o site.</li>
+<li><b>Push em outra branch</b>: o job <code>disparar</code> pede o deploy à <code>main</code>
+(<code>gh workflow run pages.yml --ref main</code>). É o único jeito, porque
+<code>workflow_dispatch</code> é o único evento que o <code>GITHUB_TOKEN</code> pode disparar e
+o ambiente <code>github-pages</code> não aceita deploy de outra branch.</li>
+<li>Em todo deploy, cada branch do GitHub que tenha <code>web/index.html</code> vira uma
+pasta em <code>versoes/</code> ("/" no nome da branch vira "-"). Nenhuma versão
+substitui outra.</li>
+<li>Uma versão some do site quando a branch é apagada do GitHub.</li>
+<li>As páginas usam só caminhos relativos (conferido), então funcionam dentro
+de uma subpasta.</li>
+</ul>
+
+<p>
+Pré-requisito: o novo <code>pages.yml</code> precisa estar na <code>main</code>, porque é o
+arquivo da <code>main</code> que monta o site. Até isso acontecer, o site continua
+mostrando só a <code>main</code>.
+</p>
+
+<p>
+<b>Feito em 25/10/2026:</b> como a conta usada não é administradora do
+repositório (não pode liberar outra branch no ambiente <code>github-pages</code>), a
+<code>main</code> antiga foi congelada na tag <code>main-antes-mapeamento-nacional</code> e esta
+branch foi mesclada na <code>main</code> (commit <code>34a41ee</code>). O site principal passou a
+mostrar SP, AM e PA: <a href="https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_mapa.html">https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_mapa.html</a>
+</p>
+
+<p>
+O script de montagem foi testado localmente, numa cópia do repositório:
+gerou a raiz com a <code>main</code>, <code>versoes/ibge_malhas/</code>,
+<code>versoes/mapeamento-intersetorial-nacional/</code> e a lista de versões.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org5fc0c34" class="outline-2">
+<h2 id="org5fc0c34"><span class="section-number-2">14.</span> Coordenadas do INEP (Catálogo de Escolas, via geobr)</h2>
+<div class="outline-text-2" id="text-14">
+</div>
+<div id="outline-container-org0377c64" class="outline-3">
+<h3 id="org0377c64"><span class="section-number-3">14.1.</span> Contexto</h3>
+<div class="outline-text-3" id="text-14-1">
+<p>
+Para o mapa de auditoria (um segundo mapa, só para mostrar como cada escola
+ganhou latitude/longitude), surgiu a pergunta: há escolas com coordenada
+vinda do próprio INEP?
+</p>
+
+<ul class="org-ul">
+<li><b>Na versão anterior da main</b> (tag <code>main-antes-mapeamento-nacional</code>), não.
+Conferido no código e nos dados: todos os pontos vinham do CNEFE
+(<code>alta</code>, <code>media</code>, <code>baixa</code>); <code>ambiguo</code> e <code>sem_correspondencia</code> ficavam com
+LATITUDE/LONGITUDE vazias. O único recurso fora do CNEFE era o fallback
+opcional de CEP (AwesomeAPI, status <code>aproximado_cep</code>), que nunca foi
+usado (0 escolas). Em SP: alta 15.237, media 6.565, baixa 5.522,
+ambiguo 6.201, sem<sub>correspondencia</sub> 338.</li>
+<li><b>Nos microdados do Censo Escolar</b>, também não: conferido o cabeçalho de
+2023 (408 colunas), 2024 (426) e 2025 (<code>Tabela_Escola</code>, 290). Nenhuma
+coluna de latitude/longitude.</li>
+<li><b>Mas o INEP publica as coordenadas</b>: o Catálogo de Escolas (painel do
+INEP Data) exporta latitude/longitude, e o pacote <b>geobr</b>, do Ipea,
+redistribui esse cadastro pronto (<code>read_schools</code>). O doc 06 dizia o
+contrário e foi corrigido.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org1165285" class="outline-3">
+<h3 id="org1165285"><span class="section-number-3">14.2.</span> Download</h3>
+<div class="outline-text-3" id="text-14-2">
+<p>
+Script: <code>scripts/commands/ipea_geobr_escolas__baixar_dados.py</code>, no mesmo
+padrão dos outros <code>__baixar_dados.py</code> (retoma download parcial e confere o
+tamanho; não há checksum publicado).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py        # 2023 (padrão)
+.venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py 2020 2023
+</code></pre>
+</div>
+
+<ul class="org-ul">
+<li>Origem: <code>https://www.ipea.gov.br/geobr/data_gpkg/schools/&lt;ano&gt;/schools_&lt;ano&gt;.gpkg</code>
+(anos disponíveis no metadata do geobr 1.7.0: 2020 e 2023).</li>
+<li>Destino: <code>data/ipea_geobr_escolas/schools_2023.gpkg</code> (96,5 MB, fora do
+git, no <code>.gitignore</code>).</li>
+<li>Arquivo de 2023: 212.313 escolas, SIRGAS 2000 (EPSG:4674),
+<code>date_update</code> 2024-03-22. <b>52.819 sem geometria</b> (o próprio INEP não tem
+coordenada para elas).</li>
+<li>Colunas: <code>abbrev_state</code>, <code>name_muni</code>, <code>code_school</code> (= <code>CO_ENTIDADE</code>),
+<code>name_school</code>, <code>education_level</code>, <code>admin_category</code>, <code>address</code>,
+<code>government_level</code>, <code>service_restriction</code>, <code>size</code>, <code>urban</code>,
+<code>location_type</code>, <code>date_update</code>, <code>empty_geo</code>, <code>geometry</code>.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgc70e552" class="outline-3">
+<h3 id="orgc70e552"><span class="section-number-3">14.3.</span> Primeiro cruzamento com o nosso resultado (25/10/2026)</h3>
+<div class="outline-text-3" id="text-14-3">
+<p>
+Cruzamento exato por código (<code>code_school</code> = <code>CO_ENTIDADE</code>), só com as
+escolas que têm geometria no geobr:
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-right">Total</th>
+<th scope="col" class="org-right">Com coordenada INEP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-right">300</td>
+<td class="org-right">226</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-right">604</td>
+<td class="org-right">473</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-right">1.199</td>
+<td class="org-right">861</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">sem<sub>correspondencia</sub></td>
+<td class="org-right">4.078</td>
+<td class="org-right">2.410</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-right">809</td>
+<td class="org-right">667</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-right">341</td>
+<td class="org-right">291</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-right">2.986</td>
+<td class="org-right">2.655</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">sem<sub>correspondencia</sub></td>
+<td class="org-right">7.712</td>
+<td class="org-right">5.834</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-right">15.218</td>
+<td class="org-right">13.413</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-right">380</td>
+<td class="org-right">313</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-right">2.951</td>
+<td class="org-right">2.824</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">sem<sub>correspondencia</sub></td>
+<td class="org-right">15.314</td>
+<td class="org-right">12.511</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Distância entre o ponto do CNEFE e o do INEP, nas escolas que têm os dois
+(km):
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-left">Status</th>
+<th scope="col" class="org-left">Mediana</th>
+<th scope="col" class="org-left">P90</th>
+<th scope="col" class="org-left">Máximo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">0,39</td>
+<td class="org-left">171,6</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">0,83</td>
+<td class="org-left">177,8</td>
+</tr>
+
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">1,32</td>
+<td class="org-left">186,7</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">0,57</td>
+<td class="org-left">155,3</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">0,36</td>
+<td class="org-left">362,0</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-left">0,02</td>
+<td class="org-left">0,16</td>
+<td class="org-left">345,6</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">cep<sub>numero</sub></td>
+<td class="org-left">0,03</td>
+<td class="org-left">0,08</td>
+<td class="org-left">28,2</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">nome<sub>exato</sub></td>
+<td class="org-left">0,03</td>
+<td class="org-left">0,26</td>
+<td class="org-left">17,0</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">nome<sub>ajustado</sub></td>
+<td class="org-left">0,03</td>
+<td class="org-left">0,08</td>
+<td class="org-left">26,3</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li>Na maioria dos casos, CNEFE e INEP concordam em poucas dezenas de metros,
+inclusive no estágio 2b (nome ajustado) - boa notícia para a lógica de
+casamento.</li>
+<li>No Norte há uma cauda de pontos a mais de 100 km: ou o casamento errou,
+ou a coordenada do INEP está errada. São os casos a examinar primeiro no
+mapa de auditoria.</li>
+<li>O INEP cobre boa parte de quem ficou sem correspondência no CNEFE
+(AM 2.410 de 4.078; PA 5.834 de 7.712; SP 12.511 de 15.314).</li>
+<li>Atenção à safra: o cadastro é de 2023 e o nosso Censo Escolar é 2024.
+Escolas novas em 2024 não estão nele.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org50064b0" class="outline-2">
+<h2 id="org50064b0"><span class="section-number-2">15.</span> Mapa de auditoria do georreferenciamento</h2>
+<div class="outline-text-2" id="text-15">
+</div>
+<div id="outline-container-org45f35a7" class="outline-3">
+<h3 id="org45f35a7"><span class="section-number-3">15.1.</span> Objetivo</h3>
+<div class="outline-text-3" id="text-15-1">
+<p>
+Dois mapas, com públicos diferentes:
+</p>
+
+<ul class="org-ul">
+<li><code>web/escolas_mapa.html</code> - mapa do usuário final (sem mudanças).</li>
+<li><code>web/escolas_auditoria.html</code> - mapa de auditoria: mostra <b>de onde veio a
+coordenada</b> de cada escola e destaca os casos a conferir. Link no card da
+página inicial e no cabeçalho do próprio mapa.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org3114eb9" class="outline-3">
+<h3 id="org3114eb9"><span class="section-number-3">15.2.</span> Origem da coordenada (cores)</h3>
+<div class="outline-text-3" id="text-15-2">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Origem</th>
+<th scope="col" class="org-left">Nível</th>
+<th scope="col" class="org-left">Como</th>
+<th scope="col" class="org-left">Cor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>cep_numero</code></td>
+<td class="org-left">1</td>
+<td class="org-left">CNEFE, mesmo CEP + número</td>
+<td class="org-left">verde</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_exato</code></td>
+<td class="org-left">2a</td>
+<td class="org-left">CNEFE, mesmo nome + município</td>
+<td class="org-left">azul</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>nome_ajustado</code></td>
+<td class="org-left">2b</td>
+<td class="org-left">CNEFE, mesmo núcleo do nome + município</td>
+<td class="org-left">amarelo</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>inep</code></td>
+<td class="org-left">-</td>
+<td class="org-left">sem correspondência no CNEFE; Catálogo de Escolas do</td>
+<td class="org-left">roxo</td>
+</tr>
+
+<tr>
+<td class="org-left">&nbsp;</td>
+<td class="org-left">&nbsp;</td>
+<td class="org-left">INEP (cadastro 2023, geobr)</td>
+<td class="org-left">&nbsp;</td>
+</tr>
+
+<tr>
+<td class="org-left">sem ponto</td>
+<td class="org-left">-</td>
+<td class="org-left">sem correspondência e sem coordenada no INEP: só</td>
+<td class="org-left">-</td>
+</tr>
+
+<tr>
+<td class="org-left">&nbsp;</td>
+<td class="org-left">&nbsp;</td>
+<td class="org-left">contagem</td>
+<td class="org-left">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Regra: a coordenada do CNEFE tem prioridade; a do INEP só entra para quem
+ficou sem correspondência. Quando a escola tem os dois pontos, o do INEP
+fica guardado para comparação.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb303608" class="outline-3">
+<h3 id="orgb303608"><span class="section-number-3">15.3.</span> Casos a conferir</h3>
+<div class="outline-text-3" id="text-15-3">
+<ul class="org-ul">
+<li><b>Fora do município declarado</b>: distância (km) do ponto ao polígono do
+município declarado no Censo Escolar (<code>CO_MUNICIPIO</code>), usando a malha
+municipal do IBGE 2024 em <b>resolução máxima</b>
+(<code>data/ibge_malha_municipal/zipfiles/BR_Municipios_2024.zip</code>) e projeção
+SIRGAS 2000 / Brazil Polyconic (EPSG:5880). Contorno vermelho no mapa.
+Também mostra em qual município o ponto realmente caiu.</li>
+<li><b>Distância CNEFE × INEP</b>: para escolas com os dois pontos. Filtro "a mais
+de N km".</li>
+<li><b>Lista dos casos</b>: ordenada pela maior das duas distâncias; clicar
+enquadra a escola, a linha tracejada até o ponto do INEP e o contorno do
+município declarado.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgcb6e6f9" class="outline-3">
+<h3 id="orgcb6e6f9"><span class="section-number-3">15.4.</span> Arquivos</h3>
+<div class="outline-text-3" id="text-15-4">
+<ul class="org-ul">
+<li>Gerador: <code>scripts/commands/escolas_mapa__gerar_dados_auditoria.py</code> (lê
+<code>data/auditoria/escolas_inep_x_cnefe_2024.csv</code>, o GeoPackage do geobr e a
+malha municipal).</li>
+<li>Saída: <code>web/data/auditoria/auditoria_&lt;UF&gt;_2024.json</code> (AM 1,1 MB, PA
+2,3 MB, SP 7,9 MB) e <code>indice.json</code>.</li>
+<li>Página: <code>web/escolas_auditoria.html</code>, <code>web/js/escolas_auditoria.js</code>,
+<code>web/css/escolas_auditoria.css</code>. Pontos em canvas, sem cluster (41 mil
+pontos com as três UFs, redesenho em ~0,3 s).</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py
+.venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+</code></pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org977feae" class="outline-3">
+<h3 id="org977feae"><span class="section-number-3">15.5.</span> Publicação</h3>
+<div class="outline-text-3" id="text-15-5">
+<ul class="org-ul">
+<li>Versão da branch (26/10/2026, commit <code>7cf2925</code>):
+<a href="https://claudiadaros75.github.io/Mapeamento-Intersetorial/versoes/mapeamento-intersetorial-nacional/escolas_auditoria.html">https://claudiadaros75.github.io/Mapeamento-Intersetorial/versoes/mapeamento-intersetorial-nacional/escolas_auditoria.html</a></li>
+<li>Site principal, depois do merge na <code>main</code> (26/10/2026):
+<a href="https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_auditoria.html">https://claudiadaros75.github.io/Mapeamento-Intersetorial/escolas_auditoria.html</a></li>
+<li>Testado no navegador (local): seleção de escola, linha CNEFE × INEP,
+contorno do município declarado, filtros e lista; e conferido no ar por
+requisição direta (página, script e dados com HTTP 200).</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org519924a" class="outline-3">
+<h3 id="org519924a"><span class="section-number-3">15.6.</span> Resultados (25/10/2026)</h3>
+<div class="outline-text-3" id="text-15-6">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-right">Escolas</th>
+<th scope="col" class="org-right">Nível 1</th>
+<th scope="col" class="org-right">2a</th>
+<th scope="col" class="org-right">2b</th>
+<th scope="col" class="org-right">INEP</th>
+<th scope="col" class="org-right">Sem ponto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-right">6.181</td>
+<td class="org-right">300</td>
+<td class="org-right">604</td>
+<td class="org-right">1.199</td>
+<td class="org-right">2.410</td>
+<td class="org-right">1.668</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-right">11.848</td>
+<td class="org-right">809</td>
+<td class="org-right">341</td>
+<td class="org-right">2.986</td>
+<td class="org-right">5.834</td>
+<td class="org-right">1.878</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-right">33.863</td>
+<td class="org-right">15.218</td>
+<td class="org-right">380</td>
+<td class="org-right">2.951</td>
+<td class="org-right">12.511</td>
+<td class="org-right">2.803</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Com a coordenada do INEP, as escolas sem ponto caem de 4.078 para 1.668
+(AM), de 7.712 para 1.878 (PA) e de 15.314 para 2.803 (SP).
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">UF</th>
+<th scope="col" class="org-left">Fora do município</th>
+<th scope="col" class="org-left">Maior distância</th>
+<th scope="col" class="org-right">CNEFE e INEP</th>
+<th scope="col" class="org-right">&gt; 1 km</th>
+<th scope="col" class="org-right">&gt; 10 km</th>
+<th scope="col" class="org-right">&gt; 50 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">AM</td>
+<td class="org-left">28 (27 INEP, 1 2b)</td>
+<td class="org-left">1,16 km</td>
+<td class="org-right">1.560</td>
+<td class="org-right">156</td>
+<td class="org-right">104</td>
+<td class="org-right">42</td>
+</tr>
+
+<tr>
+<td class="org-left">PA</td>
+<td class="org-left">71 (63 INEP, 7 2b, 1 2a)</td>
+<td class="org-left">0,57 km</td>
+<td class="org-right">3.613</td>
+<td class="org-right">253</td>
+<td class="org-right">121</td>
+<td class="org-right">29</td>
+</tr>
+
+<tr>
+<td class="org-left">SP</td>
+<td class="org-left">36 (30 INEP, 6 nível 1)</td>
+<td class="org-left">0,22 km</td>
+<td class="org-right">16.550</td>
+<td class="org-right">261</td>
+<td class="org-right">25</td>
+<td class="org-right">0</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Leitura:
+</p>
+<ul class="org-ul">
+<li>Com a malha em resolução máxima, <b>nenhum ponto cai longe do município
+declarado</b>: todos os casos estão a menos de 1,2 km da divisa (escolas de
+beira de rio ou de divisa). Os pontos a 1-22 km da "Verificação
+geográfica" anterior eram efeito da malha simplificada.</li>
+<li>O que pede conferência no Norte é a <b>distância CNEFE × INEP</b>: 42 escolas
+no AM e 29 no PA a mais de 50 km (máximo 187 km em Humaitá/AM). Nesses
+casos o casamento pegou o ponto errado, ou o INEP está errado - o mapa
+mostra os dois pontos para decidir.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="outline-container-org978d045" class="outline-2">
+<h2 id="org978d045"><span class="section-number-2">16.</span> Próximos passos</h2>
+<div class="outline-text-2" id="text-16">
+<ol class="org-ol">
+<li>Conferir no mapa de auditoria as escolas com CNEFE × INEP a mais de
+50 km (AM 42, PA 29) e decidir se a coordenada do INEP também entra no
+mapa do usuário final.</li>
+<li>Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
+palavra e pelos alertas.</li>
+<li>Analisar o motivo <code>nome_nao_encontrado</code> (maior grupo sem coordenada):
+quanto é escola paralisada/extinta, quanto é diferença de nome que a
+normalização ainda não cobre, quanto é escola que não está no CNEFE.</li>
+<li>Próximos estágios, a conversar: casamento por <b>localidade</b> (comunidade,
+aldeia, rio, lago, ramal) para o Norte, comparando
+<code>DS_ENDERECO</code> / <code>DS_COMPLEMENTO</code> / <code>NO_BAIRRO</code> do INEP com
+<code>DSC_LOCALIDADE</code> / <code>NOM_SEGLOGR</code> do CNEFE.</li>
+<li>Confirmar nos dicionários oficiais: <code>TP_LOCALIZACAO_DIFERENCIADA</code> (INEP),
+<code>NV_GEO_COORD</code> e <code>COD_ESPECIE</code> (CNEFE).</li>
+<li>Atualizar docs 06 e 07, que ainda descrevem as camadas antigas.</li>
+<li>Depois de estabilizar AM e PA, expandir para outras UFs.</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+
+</div>
+<footer class="footer">
+  <p>Projeto de Georreferenciamento &bull; Malhas do IBGE 2024 &bull; <a href="../index.html">Voltar ao Portal</a></p>
+</footer>
+</div>
+</body>
+</html>

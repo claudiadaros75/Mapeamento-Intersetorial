@@ -38,9 +38,13 @@ echo "Utilizando: ${EMACS_VERSION}"
 echo ""
 
 # Script Elisp para exportação customizada com visual moderno
+# As expressoes sao executadas dentro de um progn: sozinho, --eval so roda a primeira.
 ELISP_EXPORT_CONFIG=$(cat << 'EOF'
 (require 'org)
 (require 'ox-html)
+
+;; Titulo do sumario em portugues: #+LANGUAGE: pt-br nao esta no dicionario do Org
+(push '("pt-br" :default "Sumário") (cdr (assoc "Table of Contents" org-export-dictionary)))
 
 ;; Configurações de exportação HTML do Org-mode
 (setq org-html-htmlize-output-type nil)
@@ -81,7 +85,18 @@ EOF
 
 # Exporta cada arquivo .org de docs/
 COUNT=0
-for org_file in "${DOCS_SRC_DIR}"/*.org; do
+# Sem argumentos, exporta todos os docs e o README. Com argumentos, so os nomes
+# dados (ex.: 10-mapa-nacional-censo-cnefe.org), sem tocar nos demais HTMLs.
+if [ $# -gt 0 ]; then
+    ORG_FILES=()
+    for nome in "$@"; do
+        ORG_FILES+=("${DOCS_SRC_DIR}/${nome}")
+    done
+else
+    ORG_FILES=("${DOCS_SRC_DIR}"/*.org)
+fi
+
+for org_file in "${ORG_FILES[@]}"; do
     if [ -f "${org_file}" ]; then
         filename=$(basename "${org_file}")
         basename_no_ext="${filename%.*}"
@@ -90,7 +105,7 @@ for org_file in "${DOCS_SRC_DIR}"/*.org; do
         echo "  📄 Exportando: docs/${filename} -> web/docs/${basename_no_ext}.html"
 
         emacs -Q --batch \
-            --eval "${ELISP_EXPORT_CONFIG}" \
+            --eval "(progn ${ELISP_EXPORT_CONFIG})" \
             --visit "${org_file}" \
             --eval "(org-html-export-to-html)" \
             2>&1 | sed 's/^/     /'
@@ -105,10 +120,10 @@ for org_file in "${DOCS_SRC_DIR}"/*.org; do
 done
 
 # Exporta também o README.org principal para web/docs/README.html
-if [ -f "${ROOT_DIR}/README.org" ]; then
+if [ $# -eq 0 ] && [ -f "${ROOT_DIR}/README.org" ]; then
     echo "  📄 Exportando: README.org -> web/docs/README.html"
     emacs -Q --batch \
-        --eval "${ELISP_EXPORT_CONFIG}" \
+        --eval "(progn ${ELISP_EXPORT_CONFIG})" \
         --visit "${ROOT_DIR}/README.org" \
         --eval "(org-html-export-to-html)" \
         2>&1 | sed 's/^/     /'

@@ -1,0 +1,125 @@
+#+TITLE: Censo Escolar e CNEFE: o que cada base é e como compará-las
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t ^:{}
+#+STARTUP: overview
+
+* Resumo
+
+- O *Censo Escolar* (INEP) lista escolas como unidades administrativas, a partir do que elas mesmas declaram todo ano.
+- O *CNEFE* (IBGE) lista endereços percorridos por recenseadores em 2022. Um deles pode ser classificado como estabelecimento de ensino.
+- As duas bases respondem a perguntas diferentes, então *seus totais não devem coincidir*: não há como tratar uma delas como erro da outra só por isso.
+- A nossa cópia do *Catálogo de Escolas* corresponde ao *Censo Escolar 2024*, não ao de 2025 (seção [[*De qual censo é o Catálogo de Escolas?][abaixo]]).
+
+* De qual censo é o Catálogo de Escolas?
+
+O Catálogo de Escolas é um serviço do INEP que reúne endereço, telefone e informações gerais das escolas de educação básica. A [[https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas][página oficial]] diz que os dados são atualizados todo ano com base no Censo Escolar, mas não informa o ano de referência. A página foi atualizada pela última vez em 15/07/2026.
+
+Como o arquivo também não traz o ano, medimos: cruzamos os 212.386 códigos INEP da nossa cópia (=catalogo-escolas-unificado.csv=) com os microdados de cada censo.
+
+|  Censo | Escolas no censo | Também no catálogo | Só no catálogo | Só no censo                     |
+|--------+------------------+--------------------+----------------+---------------------------------|
+|   2023 |          217.625 |            207.670 |          4.716 | 9.955                           |
+| *2024* |        *215.545* |          *212.386* |            *0* | *3.159, todas extintas*         |
+|   2025 |          214.192 |            209.207 |          3.179 | 4.985, sendo 3.737 em atividade |
+
+A situação de funcionamento confirma o resultado de 2024:
+
+| Situação         | Catálogo | Censo 2024 |
+|------------------+----------+------------|
+| Em funcionamento |  181.065 |    181.065 |
+| Paralisada       |   31.321 |     31.321 |
+| Extinta          |        0 |      3.159 |
+
+*Conclusão:* a nossa cópia é o Censo Escolar 2024 sem as escolas extintas.
+
+*O que não sabemos:*
+- Se o catálogo on-line já passou para o Censo 2025. A atualização da página em julho de 2026 torna isso possível, mas não testamos.
+- A data exata em que a nossa cópia foi exportada. Ela veio de uma pasta do Google Drive, não diretamente do INEP.
+
+** Por que não usar direto o Censo 2025?
+
+Os microdados de 2025 (=Tabela_Escola_2025_V2.csv=) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo. Atualizar o mapa exige uma nova exportação do catálogo.
+
+** Outra safra no projeto
+
+O doc [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08]] usa o cadastro de 2023 redistribuído pelo pacote geobr, do Ipea. Ele vem da mesma fonte, mas é de outro ano, e por isso os números dos dois trabalhos não se comparam diretamente.
+
+* Comparação teórica entre as bases
+
+| Dimensão                | Censo Escolar (INEP)                                         | CNEFE (IBGE)                                                      |
+|-------------------------+--------------------------------------------------------------+-------------------------------------------------------------------|
+| Finalidade              | Estatística educacional                                      | Cadastro de endereços para operações estatísticas                 |
+| O que é um registro     | Uma escola                                                   | Uma espécie de endereço existente em um endereço                  |
+| Quem informa            | A própria escola ou rede, pelo sistema Educacenso            | O recenseador, em campo                                           |
+| Tipo de dado            | Declaratório, com base em documentos administrativos         | Observação em campo, com classificação da finalidade do endereço  |
+| Referência no tempo     | Última quarta-feira de maio, todo ano                        | Coleta do Censo Demográfico 2022                                  |
+| Identificador           | Código INEP, estável entre os anos                           | =COD_UNICO_ENDERECO=                                              |
+| O que conta como escola | Escolas de educação básica no escopo do censo                | Qualquer endereço classificado como =COD_ESPECIE = 4=             |
+| Nome                    | Nome cadastrado da escola                                    | =DSC_ESTABELECIMENTO=, a identificação do estabelecimento         |
+| Situação                | Em atividade, paralisada ou extinta                          | Não há campo de situação no dicionário                            |
+| Coordenada              | Publicada no catálogo, sem a coordenada em 25,5% das escolas | Presente em todos os registros, com nível de geocodificação       |
+| Precisão documentada    | Não encontramos                                              | EQM de 5,84 m em situação ideal, até 11,71 m em condições normais |
+
+** Como cada coordenada nasce
+
+- *CNEFE:* o aplicativo de coleta previa três tentativas obrigatórias de capturar a posição por GNSS, antes de o recenseador classificar o endereço. Em condições adversas, como áreas muito verticalizadas, o erro pode passar de 11,71 m ([[https://biblioteca.ibge.gov.br/visualizacao/livros/liv102063.pdf][Nota metodológica n. 01]]).
+- *Censo Escolar:* segundo o doc [[file:06-georeferenciamento-escolas.org][06]], o INEP coleta a localização desde 2018, por um aplicativo em que a escola é posicionada no mapa. Não encontramos a precisão dessa coleta documentada.
+
+** Qualidade das coordenadas do CNEFE nos registros de ensino
+
+Medido nos nossos 264.445 registros, com as categorias do dicionário oficial:
+
+| =NV_GEO_COORD= | Significado                          | Registros |
+|----------------+--------------------------------------+-----------|
+|              1 | Coordenada original do Censo 2022    |   262.738 |
+|              2 | Coordenada modificada (apartamentos) |       188 |
+|              3 | Coordenada estimada                  |       397 |
+|              4 | Face de quadra                       |       988 |
+|              5 | Localidade                           |        54 |
+|              6 | Setor censitário                     |        80 |
+
+Ou seja, 99,4% têm a coordenada original. O restante é uma posição aproximada, o que importa ao interpretar distâncias grandes nesses casos.
+
+* Por que os totais não coincidem
+
+Temos 212.386 escolas no catálogo e 264.445 estabelecimentos de ensino no CNEFE. Estas são as explicações mais prováveis. São hipóteses que decorrem da definição das bases, e não medimos o peso de cada uma:
+
+- *Unidades diferentes:* uma escola pode funcionar em mais de um prédio, e um prédio pode abrigar mais de uma escola.
+- *Escopos diferentes:* no CNEFE, o que define o registro é a classificação do endereço. Encontramos nele faculdades, autoescolas e até registros como =IGREJA CATOLICA=.
+- *Dois anos de distância:* entre 2022 e 2024, escolas abriram, fecharam e mudaram de endereço.
+- *Situação:* o catálogo inclui 31.321 escolas paralisadas, que um recenseador pode não ter identificado como escola em 2022.
+- *Identificação fraca:* o nome no CNEFE às vezes é genérico (=ESCOLA=, =CRECHE=), o que dificulta o pareamento, mas não reduz o total.
+
+* O que o cruzamento mostrou
+
+O pareamento (doc [[file:10-mapa-nacional-censo-cnefe.org][10]]) encontrou par para 130.694 escolas (61,5%). Entre os 107.950 pares em que as duas coordenadas existem, a distância mediana é de 24 m, e 78,3% ficam a menos de 50 m.
+
+*O que isso permite dizer:* na maior parte dos pares, as duas bases apontam para o mesmo lugar, com diferença de poucas dezenas de metros.
+
+*O que isso não permite dizer:*
+- Qual coordenada está certa. Não temos uma medição de referência independente.
+- Que as 74.474 escolas sem par não existem no CNEFE. Elas podem estar lá sob nome ou endereço que o método não reconheceu.
+- Que a precisão geral é de 24 m. A medida só vale para pares encontrados, e os níveis por nome podem ter critérios que favorecem certos casos.
+
+* Como ler o mapa nacional
+
+O [[../escolas_brasil_censo_cnefe.html][mapa nacional]] mostra as duas bases sobrepostas, sem filtrar pelos pares:
+
+| Camada                                 |   Pontos | Origem da posição                  |
+|----------------------------------------+----------+------------------------------------|
+| Censo Escolar, coordenada do INEP      |  158.182 | Catálogo de Escolas                |
+| Censo Escolar, posição do par no CNEFE |   22.744 | Registro do CNEFE pareado          |
+| CNEFE, estabelecimentos de ensino      |  264.445 | CNEFE                              |
+| /Fora do mapa: sem nenhuma coordenada/ | /31.460/ | /Sem coordenada no INEP e sem par/ |
+
+Portanto, *nem todas as escolas do Censo aparecem*: 31.460 (14,8%) não têm posição conhecida. O número está na própria página para não dar a impressão de que o mapa está completo.
+
+* Fontes
+
+- INEP, [[https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas][Catálogo de Escolas]].
+- INEP, [[https://www.gov.br/inep/pt-br/acesso-a-informacao/perguntas-frequentes/censo-escolar][Censo Escolar: perguntas frequentes]] (data de referência e sistema Educacenso).
+- INEP, [[https://www.gov.br/inep/pt-br/centrais-de-conteudo/acervo-linha-editorial/publicacoes-institucionais/estatisticas-e-indicadores-educacionais/censo-escolar-da-educacao-basica-2025-notas-estatisticas][Censo Escolar 2025: notas estatísticas]] (caráter declaratório).
+- IBGE, [[https://biblioteca.ibge.gov.br/visualizacao/livros/liv102063.pdf][Censo Demográfico 2022: Coordenadas Geográficas dos Endereços, Nota metodológica n. 01]], 2024.
+- IBGE, [[https://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/CSV/Dicionario_CNEFE_Censo_2022.xls][Dicionário do CNEFE 2022]], que confirma =COD_ESPECIE = 4= como estabelecimento de ensino.
+- Microdados do Censo Escolar 2023, 2024 e 2025 e registros do CNEFE, processados neste projeto em 08/11/2026.
