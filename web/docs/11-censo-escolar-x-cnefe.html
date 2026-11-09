@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 22:37 -->
+<!-- 2026-11-08 dom 23:32 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Censo Escolar e CNEFE: o que cada base é e como compará-las</title>
@@ -30,48 +30,48 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7b87dc9">1. Resumo</a></li>
-<li><a href="#org94d6d72">2. De qual censo é o Catálogo de Escolas?</a>
+<li><a href="#orgf40100a">1. Resumo</a></li>
+<li><a href="#orgcdfe9ba">2. De qual censo é o Catálogo de Escolas?</a>
 <ul>
-<li><a href="#org9434135">2.1. Por que não usar direto o Censo 2025?</a></li>
-<li><a href="#orgb7a2861">2.2. Outra safra no projeto</a></li>
+<li><a href="#orgf21423c">2.1. Por que não usar direto o Censo 2025?</a></li>
+<li><a href="#orgcc5df68">2.2. Outra safra no projeto</a></li>
 </ul>
 </li>
-<li><a href="#orgd979c43">3. Censo 2025: quais escolas ficam sem coordenada?</a>
+<li><a href="#org9e626c8">3. Censo 2025: quais escolas ficam sem coordenada?</a>
 <ul>
-<li><a href="#org5ddffb7">3.1. Quem são essas escolas</a></li>
-<li><a href="#org3daacb6">3.2. Por UF</a></li>
-<li><a href="#org94231b5">3.3. O CNEFE ajuda, mas não substitui</a></li>
-<li><a href="#orgcb028d2">3.4. Um registro incompleto</a></li>
+<li><a href="#org848ec4f">3.1. Quem são essas escolas</a></li>
+<li><a href="#org72e9e61">3.2. Por UF</a></li>
+<li><a href="#org6edacc3">3.3. O CNEFE ajuda, mas não substitui</a></li>
+<li><a href="#org8260e82">3.4. Um registro incompleto</a></li>
 </ul>
 </li>
-<li><a href="#org41caf55">4. Comparação teórica entre as bases</a>
+<li><a href="#org4b2db2e">4. Comparação teórica entre as bases</a>
 <ul>
-<li><a href="#orgec7f378">4.1. Como cada coordenada nasce</a></li>
-<li><a href="#org926a372">4.2. Qualidade das coordenadas do CNEFE nos registros de ensino</a></li>
+<li><a href="#orga6240d8">4.1. Como cada coordenada nasce</a></li>
+<li><a href="#org90c0ffe">4.2. Qualidade das coordenadas do CNEFE nos registros de ensino</a></li>
 </ul>
 </li>
-<li><a href="#orgd5ee1f6">5. Por que os totais não coincidem</a></li>
-<li><a href="#org79f3967">6. O que o cruzamento mostrou</a></li>
-<li><a href="#orgefce4a6">7. Como ler o mapa nacional</a></li>
-<li><a href="#org968ca86">8. Fontes</a></li>
+<li><a href="#orgc267434">5. Por que os totais não coincidem</a></li>
+<li><a href="#org8de7027">6. O que o cruzamento mostrou</a></li>
+<li><a href="#org8784b19">7. Como ler o mapa nacional</a></li>
+<li><a href="#orgdda7a8a">8. Fontes</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org7b87dc9" class="outline-2">
-<h2 id="org7b87dc9"><span class="section-number-2">1.</span> Resumo</h2>
+<div id="outline-container-orgf40100a" class="outline-2">
+<h2 id="orgf40100a"><span class="section-number-2">1.</span> Resumo</h2>
 <div class="outline-text-2" id="text-1">
 <ul class="org-ul">
 <li>O <b>Censo Escolar</b> (INEP) lista escolas como unidades administrativas, a partir do que elas mesmas declaram todo ano.</li>
 <li>O <b>CNEFE</b> (IBGE) lista endereços percorridos por recenseadores em 2022. Um deles pode ser classificado como estabelecimento de ensino.</li>
 <li>As duas bases respondem a perguntas diferentes, então <b>seus totais não devem coincidir</b>: não há como tratar uma delas como erro da outra só por isso.</li>
-<li>A nossa cópia do <b>Catálogo de Escolas</b> corresponde ao <b>Censo Escolar 2024</b>, não ao de 2025 (seção <a href="#org94d6d72">abaixo</a>).</li>
-<li>Das 214.192 escolas do <b>Censo 2025</b>, 57.376 (26,8%) não têm coordenada do INEP na nossa cópia do catálogo (<a href="#orgd979c43">detalhes</a>).</li>
+<li>A nossa cópia do <b>Catálogo de Escolas</b> corresponde ao <b>Censo Escolar 2024</b>, não ao de 2025 (seção <a href="#orgcdfe9ba">abaixo</a>).</li>
+<li>Das 214.192 escolas do <b>Censo 2025</b>, 57.376 (26,8%) não têm coordenada do INEP na nossa cópia do catálogo (<a href="#org9e626c8">detalhes</a>).</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org94d6d72" class="outline-2">
-<h2 id="org94d6d72"><span class="section-number-2">2.</span> De qual censo é o Catálogo de Escolas?</h2>
+<div id="outline-container-orgcdfe9ba" class="outline-2">
+<h2 id="orgcdfe9ba"><span class="section-number-2">2.</span> De qual censo é o Catálogo de Escolas?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 O Catálogo de Escolas é um serviço do INEP que reúne endereço, telefone e informações gerais das escolas de educação básica. A <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">página oficial</a> diz que os dados são atualizados todo ano com base no Censo Escolar, mas não informa o ano de referência. A página foi atualizada pela última vez em 15/07/2026.
@@ -178,23 +178,19 @@ A situação de funcionamento confirma o resultado de 2024:
 </p>
 
 <p>
-<b>O que não sabemos:</b>
+<b>Sobre a data da exportação:</b> segundo a informação do projeto, ela é recente, e o arquivo no Drive foi modificado em 07/11/2026. Como o conteúdo corresponde ao Censo 2024, o mais provável é que o próprio catálogo ainda não tenha incorporado o Censo 2025. Não consultamos o painel do INEP para confirmar, e o arquivo não traz a data da exportação.
 </p>
-<ul class="org-ul">
-<li>Se o catálogo on-line já passou para o Censo 2025. A atualização da página em julho de 2026 torna isso possível, mas não testamos.</li>
-<li>A data exata em que a nossa cópia foi exportada. Ela veio de uma pasta do Google Drive, não diretamente do INEP.</li>
-</ul>
 </div>
-<div id="outline-container-org9434135" class="outline-3">
-<h3 id="org9434135"><span class="section-number-3">2.1.</span> Por que não usar direto o Censo 2025?</h3>
+<div id="outline-container-orgf21423c" class="outline-3">
+<h3 id="orgf21423c"><span class="section-number-3">2.1.</span> Por que não usar direto o Censo 2025?</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
-Os microdados de 2025 (<code>Tabela_Escola_2025_V2.csv</code>) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo. Atualizar o mapa exige uma nova exportação do catálogo.
+Os microdados de 2025 (<code>Tabela_Escola_2025_V2.csv</code>) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem sozinhos para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo, então dependem do CNEFE (ver o <a href="12-censo-2025-georreferenciado.html">doc 12</a>).
 </p>
 </div>
 </div>
-<div id="outline-container-orgb7a2861" class="outline-3">
-<h3 id="orgb7a2861"><span class="section-number-3">2.2.</span> Outra safra no projeto</h3>
+<div id="outline-container-orgcc5df68" class="outline-3">
+<h3 id="orgcc5df68"><span class="section-number-3">2.2.</span> Outra safra no projeto</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 O doc <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08</a> usa o cadastro de 2023 redistribuído pelo pacote geobr, do Ipea. Ele vem da mesma fonte, mas é de outro ano, e por isso os números dos dois trabalhos não se comparam diretamente.
@@ -202,8 +198,8 @@ O doc <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08</
 </div>
 </div>
 </div>
-<div id="outline-container-orgd979c43" class="outline-2">
-<h2 id="orgd979c43"><span class="section-number-2">3.</span> Censo 2025: quais escolas ficam sem coordenada?</h2>
+<div id="outline-container-org9e626c8" class="outline-2">
+<h2 id="org9e626c8"><span class="section-number-2">3.</span> Censo 2025: quais escolas ficam sem coordenada?</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 <b>Sim, muitas.</b> Das 214.192 escolas do Censo 2025, <b>57.376 (26,8%)</b> não têm coordenada do INEP na nossa cópia do catálogo. Os microdados de 2024 e 2025 não têm coordenada, então o catálogo é a única fonte do próprio INEP.
@@ -254,11 +250,11 @@ O doc <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08</
 </table>
 
 <p>
-<b>Atenção à safra:</b> este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391. Só uma exportação nova do catálogo fecha a resposta.
+<b>Atenção à safra:</b> este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391, quando o catálogo incorporar o Censo 2025.
 </p>
 </div>
-<div id="outline-container-org5ddffb7" class="outline-3">
-<h3 id="org5ddffb7"><span class="section-number-3">3.1.</span> Quem são essas escolas</h3>
+<div id="outline-container-org848ec4f" class="outline-3">
+<h3 id="org848ec4f"><span class="section-number-3">3.1.</span> Quem são essas escolas</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% das 180.540 em atividade em 2025.
@@ -397,8 +393,8 @@ Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% 
 </table>
 </div>
 </div>
-<div id="outline-container-org3daacb6" class="outline-3">
-<h3 id="org3daacb6"><span class="section-number-3">3.2.</span> Por UF</h3>
+<div id="outline-container-org72e9e61" class="outline-3">
+<h3 id="org72e9e61"><span class="section-number-3">3.2.</span> Por UF</h3>
 <div class="outline-text-3" id="text-3-2">
 <table>
 
@@ -673,20 +669,20 @@ Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% 
 </table>
 </div>
 </div>
-<div id="outline-container-org94231b5" class="outline-3">
-<h3 id="org94231b5"><span class="section-number-3">3.3.</span> O CNEFE ajuda, mas não substitui</h3>
+<div id="outline-container-org6edacc3" class="outline-3">
+<h3 id="org6edacc3"><span class="section-number-3">3.3.</span> O CNEFE ajuda, mas não substitui</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 Das 57.376 escolas, 21.956 têm um par no CNEFE, que oferece uma posição, mas não uma coordenada do INEP. Sobram <b>35.420 escolas sem nenhuma posição conhecida</b>, das quais 17.446 em atividade.
 </p>
 
 <p>
-O par foi calculado com os endereços do catálogo, então as 4.985 escolas fora da cópia ainda não têm como ter par. Parear essas escolas exigiria um endereço que os microdados de 2025 não trazem.
+Esse par foi calculado com os endereços do catálogo, então não inclui as 4.985 escolas fora da cópia. O <a href="12-censo-2025-georreferenciado.html">doc 12</a> aplica a elas as regras do CNEFE e leva o total sem localização para 34.618.
 </p>
 </div>
 </div>
-<div id="outline-container-orgcb028d2" class="outline-3">
-<h3 id="orgcb028d2"><span class="section-number-3">3.4.</span> Um registro incompleto</h3>
+<div id="outline-container-org8260e82" class="outline-3">
+<h3 id="org8260e82"><span class="section-number-3">3.4.</span> Um registro incompleto</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
 A escola <code>43145833</code> vem sem <code>SG_UF</code> e sem nome de município nos microdados de 2025, embora tenha 237 colunas preenchidas. O script recupera a UF (RS) pelo código do município, em vez de descartá-la.
@@ -698,8 +694,8 @@ Para refazer os números: <code>.venv/bin/python scripts/commands/censo_escolar_
 </div>
 </div>
 </div>
-<div id="outline-container-org41caf55" class="outline-2">
-<h2 id="org41caf55"><span class="section-number-2">4.</span> Comparação teórica entre as bases</h2>
+<div id="outline-container-org4b2db2e" class="outline-2">
+<h2 id="org4b2db2e"><span class="section-number-2">4.</span> Comparação teórica entre as bases</h2>
 <div class="outline-text-2" id="text-4">
 <table>
 
@@ -787,8 +783,8 @@ Para refazer os números: <code>.venv/bin/python scripts/commands/censo_escolar_
 </tbody>
 </table>
 </div>
-<div id="outline-container-orgec7f378" class="outline-3">
-<h3 id="orgec7f378"><span class="section-number-3">4.1.</span> Como cada coordenada nasce</h3>
+<div id="outline-container-orga6240d8" class="outline-3">
+<h3 id="orga6240d8"><span class="section-number-3">4.1.</span> Como cada coordenada nasce</h3>
 <div class="outline-text-3" id="text-4-1">
 <ul class="org-ul">
 <li><b>CNEFE:</b> o aplicativo de coleta previa três tentativas obrigatórias de capturar a posição por GNSS, antes de o recenseador classificar o endereço. Em condições adversas, como áreas muito verticalizadas, o erro pode passar de 11,71 m (<a href="https://biblioteca.ibge.gov.br/visualizacao/livros/liv102063.pdf">Nota metodológica n. 01</a>).</li>
@@ -796,8 +792,8 @@ Para refazer os números: <code>.venv/bin/python scripts/commands/censo_escolar_
 </ul>
 </div>
 </div>
-<div id="outline-container-org926a372" class="outline-3">
-<h3 id="org926a372"><span class="section-number-3">4.2.</span> Qualidade das coordenadas do CNEFE nos registros de ensino</h3>
+<div id="outline-container-org90c0ffe" class="outline-3">
+<h3 id="org90c0ffe"><span class="section-number-3">4.2.</span> Qualidade das coordenadas do CNEFE nos registros de ensino</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 Medido nos nossos 264.445 registros, com as categorias do dicionário oficial:
@@ -865,8 +861,8 @@ Ou seja, 99,4% têm a coordenada original. O restante é uma posição aproximad
 </div>
 </div>
 </div>
-<div id="outline-container-orgd5ee1f6" class="outline-2">
-<h2 id="orgd5ee1f6"><span class="section-number-2">5.</span> Por que os totais não coincidem</h2>
+<div id="outline-container-orgc267434" class="outline-2">
+<h2 id="orgc267434"><span class="section-number-2">5.</span> Por que os totais não coincidem</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Temos 212.386 escolas no catálogo e 264.445 estabelecimentos de ensino no CNEFE. Estas são as explicações mais prováveis. São hipóteses que decorrem da definição das bases, e não medimos o peso de cada uma:
@@ -881,8 +877,8 @@ Temos 212.386 escolas no catálogo e 264.445 estabelecimentos de ensino no CNEFE
 </ul>
 </div>
 </div>
-<div id="outline-container-org79f3967" class="outline-2">
-<h2 id="org79f3967"><span class="section-number-2">6.</span> O que o cruzamento mostrou</h2>
+<div id="outline-container-org8de7027" class="outline-2">
+<h2 id="org8de7027"><span class="section-number-2">6.</span> O que o cruzamento mostrou</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 O pareamento (doc <a href="10-mapa-nacional-censo-cnefe.html">10</a>) encontrou par para 130.694 escolas (61,5%). Entre os 107.950 pares em que as duas coordenadas existem, a distância mediana é de 24 m, e 78,3% ficam a menos de 50 m.
@@ -902,8 +898,8 @@ O pareamento (doc <a href="10-mapa-nacional-censo-cnefe.html">10</a>) encontrou 
 </ul>
 </div>
 </div>
-<div id="outline-container-orgefce4a6" class="outline-2">
-<h2 id="orgefce4a6"><span class="section-number-2">7.</span> Como ler o mapa nacional</h2>
+<div id="outline-container-org8784b19" class="outline-2">
+<h2 id="org8784b19"><span class="section-number-2">7.</span> Como ler o mapa nacional</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 O <a href="../escolas_brasil_censo_cnefe.html">mapa nacional</a> mostra as duas bases sobrepostas, sem filtrar pelos pares:
@@ -958,8 +954,8 @@ Portanto, <b>nem todas as escolas do Censo aparecem</b>: 31.460 (14,8%) não tê
 </p>
 </div>
 </div>
-<div id="outline-container-org968ca86" class="outline-2">
-<h2 id="org968ca86"><span class="section-number-2">8.</span> Fontes</h2>
+<div id="outline-container-orgdda7a8a" class="outline-2">
+<h2 id="orgdda7a8a"><span class="section-number-2">8.</span> Fontes</h2>
 <div class="outline-text-2" id="text-8">
 <ul class="org-ul">
 <li>INEP, <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas">Catálogo de Escolas</a>.</li>

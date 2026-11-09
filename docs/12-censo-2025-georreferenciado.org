@@ -1,0 +1,116 @@
+#+TITLE: Censo Escolar 2025 georreferenciado
+#+AUTHOR: Projeto de aprendizagem
+#+LANGUAGE: pt-br
+#+OPTIONS: toc:2 num:t ^:{}
+#+STARTUP: overview
+
+* Resumo
+
+Colocamos no mapa *179.574 das 214.192 escolas do Censo Escolar 2025 (83,8%)*. As outras 34.618 estão em uma tabela e em um CSV, para não sumirem da análise.
+
+- [[../escolas_censo_2025.html][Abrir o mapa]]
+- [[../data/censo_2025/escolas_sem_localizacao.csv][Baixar o CSV das escolas sem localização]]
+
+* Como cada escola é localizada
+
+A lista de escolas é do Censo 2025. Os microdados não têm coordenada, então cada escola passa por esta cascata:
+
+| Etapa | Regra                                                 | Escolas | %     |
+|-------+-------------------------------------------------------+---------+-------|
+|     1 | Coordenada do Catálogo de Escolas do INEP             | 156.816 | 73,2% |
+|     2 | No catálogo, sem coordenada: par existente no CNEFE   |  21.956 | 10,3% |
+|     3 | Fora do catálogo: regras N1 a N4 no CNEFE ainda livre |     802 | 0,4%  |
+|     4 | Sem localização: tabela e CSV                         |  34.618 | 16,2% |
+
+** Regras do CNEFE
+
+São as mesmas do [[file:10-mapa-nacional-censo-cnefe.org][doc 10]], com pareamento 1:1 e sem usar a distância para decidir.
+
+| Nível | Compara                    | Total no mapa | Novos na etapa 3 |
+|-------+----------------------------+---------------+------------------|
+| N1    | CEP + número + logradouro  |         5.855 |              113 |
+| N2    | CEP + logradouro           |         6.691 |               60 |
+| N3    | Nome exato no município    |         2.232 |              188 |
+| N4    | Nome ajustado no município |         7.980 |              441 |
+
+** O que muda nas escolas fora do catálogo
+
+As 4.985 escolas de 2025 fora do catálogo não têm endereço nos microdados daquele ano. Por isso:
+
+- *Níveis por nome (N3 e N4):* valem para todas, porque só usam nome e município.
+- *Níveis por endereço (N1 e N2):* valem só para as 607 que têm endereço nos censos de 2024 ou 2023. Esse endereço pode estar desatualizado.
+- *CNEFE disponível:* só os registros que nenhuma escola do catálogo usou, para manter o pareamento 1:1. Uma escola nova pode não encontrar par porque o registro já foi usado por outra.
+
+* Até onde confiar
+
+- *Catálogo:* a coordenada é usada como publicada, sem correção. Ela não foi validada aqui.
+- *Pares da etapa 2:* passaram pela validação do [[file:10-mapa-nacional-censo-cnefe.org][doc 10]], com cerca de 24 acertos em 25 na amostra de cada nível.
+- *Pares novos da etapa 3:* não têm coordenada do INEP para comparar, então não há distância que revele um erro. Conferimos os nomes de 25 pares N4 sorteados: cerca de 22 parecem corretos, e 3 são duvidosos, como um anexo de colégio indígena pareado com uma creche municipal de nome parecido.
+- *Tempo:* o CNEFE é de 2022, então uma escola aberta depois não aparece nele. Uma escola pode também ter mudado de endereço.
+
+Por isso, o mapa separa a camada "CNEFE, por nome", e o popup avisa que a localização deve ser conferida.
+
+* Resultado
+
+| Situação em 2025 | Escolas | No mapa | %     | Sem localização |
+|------------------+---------+---------+-------+-----------------|
+| Em atividade     | 180.540 | 163.652 | 90,6% |          16.888 |
+| Paralisada       |  29.780 |  13.904 | 46,7% |          15.876 |
+| Extinta          |   3.872 |   2.018 | 52,1% |           1.854 |
+
+Entre as escolas em atividade, 16.888 seguem sem localização.
+
+** Por que não foi possível localizar
+
+| Motivo                                        | Escolas |
+|-----------------------------------------------+---------|
+| No catálogo sem coordenada e sem par no CNEFE |  28.817 |
+| Fora do catálogo e sem par no CNEFE           |   3.987 |
+| Empate entre registros do CNEFE               |   1.814 |
+
+Nos empates, a regra prefere não localizar a escolher um registro sem critério.
+
+** Por UF
+
+| UF | Escolas | Sem localização | %     |
+|----+---------+-----------------+-------|
+| AC |   1.678 |             594 | 35,4% |
+| MG |  24.069 |           6.803 | 28,3% |
+| MT |   3.241 |             873 | 26,9% |
+| RN |   4.708 |           1.112 | 23,6% |
+| AM |   6.104 |           1.362 | 22,3% |
+| TO |   2.217 |             486 | 21,9% |
+| BA |  19.604 |           4.194 | 21,4% |
+| CE |  10.122 |           2.019 | 19,9% |
+| RR |     969 |             184 | 19,0% |
+| DF |   1.471 |             271 | 18,4% |
+| RJ |  13.035 |           2.246 | 17,2% |
+| RS |  11.046 |           1.902 | 17,2% |
+| PI |   5.325 |             853 | 16,0% |
+| PE |   9.957 |           1.563 | 15,7% |
+| ES |   3.847 |             581 | 15,1% |
+| PB |   5.641 |             816 | 14,5% |
+| AL |   3.322 |             474 | 14,3% |
+| PA |  11.817 |           1.659 | 14,0% |
+| RO |   1.393 |             179 | 12,8% |
+| AP |     944 |             113 | 12,0% |
+| MA |  13.226 |           1.569 | 11,9% |
+| SC |   7.463 |             798 | 10,7% |
+| SE |   2.430 |             238 | 9,8%  |
+| SP |  33.616 |           2.808 | 8,4%  |
+| GO |   5.007 |             418 | 8,3%  |
+| MS |   1.965 |             136 | 6,9%  |
+| PR |   9.975 |             367 | 3,7%  |
+
+* A safra do catálogo
+
+Segundo a informação do projeto, a exportação do catálogo é recente, e o arquivo no Drive foi modificado em 07/11/2026. O conteúdo, porém, corresponde ao Censo 2024 (ver [[file:11-censo-escolar-x-cnefe.org][doc 11]]). A explicação mais provável é que o próprio catálogo ainda não incorporou o Censo 2025. Quando isso acontecer, as escolas das etapas 2 a 4 podem ganhar coordenada, e basta refazer o processo.
+
+* Como refazer
+
+#+begin_src bash
+.venv/bin/python scripts/commands/censo_escolar_2025__cruzar_catalogo.py
+.venv/bin/python scripts/commands/censo_escolar_2025__georreferenciar.py
+#+end_src
+
+O segundo script depende das saídas de =escolas__parear_inep_cnefe.py=. A auditoria dos pares novos fica em =data/censo_escolar_2025/pares_novos_fora_do_catalogo.csv=.

@@ -34,13 +34,11 @@ A situação de funcionamento confirma o resultado de 2024:
 
 *Conclusão:* a nossa cópia é o Censo Escolar 2024 sem as escolas extintas.
 
-*O que não sabemos:*
-- Se o catálogo on-line já passou para o Censo 2025. A atualização da página em julho de 2026 torna isso possível, mas não testamos.
-- A data exata em que a nossa cópia foi exportada. Ela veio de uma pasta do Google Drive, não diretamente do INEP.
+*Sobre a data da exportação:* segundo a informação do projeto, ela é recente, e o arquivo no Drive foi modificado em 07/11/2026. Como o conteúdo corresponde ao Censo 2024, o mais provável é que o próprio catálogo ainda não tenha incorporado o Censo 2025. Não consultamos o painel do INEP para confirmar, e o arquivo não traz a data da exportação.
 
 ** Por que não usar direto o Censo 2025?
 
-Os microdados de 2025 (=Tabela_Escola_2025_V2.csv=) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo. Atualizar o mapa exige uma nova exportação do catálogo.
+Os microdados de 2025 (=Tabela_Escola_2025_V2.csv=) não têm latitude e longitude, nem colunas de endereço ou CEP. Sem isso, não servem sozinhos para o mapa nem para o pareamento por endereço. As 4.985 escolas que só aparecem em 2025 também não têm coordenada na nossa cópia do catálogo, então dependem do CNEFE (ver o [[file:12-censo-2025-georreferenciado.org][doc 12]]).
 
 ** Outra safra no projeto
 
@@ -56,7 +54,7 @@ O doc [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08]] us
 | No catálogo, sem coordenada     |  52.391 | 24,5% | Sem coordenada na nossa cópia        |
 | Fora da nossa cópia do catálogo |   4.985 | 2,3%  | Não sabemos: a cópia é do Censo 2024 |
 
-*Atenção à safra:* este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391. Só uma exportação nova do catálogo fecha a resposta.
+*Atenção à safra:* este resultado compara escolas de 2025 com um catálogo de 2024. As 4.985 escolas fora da cópia podem ter coordenada no catálogo on-line atual, assim como parte das 52.391, quando o catálogo incorporar o Censo 2025.
 
 ** Quem são essas escolas
 
@@ -116,7 +114,7 @@ Das 57.376 escolas sem coordenada do INEP, 34.806 estão em atividade, ou 19,3% 
 
 Das 57.376 escolas, 21.956 têm um par no CNEFE, que oferece uma posição, mas não uma coordenada do INEP. Sobram *35.420 escolas sem nenhuma posição conhecida*, das quais 17.446 em atividade.
 
-O par foi calculado com os endereços do catálogo, então as 4.985 escolas fora da cópia ainda não têm como ter par. Parear essas escolas exigiria um endereço que os microdados de 2025 não trazem.
+Esse par foi calculado com os endereços do catálogo, então não inclui as 4.985 escolas fora da cópia. O [[file:12-censo-2025-georreferenciado.org][doc 12]] aplica a elas as regras do CNEFE e leva o total sem localização para 34.618.
 
 ** Um registro incompleto
 

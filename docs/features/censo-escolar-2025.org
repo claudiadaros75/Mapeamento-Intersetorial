@@ -5,11 +5,13 @@
 
 - *Branch:* ~feat/documentacao-censo-cnefe-mapa-nacional~
 - *Início:* 2026-11-08
-- *Status:* implementado, aguardando revisão e commit
+- *Status:* mapa implementado, aguardando revisão; sem push, a pedido
 
 * Objetivo (Goal)
 
 Trazer o Censo Escolar 2025, de todas as UFs, para o estudo e responder: alguma escola do Censo 2025 não tem coordenada no Catálogo de Escolas do INEP?
+
+Em seguida: mapear todas as escolas do Censo 2025 pelo catálogo, aplicar as regras do CNEFE às que não têm coordenada e mostrar as restantes em uma tabela e em um CSV.
 
 * Escopo (Scope)
 
@@ -20,8 +22,8 @@ Trazer o Censo Escolar 2025, de todas as UFs, para o estudo e responder: alguma 
 
 ** Fora do escopo
 - Baixar uma nova exportação do catálogo.
-- Mudar os mapas para usar 2025. O mapa precisaria de coordenadas que a nossa cópia não tem para parte dessas escolas.
-- Refazer o pareamento com o CNEFE.
+- Alterar os mapas existentes, que ficam como estão por enquanto.
+- Refazer o pareamento principal com o CNEFE.
 
 * Tarefas (Task Breakdown)
 
@@ -37,6 +39,21 @@ Trazer o Censo Escolar 2025, de todas as UFs, para o estudo e responder: alguma 
 ** T4 — Documentar a resposta ✅
 - *Justificativa:* a resposta é central para o estudo e depende de uma ressalva sobre o ano do catálogo.
 
+** T5 — Localizar as escolas em cascata ✅
+- *Justificativa:* é a regra pedida: primeiro o catálogo, depois o CNEFE. Reaproveitar ~parear_uf~ garante as mesmas regras do pareamento validado.
+
+** T6 — Criar o mapa do Censo 2025 ✅
+- *Justificativa:* é o entregável pedido. A camada separada para pares por nome deixa visível quais localizações são menos confiáveis.
+
+** T7 — Publicar a tabela e o CSV das escolas não localizadas ✅
+- *Justificativa:* foi pedido, e essas escolas não podem sumir da análise.
+
+** T8 — Conferir uma amostra dos pares novos ✅
+- *Justificativa:* sem coordenada do INEP, a distância não revela erros nesses pares.
+
+** T9 — Documentar no doc 12 e corrigir a ressalva do doc 11 ✅
+- *Justificativa:* a informação de que a exportação é recente muda a interpretação: o catálogo provavelmente ainda está em 2024, e uma nova exportação não resolveria.
+
 * Progresso — What Was Done
 
 ** 2026-11-08
@@ -46,3 +63,10 @@ Trazer o Censo Escolar 2025, de todas as UFs, para o estudo e responder: alguma 
 - *Verificação:* 27 UFs, 214.192 escolas sem código repetido, soma das UFs igual ao total e MD5 da ~Tabela_Escola~ igual ao publicado.
 - *Resultado:* 156.816 com coordenada, 52.391 no catálogo sem coordenada e 4.985 fora da cópia.
 - *Achado:* a escola ~43145833~ vem sem ~SG_UF~ nem nome de município; a UF foi recuperada pelo código do município.
+
+** 2026-11-08 — Mapa do Censo 2025
+- *Criados:* ~scripts/commands/censo_escolar_2025__georreferenciar.py~, ~web/escolas_censo_2025.html~, ~web/js/escolas_censo_2025.js~, ~web/data/censo_2025/escolas.json~ (20,3 MB, 4,7 MB comprimido), ~web/data/censo_2025/escolas_sem_localizacao.csv~ (6,7 MB) e ~docs/12-censo-2025-georreferenciado.org~.
+- *Resultado:* 156.816 pelo catálogo, 22.758 pelo CNEFE (das quais 802 novas) e 34.618 sem localização.
+- *Verificação:* as etapas somam 214.192, e nenhuma coordenada fica fora da caixa do Brasil.
+- *Amostra manual:* cerca de 22 em 25 pares N4 novos parecem corretos.
+- *Data do catálogo:* o arquivo no Drive foi modificado em 07/11/2026 (cabeçalho ~Last-Modified~).
