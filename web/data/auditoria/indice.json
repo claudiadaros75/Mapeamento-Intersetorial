@@ -1,6 +1,6 @@
 {
   "ano_censo_escolar": "2024",
-  "ano_cadastro_inep": "2023",
+  "fonte_ponto_inep": "Catalogo de Escolas do INEP (exportacao do painel do INEP Data)",
   "ufs": {
     "AM": {
       "arquivo": "data/auditoria/auditoria_AM_2024.json",

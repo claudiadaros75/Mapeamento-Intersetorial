@@ -60,7 +60,13 @@ const STATUS_CNEFE = {
 };
 const COR_FORA = "#dc2626";
 
-const INDICE_URL = "data/auditoria/indice.json";
+// Cada pagina diz qual conjunto carregar em window.AUDITORIA_CONFIG, antes de
+// incluir este script (web/escolas_auditoria_2025.html); sem ele, vale 2024.
+const AUDITORIA_CONFIG = Object.assign(
+  { indiceUrl: "data/auditoria/indice.json", rotuloEndereco: "Endereço (INEP)" },
+  window.AUDITORIA_CONFIG || {}
+);
+const INDICE_URL = AUDITORIA_CONFIG.indiceUrl;
 const MUNICIPIOS_URL = "data/BR_municipios_2024_minima.geojson";
 
 const loading = document.getElementById("loading-indicator");
@@ -310,7 +316,7 @@ function htmlEscola(escola) {
           ? `<span style="color:${COR_FORA};font-weight:600">${escaparHtml(escola.MUNICIPIO_DO_PONTO || "fora de todos (mar/rio?)")} · a ${formatarKm(escola.FORA_MUNICIPIO_KM)} do declarado</span>`
           : escaparHtml(escola.MUNICIPIO_DO_PONTO)
       )}
-      ${linhaTabela("Endereço (INEP)", escaparHtml(escola.INEP_ENDERECO))}
+      ${linhaTabela(AUDITORIA_CONFIG.rotuloEndereco, escaparHtml(escola.INEP_ENDERECO))}
       ${linhaTabela("Casamento com o CNEFE", escaparHtml(STATUS_CNEFE[escola.STATUS_CNEFE] || escola.STATUS_CNEFE))}
       ${linhaTabela("Estabelecimento (CNEFE)", escaparHtml(escola.CNEFE_DSC_ESTABELECIMENTO))}
       ${linhaTabela("Endereço (CNEFE)", escaparHtml(escola.CNEFE_ENDERECO))}

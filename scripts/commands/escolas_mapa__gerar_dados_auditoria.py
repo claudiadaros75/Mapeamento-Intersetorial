@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Gera os arquivos por UF do mapa de auditoria do georreferenciamento (web/escolas_auditoria.html).
+"""Gera os arquivos por UF dos mapas de auditoria do georreferenciamento (web/escolas_auditoria*.html).
+
+Um conjunto por ano do Censo Escolar (--ano):
+
+    2024  entrada data/auditoria/escolas_inep_x_cnefe_2024.csv
+          saida   web/data/auditoria/        (web/escolas_auditoria.html)
+    2025  entrada data/inep_+cnef.csv (Censo 2025 + Catalogo + CNEFE, Brasil;
+                  so as colunas usadas; o endereco do INEP e o "Endereço" do Catalogo)
+          saida   web/data/auditoria_2025/   (web/escolas_auditoria_2025.html)
 
 O mapa de auditoria mostra *de onde veio* a coordenada de cada escola,
 separado do mapa do usuario final (web/escolas_mapa.html). Le:
@@ -32,7 +40,8 @@ as duas fontes, guarda tambem o ponto da outra fonte (OUTRO_*), para o mapa
 ligar os dois.
 
 Uso:
-    .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+    .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py              # 2024
+    .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py --ano 2025
 """
 
 import argparse
@@ -44,10 +53,24 @@ import geopandas as gpd
 import pandas as pd
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
-ENTRADA_AUDITORIA = RAIZ / "data" / "auditoria" / "escolas_inep_x_cnefe_2024.csv"
 ENTRADA_MUNICIPIOS = RAIZ / "data" / "ibge_malha_municipal" / "zipfiles" / "BR_Municipios_2024.zip"
-DIR_SAIDA = RAIZ / "web" / "data" / "auditoria"
-ANO_CENSO_ESCOLAR = "2024"
+DIR_WEB = RAIZ / "web"
+# ano do Censo Escolar -> (CSV de entrada, pasta de saida)
+POR_ANO = {
+    "2024": (RAIZ / "data" / "auditoria" / "escolas_inep_x_cnefe_2024.csv", DIR_WEB / "data" / "auditoria"),
+    "2025": (RAIZ / "data" / "inep_+cnef.csv", DIR_WEB / "data" / "auditoria_2025"),
+}
+# De onde vem o ponto do INEP (registrado no indice)
+FONTE_PONTO_INEP = "Catalogo de Escolas do INEP (exportacao do painel do INEP Data)"
+
+# Colunas lidas da entrada (o CSV de 2025 tem 372)
+COLUNAS_ENTRADA = [
+    "SG_UF", "CO_MUNICIPIO", "NO_MUNICIPIO", "CO_ENTIDADE", "NO_ENTIDADE",
+    "LATITUDE", "LONGITUDE", "FONTE_COORDENADA", "STATUS_GEOLOCALIZACAO", "STATUS_CNEFE",
+    "MOTIVO_GEOLOCALIZACAO", "ALERTAS_GEOLOCALIZACAO", "DIST_INEP_CNEFE_KM",
+    "INEP_LATITUDE", "INEP_LONGITUDE", "CNEFE_LATITUDE", "CNEFE_LONGITUDE",
+    "CNEFE_DSC_ESTABELECIMENTO", "CNEFE_ENDERECO", "CNEFE_NV_GEO_COORD", "SIMILARIDADE_NOME",
+]
 
 # Projecao em metros para distancias (SIRGAS 2000 / Brazil Polyconic)
 CRS_METROS = "EPSG:5880"
@@ -113,9 +136,17 @@ def valor_web(valor):
 
 def main() -> None:
     analisador = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    analisador.parse_args()
+    analisador.add_argument("--ano", choices=sorted(POR_ANO), default="2024", help="ano do Censo Escolar (padrao: 2024)")
+    ano = analisador.parse_args().ano
+    entrada, dir_saida = POR_ANO[ano]
+    print("Censo Escolar {}: {} -> {}".format(ano, entrada, dir_saida))
 
-    escolas = pd.read_csv(ENTRADA_AUDITORIA, sep=";", dtype=str, keep_default_na=False)
+    # O endereco do INEP: coluna propria na auditoria de 2024; o "Endereço" do Catalogo em 2025
+    cabecalho = pd.read_csv(entrada, sep=";", nrows=0).columns
+    coluna_endereco = "INEP_ENDERECO" if "INEP_ENDERECO" in cabecalho else "Endereço"
+    escolas = pd.read_csv(entrada, sep=";", dtype=str, keep_default_na=False,
+                          usecols=COLUNAS_ENTRADA + [coluna_endereco])
+    escolas = escolas.rename(columns={coluna_endereco: "INEP_ENDERECO"})
     numericas = ["LATITUDE", "LONGITUDE", "INEP_LATITUDE", "INEP_LONGITUDE", "CNEFE_LATITUDE", "CNEFE_LONGITUDE",
                  "DIST_INEP_CNEFE_KM"]
     for coluna in numericas:
@@ -144,22 +175,22 @@ def main() -> None:
     plotadas["CNEFE_NV_GEO_COORD"] = pd.to_numeric(plotadas["CNEFE_NV_GEO_COORD"], errors="coerce").astype("Int64")
     plotadas["DIST_INEP_CNEFE_KM"] = plotadas["DIST_INEP_CNEFE_KM"].round(2)
 
-    DIR_SAIDA.mkdir(parents=True, exist_ok=True)
-    indice = {"ano_censo_escolar": ANO_CENSO_ESCOLAR, "ano_cadastro_inep": "2023", "ufs": {}}
+    dir_saida.mkdir(parents=True, exist_ok=True)
+    indice = {"ano_censo_escolar": ano, "fonte_ponto_inep": FONTE_PONTO_INEP, "ufs": {}}
 
     for uf in sorted(escolas["SG_UF"].unique()):
         da_uf = plotadas[plotadas["SG_UF"] == uf]
         linhas = [[valor_web(v) for v in linha] for linha in da_uf[CAMPOS].astype(object).itertuples(index=False)]
-        nome_arquivo = "auditoria_{}_{}.json".format(uf, ANO_CENSO_ESCOLAR)
-        caminho = DIR_SAIDA / nome_arquivo
-        conteudo = {"uf": uf, "ano_censo_escolar": ANO_CENSO_ESCOLAR, "campos": CAMPOS, "escolas": linhas}
+        nome_arquivo = "auditoria_{}_{}.json".format(uf, ano)
+        caminho = dir_saida / nome_arquivo
+        conteudo = {"uf": uf, "ano_censo_escolar": ano, "campos": CAMPOS, "escolas": linhas}
         caminho.write_text(json.dumps(conteudo, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 
         todas = escolas[escolas["SG_UF"] == uf]
         por_origem = collections.Counter(todas["ORIGEM"])
         fora = collections.Counter(da_uf.loc[da_uf["FORA_MUNICIPIO_KM"] > 0, "ORIGEM"])
         indice["ufs"][uf] = {
-            "arquivo": "data/auditoria/" + nome_arquivo,
+            "arquivo": caminho.relative_to(DIR_WEB).as_posix(),
             "tamanho_bytes": caminho.stat().st_size,
             "total_escolas": len(todas),
             "por_origem": dict(por_origem),
@@ -171,7 +202,7 @@ def main() -> None:
             )
         )
 
-    caminho_indice = DIR_SAIDA / "indice.json"
+    caminho_indice = dir_saida / "indice.json"
     caminho_indice.write_text(json.dumps(indice, ensure_ascii=False, indent=2), encoding="utf-8")
     print("Indice: {}".format(caminho_indice))
 
