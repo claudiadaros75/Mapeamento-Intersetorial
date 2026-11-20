@@ -379,6 +379,17 @@ colunas da entrada e mais:
 | =CNEFE_JUNTADO= e as colunas =CNEFE_*=                         | a linha original do CNEFE inteira, quando a escola casou com ela     |
 | =HISTORICO_PROCESSAMENTO=                                      | as etapas que o registro percorreu, em ordem                         |
 
+** 6. Gerar os dados do mapa de 2025 (Brasil)
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py --ano 2025
+#+end_src
+
+Lê =data/inep_+cnef.csv= e as matrículas da =Tabela_Matricula_2025= (no ZIP
+do Censo) e grava =web/data/escolas_2025/= (um JSON por UF, ~34 MB no
+total), que a página =web/escolas_mapa_2025.html= carrega. Sem =--ano=, o
+script gera o mapa de 2024 (=web/data/escolas/=).
+
 Escolas extintas, paralisadas ou em atividade: coluna
 =TP_SITUACAO_FUNCIONAMENTO= do Censo (1 em atividade, 2 paralisada, 3
 extinta).

@@ -801,14 +801,20 @@ updateTilePyramidStats();
 // ============================================================================
 // PASSO 11: Camada de Escolas (Censo Escolar 2024 + coordenadas do INEP e do CNEFE 2022)
 // ============================================================================
-// Os dados vêm de web/data/escolas/, gerados por
-// scripts/commands/escolas_mapa__gerar_dados_web.py (um JSON leve por UF).
+// Os dados vêm de web/data/escolas/ (Censo 2024) ou web/data/escolas_2025/,
+// gerados por scripts/commands/escolas_mapa__gerar_dados_web.py (um JSON
+// leve por UF). Cada página diz qual conjunto carregar em
+// window.ESCOLAS_CONFIG, antes de incluir este script; sem ele, vale 2024.
 //
 // Desempenho: em vez de um elemento DOM por escola, as escolas são indexadas
 // pelo Supercluster e, a cada movimento do mapa, só o que está na tela é
 // desenhado - clusters numerados (poucos, como marcadores HTML) e escolas
 // individuais (muitas, como círculos em um único <canvas>).
-const ESCOLAS_INDICE_URL = "data/escolas/indice.json";
+const ESCOLAS_CONFIG = Object.assign(
+  { indiceUrl: "data/escolas/indice.json", rotuloEndereco: "Endereço (Censo)" },
+  window.ESCOLAS_CONFIG || {}
+);
+const ESCOLAS_INDICE_URL = ESCOLAS_CONFIG.indiceUrl;
 
 // Supercluster para de agrupar acima deste zoom: de Z=14 em diante cada escola aparece sozinha
 const ESCOLAS_ZOOM_MAX_CLUSTER = 13;
@@ -1139,7 +1145,7 @@ function htmlEscola(escola, comTitulo) {
     ["Situação", SITUACAO_FUNCIONAMENTO[escola.TP_SITUACAO_FUNCIONAMENTO]],
     ["Matrículas", matriculas],
     ["Município", `${escola.NO_MUNICIPIO} - ${escola.SG_UF}`],
-    ["Endereço (Censo)", escola.ENDERECO_CENSO],
+    [ESCOLAS_CONFIG.rotuloEndereco, escola.ENDERECO_CENSO],
     ["Nome no CNEFE", escola.CNEFE_DSC_ESTABELECIMENTO],
     ["Origem da coordenada", confianca.nome || escola.STATUS_GEOLOCALIZACAO],
     ["Distância INEP × CNEFE", escola.DIST_INEP_CNEFE_KM != null ? `${escola.DIST_INEP_CNEFE_KM.toLocaleString("pt-BR")} km` : "-"],
