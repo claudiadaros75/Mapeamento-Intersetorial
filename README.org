@@ -1,3 +1,4 @@
+
 #+TITLE: Mapeamento Intersetorial com Uso e Reuso de dados abertos
 #+AUTHOR: Projeto de aprendizagem
 #+EMAIL: 
@@ -17,20 +18,30 @@ conceitos fundamentais de cartografia, sistemas de coordenadas, projeções
 e manipulação de dados geoespaciais, documentando todo o aprendizado em
 arquivos Org (formato *org-mode* do Emacs).
 
+Neste link: [[./docs/01-dados-ibge-malhas-municipais.org][Entender os dados do IBGE]] expõe o que é a Malha Municipal Digital, onde
+   baixar, formato e características técnicas.
+   
 Esta etapa cumpre um importante objetivo que é apresentação dos dados em mapas cujos polígonos são oficiais, provenientes dos conjuntos de dados oficiais do IBGE.
 
-A segunda etapa foi viabilizar através do github actions o depósito de todos os artefatos gerados no Zenodo que é um fornecedor de doi (digital object identification) tornando os trabalhos desenvolvidos aqui no github citáveis em trabalhos acadêmicos.
+Para acesso e manipulação dos dados [[./docs/02-ambiente-python.org][prepararou-se o ambiente Python]]
 
-No momento estamos trabalhando nas seguintes etapas:
- 1) incluir conjunto de dados do censo escolar INEP 2025
- 2) apresentar escolas plotadas no mapa nacionalmente com a melhor latitude e longitude possível
- 3)
+Com o ambiente python configurado:
 
-Para efeitos de demonstração da riqueza e a grande disponibilidade dos dados abertos são apresentados alguns painéis de dados abertos já existentes e os seus respectivos microdados (veja o inventário em
-=docs/paines-publicos.org=), trabalhando as duas dimensões dos dados
-abertos:
+Baixamos a MMD 2024 e inspecionamos o conteúdo dos arquivos baixados
+Ler a malha com geopandas e fazer as primeiras visualizações. Ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]].
+Estudos e utilização sobre a biblioteca leaflet:
+[[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e renderização de GeoJSON no navegador.
 
-Para efeitos de conceituação:
+De posse dos polígonos oficiais nos mapas a próxima etapa foi plotar as escolas do censo de 2025 no mapa.
+
+7. [[./docs/05-plano-marcadores-escolas-inep.org][Marcadores de escolas do Censo Escolar (INEP) no mapa]] - plano vivo
+   atualizado entre sessões, para adicionar uma camada de escolas
+   filtrável por checkbox ao explorador de malhas.
+
+   Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
+
+* Dados Abertos
+
 
 - *Utilização*: consultar e interpretar os painéis abertos, usando os
   dados da forma como já são publicados.
@@ -39,6 +50,7 @@ Para efeitos de conceituação:
   produzir novas análises, cruzamentos e visualizações, como os mapas
   georreferenciados deste projeto.
 
+* Ciência Aberta
 * Painéis de dados abertos públicos: delimitação do que será utilizado e reusado
 
 Existem muitos dados abertos disponíveis no Brasil, publicados por
@@ -288,29 +300,6 @@ georef-artifacts/
 `-- .venv/                  ; ambiente virtual Python (não versionado)
 #+end_src
 
-
-* Roteiro de estudo
-
-O roteiro evolui conforme o projeto avança. Os primeiros passos são:
-
-1. [[./docs/01-dados-ibge-malhas-municipais.org][Entender os dados do IBGE]] - o que é a Malha Municipal Digital, onde
-   baixar, formato e características técnicas.
-2. [[./docs/02-ambiente-python.org][Preparar o ambiente Python]] - instalar e verificar geopandas.
-3. Baixar a MMD 2024 e inspecionar o conteúdo dos arquivos.
-4. Ler a malha com geopandas e fazer as primeiras visualizações
-   (ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]]).
-5. [[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e
-   renderização de GeoJSON no navegador.
-6. Exportar a documentação Org para HTML estático em =web/docs/=:
-   #+begin_src sh
-   ./scripts/commands/exportar_docs_org_para_html.sh
-   #+end_src
-7. [[./docs/05-plano-marcadores-escolas-inep.org][Marcadores de escolas do Censo Escolar (INEP) no mapa]] - plano vivo,
-   atualizado entre sessões, para adicionar uma camada de escolas
-   filtrável por checkbox ao explorador de malhas.
-
-Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
-
 * Como rodar o pipeline das escolas (passo a passo manual)
 
 Todos os comandos rodam a partir da raiz do projeto, com o ambiente
@@ -406,6 +395,12 @@ mapas publicados:
 
 Detalhes, decisões e números de cada etapa ficam em =docs/= e em
 =docs/features/=.
+
+* comandos do orgmode
+Exportar a documentação Org para HTML estático em =web/docs/=:
+   #+begin_src sh
+   ./scripts/commands/exportar_docs_org_para_html.sh
+   #+end_src
 
 * Referências
 

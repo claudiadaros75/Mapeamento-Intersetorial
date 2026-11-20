@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
 <head>
-<!-- 2026-08-30 dom 23:20 -->
+<!-- 2026-11-19 qui 22:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Entendendo os dados do IBGE - Malha Municipal Digital</title>
@@ -57,6 +57,7 @@
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-c:before { content: 'C'; }
   pre.src-C:before { content: 'C'; }
   /* pre.src-C++ doesn't work in CSS */
   pre.src-clojure:before { content: 'Clojure'; }
@@ -71,7 +72,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -201,27 +202,27 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org9c6c581">1. Objetivo</a></li>
-<li><a href="#org1b7efb4">2. O que é a Malha Municipal Digital</a></li>
-<li><a href="#orgcf5d0b3">3. Onde encontrar os dados</a></li>
-<li><a href="#org09c2a73">4. Estrutura de diretórios do servidor FTP</a></li>
-<li><a href="#org871d58b">5. Formato dos arquivos</a></li>
-<li><a href="#orge70b839">6. Características técnicas da MMD</a></li>
-<li><a href="#org9f22236">7. O geocódigo do IBGE</a></li>
-<li><a href="#org431761b">8. APIs do IBGE</a>
+<li><a href="#org473f692">1. Objetivo</a></li>
+<li><a href="#org10280fb">2. O que é a Malha Municipal Digital</a></li>
+<li><a href="#org39b16f5">3. Onde encontrar os dados</a></li>
+<li><a href="#orgf30e3a2">4. Estrutura de diretórios do servidor FTP</a></li>
+<li><a href="#orgf92490e">5. Formato dos arquivos</a></li>
+<li><a href="#org3e5aadb">6. Características técnicas da MMD</a></li>
+<li><a href="#org8e6811a">7. O geocódigo do IBGE</a></li>
+<li><a href="#org16a9f09">8. APIs do IBGE</a>
 <ul>
-<li><a href="#orgdc7b63d">8.1. Como obter dados em GeoJSON pela API</a></li>
-<li><a href="#org79907b5">8.2. Diferenças entre a API e o shapefile original</a></li>
+<li><a href="#org16735b3">8.1. Como obter dados em GeoJSON pela API</a></li>
+<li><a href="#orgbe73da9">8.2. Diferenças entre a API e o shapefile original</a></li>
 </ul>
 </li>
-<li><a href="#orgf3d89f3">9. Notas sobre o uso legal</a></li>
-<li><a href="#orgdc9caea">10. Pontos de atenção</a></li>
-<li><a href="#org7bd9e4f">11. Próximos passos</a></li>
+<li><a href="#org35b6ff6">9. Notas sobre o uso legal</a></li>
+<li><a href="#org76f8d16">10. Pontos de atenção</a></li>
+<li><a href="#org92da4d7">11. Próximos passos</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org9c6c581" class="outline-2">
-<h2 id="org9c6c581"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org473f692" class="outline-2">
+<h2 id="org473f692"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Este documento descreve os dados da <b>Malha Municipal Digital</b> (MMD) do
@@ -240,8 +241,8 @@ codificação)?</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org1b7efb4" class="outline-2">
-<h2 id="org1b7efb4"><span class="section-number-2">2.</span> O que é a Malha Municipal Digital</h2>
+<div id="outline-container-org10280fb" class="outline-2">
+<h2 id="org10280fb"><span class="section-number-2">2.</span> O que é a Malha Municipal Digital</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 A Malha Municipal Digital é a representação vetorial da Divisão
@@ -266,8 +267,8 @@ os dados carregados" no documento de ambiente Python).
 </p>
 </div>
 </div>
-<div id="outline-container-orgcf5d0b3" class="outline-2">
-<h2 id="orgcf5d0b3"><span class="section-number-2">3.</span> Onde encontrar os dados</h2>
+<div id="outline-container-org39b16f5" class="outline-2">
+<h2 id="org39b16f5"><span class="section-number-2">3.</span> Onde encontrar os dados</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Os dados estão disponíveis em dois canais:
@@ -287,8 +288,8 @@ por exemplo <code>municipio_2024</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org09c2a73" class="outline-2">
-<h2 id="org09c2a73"><span class="section-number-2">4.</span> Estrutura de diretórios do servidor FTP</h2>
+<div id="outline-container-orgf30e3a2" class="outline-2">
+<h2 id="orgf30e3a2"><span class="section-number-2">4.</span> Estrutura de diretórios do servidor FTP</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 A pasta de uma edição (<code>municipio_2024</code>) contém duas subpastas:
@@ -366,8 +367,8 @@ entre edições.
 </p>
 </div>
 </div>
-<div id="outline-container-org871d58b" class="outline-2">
-<h2 id="org871d58b"><span class="section-number-2">5.</span> Formato dos arquivos</h2>
+<div id="outline-container-orgf92490e" class="outline-2">
+<h2 id="orgf92490e"><span class="section-number-2">5.</span> Formato dos arquivos</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Os dados são publicados no formato <b>shapefile</b> (SHP), um formato vetorial
@@ -428,8 +429,8 @@ Além desses, podem existir arquivos auxiliares como <code>*.sbn</code> e <code>
 </p>
 </div>
 </div>
-<div id="outline-container-orge70b839" class="outline-2">
-<h2 id="orge70b839"><span class="section-number-2">6.</span> Características técnicas da MMD</h2>
+<div id="outline-container-org3e5aadb" class="outline-2">
+<h2 id="org3e5aadb"><span class="section-number-2">6.</span> Características técnicas da MMD</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 De acordo com a documentação do IBGE, os dados da MMD têm as seguintes
@@ -452,8 +453,8 @@ por padrão.
 </p>
 </div>
 </div>
-<div id="outline-container-org9f22236" class="outline-2">
-<h2 id="org9f22236"><span class="section-number-2">7.</span> O geocódigo do IBGE</h2>
+<div id="outline-container-org8e6811a" class="outline-2">
+<h2 id="org8e6811a"><span class="section-number-2">7.</span> O geocódigo do IBGE</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Cada município possui um código único de sete dígitos, o <b>geocódigo</b>. A
@@ -476,8 +477,8 @@ IBGE, como os Censos e as pesquisas socioeconômicas.
 </p>
 </div>
 </div>
-<div id="outline-container-org431761b" class="outline-2">
-<h2 id="org431761b"><span class="section-number-2">8.</span> APIs do IBGE</h2>
+<div id="outline-container-org16a9f09" class="outline-2">
+<h2 id="org16a9f09"><span class="section-number-2">8.</span> APIs do IBGE</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 Além dos downloads, o IBGE oferece APIs REST úteis para exploração:
@@ -492,8 +493,8 @@ em relação à malha original.
 <a href="https://servicodados.ibge.gov.br/api/docs/malhas">https://servicodados.ibge.gov.br/api/docs/malhas</a></li>
 </ul>
 </div>
-<div id="outline-container-orgdc7b63d" class="outline-3">
-<h3 id="orgdc7b63d"><span class="section-number-3">8.1.</span> Como obter dados em GeoJSON pela API</h3>
+<div id="outline-container-org16735b3" class="outline-3">
+<h3 id="org16735b3"><span class="section-number-3">8.1.</span> Como obter dados em GeoJSON pela API</h3>
 <div class="outline-text-3" id="text-8-1">
 <p>
 A API de Malhas (versão 4) pode retornar a malha em GeoJSON. O formato é
@@ -521,8 +522,8 @@ script <code>scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-sh">.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py
-</pre>
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/ibge_malha_municipal__baixar_dados_formato_geojson.py
+</code></pre>
 </div>
 
 <p>
@@ -531,8 +532,8 @@ do restclient em <code>scripts/restclient-ibge-malhas-api.http</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org79907b5" class="outline-3">
-<h3 id="org79907b5"><span class="section-number-3">8.2.</span> Diferenças entre a API e o shapefile original</h3>
+<div id="outline-container-orgbe73da9" class="outline-3">
+<h3 id="orgbe73da9"><span class="section-number-3">8.2.</span> Diferenças entre a API e o shapefile original</h3>
 <div class="outline-text-3" id="text-8-2">
 <p>
 Ao comparar o GeoJSON de todos os municípios com o shapefile da MMD 2024,
@@ -561,8 +562,8 @@ atributos e as feições oficiais.
 </div>
 </div>
 </div>
-<div id="outline-container-orgf3d89f3" class="outline-2">
-<h2 id="orgf3d89f3"><span class="section-number-2">9.</span> Notas sobre o uso legal</h2>
+<div id="outline-container-org35b6ff6" class="outline-2">
+<h2 id="org35b6ff6"><span class="section-number-2">9.</span> Notas sobre o uso legal</h2>
 <div class="outline-text-2" id="text-9">
 <p>
 As malhas do IBGE são dados públicos. A documentação oficial ("Malha
@@ -573,8 +574,8 @@ institucional ou publicação de trabalhos.
 </p>
 </div>
 </div>
-<div id="outline-container-orgdc9caea" class="outline-2">
-<h2 id="orgdc9caea"><span class="section-number-2">10.</span> Pontos de atenção</h2>
+<div id="outline-container-org76f8d16" class="outline-2">
+<h2 id="org76f8d16"><span class="section-number-2">10.</span> Pontos de atenção</h2>
 <div class="outline-text-2" id="text-10">
 <ul class="org-ul">
 <li>Os arquivos das malhas podem ser pesados (a malha municipal do Brasil tem
@@ -586,8 +587,8 @@ anterior, inclusive pela criação de novos municípios.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org7bd9e4f" class="outline-2">
-<h2 id="org7bd9e4f"><span class="section-number-2">11.</span> Próximos passos</h2>
+<div id="outline-container-org92da4d7" class="outline-2">
+<h2 id="org92da4d7"><span class="section-number-2">11.</span> Próximos passos</h2>
 <div class="outline-text-2" id="text-11">
 <ul class="org-ul">
 <li>Preparar o ambiente Python (ver <a href="./02-ambiente-python.html">ambiente-python</a>).</li>
@@ -601,7 +602,7 @@ coordenadas e número de municípios.</li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Projeto de aprendizagem</p>
-<p class="date">Created: 2026-08-30 dom 23:20</p>
+<p class="date">Created: 2026-11-19 qui 22:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

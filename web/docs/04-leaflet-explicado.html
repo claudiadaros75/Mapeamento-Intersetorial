@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
 <head>
-<!-- 2026-08-30 dom 23:20 -->
+<!-- 2026-11-19 qui 22:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Como funciona o Leaflet: TileLayers, GeoJSON e Mapas Web</title>
@@ -57,6 +57,7 @@
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-c:before { content: 'C'; }
   pre.src-C:before { content: 'C'; }
   /* pre.src-C++ doesn't work in CSS */
   pre.src-clojure:before { content: 'Clojure'; }
@@ -71,7 +72,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -233,46 +234,46 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org11aa283">1. Objetivo</a></li>
-<li><a href="#org3cd3d71">2. O que é o Leaflet.js?</a></li>
-<li><a href="#org136dcc1">3. O que é uma TileLayer (Camada de Mosaicos)?</a>
+<li><a href="#orgcd95c6f">1. Objetivo</a></li>
+<li><a href="#org42091b9">2. O que é o Leaflet.js?</a></li>
+<li><a href="#org49108e9">3. O que é uma TileLayer (Camada de Mosaicos)?</a>
 <ul>
-<li><a href="#orgaefefae">3.1. Como o navegador trabalha com Tiles</a></li>
+<li><a href="#org073ad92">3.1. Como o navegador trabalha com Tiles</a></li>
 </ul>
 </li>
-<li><a href="#orga7c7785">4. Anatomia do Modelo de URL de Tiles</a>
+<li><a href="#org62df67a">4. Anatomia do Modelo de URL de Tiles</a>
 <ul>
-<li><a href="#org92436c9">4.1. Significado de cada parâmetro</a></li>
-<li><a href="#org585584f">4.2. Exemplo Prático de Resolução de URL</a></li>
+<li><a href="#org8b091d0">4.1. Significado de cada parâmetro</a></li>
+<li><a href="#org40ee554">4.2. Exemplo Prático de Resolução de URL</a></li>
 </ul>
 </li>
-<li><a href="#org3fc081a">5. Comparativo de Provedores de Tiles (Basemaps)</a></li>
-<li><a href="#org207e988">6. Como o GeoJSON é desenhado sobre os Tiles</a></li>
-<li><a href="#org63d2e37">7. Depuração e Inspeção Visual de Tiles (Z, X, Y)</a>
+<li><a href="#orgdd9b3be">5. Comparativo de Provedores de Tiles (Basemaps)</a></li>
+<li><a href="#org7b65d22">6. Como o GeoJSON é desenhado sobre os Tiles</a></li>
+<li><a href="#org0a47c3b">7. Depuração e Inspeção Visual de Tiles (Z, X, Y)</a>
 <ul>
-<li><a href="#orgd8328d5">7.1. Como converter Latitude e Longitude em Coordenadas de Tile (X, Y)</a></li>
+<li><a href="#orgbdd03b0">7.1. Como converter Latitude e Longitude em Coordenadas de Tile (X, Y)</a></li>
 </ul>
 </li>
-<li><a href="#org1a2149b">8. Estratégia de Nível de Detalhe por Zoom (LOD - Level of Detail)</a>
+<li><a href="#org59f8831">8. Estratégia de Nível de Detalhe por Zoom (LOD - Level of Detail)</a>
 <ul>
-<li><a href="#orgffd72dc">8.1. Por que todos os 4 arquivos GeoJSON são indispensáveis?</a></li>
-<li><a href="#org470f11d">8.2. O que acontece se utilizarmos o arquivo errado na escala errada?</a></li>
-<li><a href="#org4c85597">8.3. Cache em Memória Local (~0 ms de latência nas trocas de Zoom)</a></li>
-<li><a href="#org7826593">8.4. Modos de Operação: Auto-LOD vs. Controle Manual</a></li>
-<li><a href="#org2c91591">8.5. Relação entre a Bounding Box da Tela e os Tiles Visíveis</a></li>
+<li><a href="#orgc81a125">8.1. Por que todos os 4 arquivos GeoJSON são indispensáveis?</a></li>
+<li><a href="#orgec834ca">8.2. O que acontece se utilizarmos o arquivo errado na escala errada?</a></li>
+<li><a href="#org5331f4c">8.3. Cache em Memória Local (~0 ms de latência nas trocas de Zoom)</a></li>
+<li><a href="#orgffbe8f3">8.4. Modos de Operação: Auto-LOD vs. Controle Manual</a></li>
+<li><a href="#org458f640">8.5. Relação entre a Bounding Box da Tela e os Tiles Visíveis</a></li>
 </ul>
 </li>
-<li><a href="#orgfe0e537">9. Como Executar e Fazer Deploy da Aplicação</a>
+<li><a href="#org2d44886">9. Como Executar e Fazer Deploy da Aplicação</a>
 <ul>
-<li><a href="#orgaf7c764">9.1. Execução Local</a></li>
-<li><a href="#org37f6b82">9.2. Deploy Estático (GitHub Pages)</a></li>
+<li><a href="#org139d87b">9.1. Execução Local</a></li>
+<li><a href="#orga28ad81">9.2. Deploy Estático (GitHub Pages)</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org11aa283" class="outline-2">
-<h2 id="org11aa283"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-orgcd95c6f" class="outline-2">
+<h2 id="orgcd95c6f"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Este documento explica didaticamente como funciona a biblioteca <b>Leaflet.js</b>,
@@ -281,8 +282,8 @@ tiles e a renderização de camadas vetoriais em <b>GeoJSON</b>.
 </p>
 </div>
 </div>
-<div id="outline-container-org3cd3d71" class="outline-2">
-<h2 id="org3cd3d71"><span class="section-number-2">2.</span> O que é o Leaflet.js?</h2>
+<div id="outline-container-org42091b9" class="outline-2">
+<h2 id="org42091b9"><span class="section-number-2">2.</span> O que é o Leaflet.js?</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 O Leaflet é uma biblioteca JavaScript leve (~40 KB) de código aberto para criação
@@ -297,8 +298,8 @@ de mapas interativos na web. Ela é responsável por:
 </ol>
 </div>
 </div>
-<div id="outline-container-org136dcc1" class="outline-2">
-<h2 id="org136dcc1"><span class="section-number-2">3.</span> O que é uma TileLayer (Camada de Mosaicos)?</h2>
+<div id="outline-container-org49108e9" class="outline-2">
+<h2 id="org49108e9"><span class="section-number-2">3.</span> O que é uma TileLayer (Camada de Mosaicos)?</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 A Terra é gigantesca. Se um mapa tentasse carregar todo o planeta em alta resolução
@@ -311,7 +312,7 @@ Para resolver esse problema, a cartografia web moderna utiliza a <b>Pirâmide de
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">Nível de Zoom   Dimensão da Grade       Total de Tiles (256x256 px)   O que representa
+<pre class="src src-text"><code>Nível de Zoom   Dimensão da Grade       Total de Tiles (256x256 px)   O que representa
 --------------------------------------------------------------------------------------
 Zoom 0          2^0 x 2^0 = 1 bloco     1 imagem                      O planeta inteiro
 Zoom 1          2^1 x 2^1 = 4 blocos    4 imagens                     4 quadrantes
@@ -322,11 +323,11 @@ Zoom 4          16 x 16                 256 imagens                   País (ex.
 Zoom 12         4.096 x 4.096           ~16,7 milhões de imagens      Nível de Cidade
 ...
 Zoom 18         262.144 x 262.144       ~68,7 bilhões de imagens      Nível de Rua / Lote
-</pre>
+</code></pre>
 </div>
 </div>
-<div id="outline-container-orgaefefae" class="outline-3">
-<h3 id="orgaefefae"><span class="section-number-3">3.1.</span> Como o navegador trabalha com Tiles</h3>
+<div id="outline-container-org073ad92" class="outline-3">
+<h3 id="org073ad92"><span class="section-number-3">3.1.</span> Como o navegador trabalha com Tiles</h3>
 <div class="outline-text-3" id="text-3-1">
 <ol class="org-ol">
 <li>Ao abrir o mapa, o Leaflet calcula as coordenadas da tela e o nível de zoom atual.</li>
@@ -339,16 +340,16 @@ os que saíram da tela.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-orga7c7785" class="outline-2">
-<h2 id="orga7c7785"><span class="section-number-2">4.</span> Anatomia do Modelo de URL de Tiles</h2>
+<div id="outline-container-org62df67a" class="outline-2">
+<h2 id="org62df67a"><span class="section-number-2">4.</span> Anatomia do Modelo de URL de Tiles</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Veja a URL utilizada no nosso projeto:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
-</pre>
+<pre class="src src-text"><code>https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
+</code></pre>
 </div>
 
 <p>
@@ -356,8 +357,8 @@ Essa string não é um endereço fixo: é um <b>template dinâmico</b> onde o Le
 substitui automaticamente os campos entre chaves <code>{}</code> para cada bloco que precisa carregar.
 </p>
 </div>
-<div id="outline-container-org92436c9" class="outline-3">
-<h3 id="org92436c9"><span class="section-number-3">4.1.</span> Significado de cada parâmetro</h3>
+<div id="outline-container-org8b091d0" class="outline-3">
+<h3 id="org8b091d0"><span class="section-number-3">4.1.</span> Significado de cada parâmetro</h3>
 <div class="outline-text-3" id="text-4-1">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -432,8 +433,8 @@ substitui automaticamente os campos entre chaves <code>{}</code> para cada bloco
 </table>
 </div>
 </div>
-<div id="outline-container-org585584f" class="outline-3">
-<h3 id="org585584f"><span class="section-number-3">4.2.</span> Exemplo Prático de Resolução de URL</h3>
+<div id="outline-container-org40ee554" class="outline-3">
+<h3 id="org40ee554"><span class="section-number-3">4.2.</span> Exemplo Prático de Resolução de URL</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 Quando o Leaflet precisa desenhar o bloco cobrindo a região central do Brasil no <b><b>Zoom 4</b></b>:
@@ -452,8 +453,8 @@ A URL final calculada pelo Leaflet fica:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">https://a.basemaps.cartocdn.com/light_all/4/6/9.png
-</pre>
+<pre class="src src-text"><code>https://a.basemaps.cartocdn.com/light_all/4/6/9.png
+</code></pre>
 </div>
 
 <p>
@@ -463,8 +464,8 @@ PNG de 256x256 pixels com o desenho do mapa base.
 </div>
 </div>
 </div>
-<div id="outline-container-org3fc081a" class="outline-2">
-<h2 id="org3fc081a"><span class="section-number-2">5.</span> Comparativo de Provedores de Tiles (Basemaps)</h2>
+<div id="outline-container-orgdd9b3be" class="outline-2">
+<h2 id="orgdd9b3be"><span class="section-number-2">5.</span> Comparativo de Provedores de Tiles (Basemaps)</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Diferentes servidores oferecem estilos visuais apropriados para cada tipo de análise:
@@ -506,8 +507,8 @@ relevo real, vegetação e uso do solo.</li>
 </ol>
 </div>
 </div>
-<div id="outline-container-org207e988" class="outline-2">
-<h2 id="org207e988"><span class="section-number-2">6.</span> Como o GeoJSON é desenhado sobre os Tiles</h2>
+<div id="outline-container-org7b65d22" class="outline-2">
+<h2 id="org7b65d22"><span class="section-number-2">6.</span> Como o GeoJSON é desenhado sobre os Tiles</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Enquanto o <b>TileLayer</b> é composto por imagens estáticas de fundo (<i>raster</i>), o
@@ -515,12 +516,12 @@ Enquanto o <b>TileLayer</b> é composto por imagens estáticas de fundo (<i>rast
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">[ Camada 2: Vetores GeoJSON ]  -&gt; Polígonos de UFs e Municípios (com cores e cliques)
+<pre class="src src-text"><code>[ Camada 2: Vetores GeoJSON ]  -&gt; Polígonos de UFs e Municípios (com cores e cliques)
                |
 [ Camada 1: TileLayer Base  ]  -&gt; Mosaico de imagens (estradas, relevo, oceanos)
                |
 [ Container DOM (#map)      ]  -&gt; Elemento HTML gerenciado pelo Leaflet
-</pre>
+</code></pre>
 </div>
 
 <ol class="org-ol">
@@ -531,8 +532,8 @@ Enquanto o <b>TileLayer</b> é composto por imagens estáticas de fundo (<i>rast
 </ol>
 </div>
 </div>
-<div id="outline-container-org63d2e37" class="outline-2">
-<h2 id="org63d2e37"><span class="section-number-2">7.</span> Depuração e Inspeção Visual de Tiles (Z, X, Y)</h2>
+<div id="outline-container-org0a47c3b" class="outline-2">
+<h2 id="org0a47c3b"><span class="section-number-2">7.</span> Depuração e Inspeção Visual de Tiles (Z, X, Y)</h2>
 <div class="outline-text-2" id="text-7">
 <p>
 Para tornar a pirâmide de tiles 100% visível e didática, a aplicação inclui um
@@ -546,8 +547,8 @@ recurso de depuração (<b>L.GridLayer</b>):
 a posição exata \((X, Y)\) daquele bloco no planeta.</li>
 </ol>
 </div>
-<div id="outline-container-orgd8328d5" class="outline-3">
-<h3 id="orgd8328d5"><span class="section-number-3">7.1.</span> Como converter Latitude e Longitude em Coordenadas de Tile (X, Y)</h3>
+<div id="outline-container-orgbdd03b0" class="outline-3">
+<h3 id="orgbdd03b0"><span class="section-number-3">7.1.</span> Como converter Latitude e Longitude em Coordenadas de Tile (X, Y)</h3>
 <div class="outline-text-3" id="text-7-1">
 <p>
 A projeção padrão da web (Web Mercator / EPSG:3857) utiliza a seguinte fórmula
@@ -555,7 +556,7 @@ matemática para encontrar em qual bloco \((X, Y)\) um ponto \((\text{lat}, \tex
 </p>
 
 <div class="org-src-container">
-<pre class="src src-javascript">function latLngToTileCoords(lat, lng, zoom) {
+<pre class="src src-javascript"><code>function latLngToTileCoords(lat, lng, zoom) {
   const n = Math.pow(2, zoom);
   const x = Math.floor(((lng + 180) / 360) * n);
   const latRad = (lat * Math.PI) / 180;
@@ -564,7 +565,7 @@ matemática para encontrar em qual bloco \((X, Y)\) um ponto \((\text{lat}, \tex
   );
   return { x, y };
 }
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -578,8 +579,8 @@ No nível de zoom \(Z\):
 </div>
 </div>
 </div>
-<div id="outline-container-org1a2149b" class="outline-2">
-<h2 id="org1a2149b"><span class="section-number-2">8.</span> Estratégia de Nível de Detalhe por Zoom (LOD - Level of Detail)</h2>
+<div id="outline-container-org59f8831" class="outline-2">
+<h2 id="org59f8831"><span class="section-number-2">8.</span> Estratégia de Nível de Detalhe por Zoom (LOD - Level of Detail)</h2>
 <div class="outline-text-2" id="text-8">
 <p>
 A visualização geoespacial eficiente exige que a resolução dos dados acompanhe
@@ -587,8 +588,8 @@ a escala de visualização do usuário. Carregar todas as feições municipais e
 escala global é inviável e prejudicial à experiência.
 </p>
 </div>
-<div id="outline-container-orgffd72dc" class="outline-3">
-<h3 id="orgffd72dc"><span class="section-number-3">8.1.</span> Por que todos os 4 arquivos GeoJSON são indispensáveis?</h3>
+<div id="outline-container-orgc81a125" class="outline-3">
+<h3 id="orgc81a125"><span class="section-number-3">8.1.</span> Por que todos os 4 arquivos GeoJSON são indispensáveis?</h3>
 <div class="outline-text-3" id="text-8-1">
 <p>
 Cada arquivo GeoJSON baixado do IBGE atende a uma escala cartográfica específica:
@@ -660,8 +661,8 @@ Cada arquivo GeoJSON baixado do IBGE atende a uma escala cartográfica específi
 </table>
 </div>
 </div>
-<div id="outline-container-org470f11d" class="outline-3">
-<h3 id="org470f11d"><span class="section-number-3">8.2.</span> O que acontece se utilizarmos o arquivo errado na escala errada?</h3>
+<div id="outline-container-orgec834ca" class="outline-3">
+<h3 id="orgec834ca"><span class="section-number-3">8.2.</span> O que acontece se utilizarmos o arquivo errado na escala errada?</h3>
 <div class="outline-text-3" id="text-8-2">
 <ol class="org-ol">
 <li><b>Se carregássemos apenas Municípios no Zoom 0 a 3:</b>
@@ -682,8 +683,8 @@ sem conseguir clicar ou inspecionar nenhum município específico.</li>
 </ol>
 </div>
 </div>
-<div id="outline-container-org4c85597" class="outline-3">
-<h3 id="org4c85597"><span class="section-number-3">8.3.</span> Cache em Memória Local (~0 ms de latência nas trocas de Zoom)</h3>
+<div id="outline-container-org5331f4c" class="outline-3">
+<h3 id="org5331f4c"><span class="section-number-3">8.3.</span> Cache em Memória Local (~0 ms de latência nas trocas de Zoom)</h3>
 <div class="outline-text-3" id="text-8-3">
 <p>
 Para que a transição entre recortes seja imperceptível e sem travamentos, a aplicação
@@ -691,7 +692,7 @@ armazena os GeoJSONs já baixados em um objeto de cache em memória JavaScript:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-javascript">const geoJsonCache = {};
+<pre class="src src-javascript"><code>const geoJsonCache = {};
 
 // Na 1ª vez: baixa o arquivo pela rede (~10 a 50 ms)
 const response = await fetch(meta.filePath);
@@ -700,12 +701,12 @@ geoJsonCache[layerKey] = { data: geojsonData, size: payloadSizeBytes };
 
 // Nas próximas vezes: recupera instantaneamente da memória RAM (0 ms)!
 const cachedData = geoJsonCache[layerKey].data;
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org7826593" class="outline-3">
-<h3 id="org7826593"><span class="section-number-3">8.4.</span> Modos de Operação: Auto-LOD vs. Controle Manual</h3>
+<div id="outline-container-orgffbe8f3" class="outline-3">
+<h3 id="orgffbe8f3"><span class="section-number-3">8.4.</span> Modos de Operação: Auto-LOD vs. Controle Manual</h3>
 <div class="outline-text-3" id="text-8-4">
 <ol class="org-ol">
 <li><b><b>Modo Automático (Auto-LOD, padrão ativo):</b></b>
@@ -722,8 +723,8 @@ respeitando a escolha explícita do usuário.</li>
 </ol>
 </div>
 </div>
-<div id="outline-container-org2c91591" class="outline-3">
-<h3 id="org2c91591"><span class="section-number-3">8.5.</span> Relação entre a Bounding Box da Tela e os Tiles Visíveis</h3>
+<div id="outline-container-org458f640" class="outline-3">
+<h3 id="org458f640"><span class="section-number-3">8.5.</span> Relação entre a Bounding Box da Tela e os Tiles Visíveis</h3>
 <div class="outline-text-3" id="text-8-5">
 <p>
 Para determinar quais tiles interceptam a tela do usuário:
@@ -736,15 +737,15 @@ Para determinar quais tiles interceptam a tela do usuário:
 </div>
 </div>
 </div>
-<div id="outline-container-orgfe0e537" class="outline-2">
-<h2 id="orgfe0e537"><span class="section-number-2">9.</span> Como Executar e Fazer Deploy da Aplicação</h2>
+<div id="outline-container-org2d44886" class="outline-2">
+<h2 id="org2d44886"><span class="section-number-2">9.</span> Como Executar e Fazer Deploy da Aplicação</h2>
 <div class="outline-text-2" id="text-9">
 <p>
 A pasta <code>web/</code> foi concebida para ser 100% estática e auto-suficiente:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-text">web/
+<pre class="src src-text"><code>web/
 |-- index.html        ; Portal inicial com catálogo de mapas interativos
 |-- ibge_malhas.html  ; Mapa explorador de malhas do IBGE (Leaflet + GeoJSON)
 |-- css/
@@ -752,19 +753,19 @@ A pasta <code>web/</code> foi concebida para ser 100% estática e auto-suficient
 |-- js/
 |   `-- app.js        ; Código Leaflet completo (L.map, GridLayer, LOD e GeoJSON)
 `-- data/             ; GeoJSONs leves do IBGE prontos para publicação web
-</pre>
+</code></pre>
 </div>
 </div>
-<div id="outline-container-orgaf7c764" class="outline-3">
-<h3 id="orgaf7c764"><span class="section-number-3">9.1.</span> Execução Local</h3>
+<div id="outline-container-org139d87b" class="outline-3">
+<h3 id="org139d87b"><span class="section-number-3">9.1.</span> Execução Local</h3>
 <div class="outline-text-3" id="text-9-1">
 <p>
 No terminal, execute o servidor embutido do Python:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">python3 -m http.server 8000 --directory web
-</pre>
+<pre class="src src-sh"><code>python3 -m http.server 8000 --directory web
+</code></pre>
 </div>
 
 <p>
@@ -772,8 +773,8 @@ Acesse no navegador: <code>http://localhost:8000</code>
 </p>
 </div>
 </div>
-<div id="outline-container-org37f6b82" class="outline-3">
-<h3 id="org37f6b82"><span class="section-number-3">9.2.</span> Deploy Estático (GitHub Pages)</h3>
+<div id="outline-container-orga28ad81" class="outline-3">
+<h3 id="orga28ad81"><span class="section-number-3">9.2.</span> Deploy Estático (GitHub Pages)</h3>
 <div class="outline-text-3" id="text-9-2">
 <p>
 Para publicar no GitHub Pages:
@@ -789,7 +790,7 @@ Para publicar no GitHub Pages:
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Projeto de aprendizagem</p>
-<p class="date">Created: 2026-08-30 dom 23:20</p>
+<p class="date">Created: 2026-11-19 qui 22:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

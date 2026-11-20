@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
 <head>
-<!-- 2026-08-30 dom 23:20 -->
+<!-- 2026-11-19 qui 22:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Primeira exploração da MMD 2024</title>
@@ -57,6 +57,7 @@
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-c:before { content: 'C'; }
   pre.src-C:before { content: 'C'; }
   /* pre.src-C++ doesn't work in CSS */
   pre.src-clojure:before { content: 'Clojure'; }
@@ -71,7 +72,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -201,24 +202,24 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org8726933">1. Objetivo</a></li>
-<li><a href="#org4c183a8">2. O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></a></li>
-<li><a href="#org05db97d">3. Resultados obtidos</a>
+<li><a href="#org0941297">1. Objetivo</a></li>
+<li><a href="#org31fbe4f">2. O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></a></li>
+<li><a href="#org9349e1f">3. Resultados obtidos</a>
 <ul>
-<li><a href="#org34a1418">3.1. Estrutura geral</a></li>
-<li><a href="#org61406d1">3.2. Colunas da tabela de atributos</a></li>
-<li><a href="#org9c808da">3.3. Concentrações urbanas</a></li>
-<li><a href="#org32644bf">3.4. Distribuição por região</a></li>
-<li><a href="#orga5c0aff">3.5. Unidades da federação com mais municípios</a></li>
-<li><a href="#orgce2a1d8">3.6. Áreas</a></li>
+<li><a href="#org28fd6c0">3.1. Estrutura geral</a></li>
+<li><a href="#org9e7f180">3.2. Colunas da tabela de atributos</a></li>
+<li><a href="#orgb01fe41">3.3. Concentrações urbanas</a></li>
+<li><a href="#orgf87fcfe">3.4. Distribuição por região</a></li>
+<li><a href="#org57b3280">3.5. Unidades da federação com mais municípios</a></li>
+<li><a href="#orgda0b809">3.6. Áreas</a></li>
 </ul>
 </li>
-<li><a href="#org2a57122">4. Observações e próximos passos</a></li>
+<li><a href="#org78083cb">4. Observações e próximos passos</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org8726933" class="outline-2">
-<h2 id="org8726933"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org0941297" class="outline-2">
+<h2 id="org0941297"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Registrar os resultados da primeira leitura da Malha Municipal Digital 2024
@@ -227,13 +228,13 @@ com o geopandas. O script de exploração está em
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">.venv/bin/python scripts/commands/ibge_malha_municipal__explorar_shapefiles.py
-</pre>
+<pre class="src src-sh"><code>.venv/bin/python scripts/commands/ibge_malha_municipal__explorar_shapefiles.py
+</code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org4c183a8" class="outline-2">
-<h2 id="org4c183a8"><span class="section-number-2">2.</span> O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></h2>
+<div id="outline-container-org31fbe4f" class="outline-2">
+<h2 id="org31fbe4f"><span class="section-number-2">2.</span> O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></h2>
 <div class="outline-text-2" id="text-2">
 <p>
 O arquivo <code>BR_Municipios_2024.zip</code> (208 MB) contém apenas os cinco arquivos
@@ -289,12 +290,12 @@ geopandas interpreta como EPSG:4674.
 </p>
 </div>
 </div>
-<div id="outline-container-org05db97d" class="outline-2">
-<h2 id="org05db97d"><span class="section-number-2">3.</span> Resultados obtidos</h2>
+<div id="outline-container-org9349e1f" class="outline-2">
+<h2 id="org9349e1f"><span class="section-number-2">3.</span> Resultados obtidos</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org34a1418" class="outline-3">
-<h3 id="org34a1418"><span class="section-number-3">3.1.</span> Estrutura geral</h3>
+<div id="outline-container-org28fd6c0" class="outline-3">
+<h3 id="org28fd6c0"><span class="section-number-3">3.1.</span> Estrutura geral</h3>
 <div class="outline-text-3" id="text-3-1">
 <ul class="org-ul">
 <li>Feições: 5573</li>
@@ -311,8 +312,8 @@ edição de 2024.
 </p>
 </div>
 </div>
-<div id="outline-container-org61406d1" class="outline-3">
-<h3 id="org61406d1"><span class="section-number-3">3.2.</span> Colunas da tabela de atributos</h3>
+<div id="outline-container-org9e7f180" class="outline-3">
+<h3 id="org9e7f180"><span class="section-number-3">3.2.</span> Colunas da tabela de atributos</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 A malha municipal de 2024 traz, além da geometria, uma série de campos
@@ -422,8 +423,8 @@ As regiões geográficas imediatas e intermediárias substituíram, a partir de
 </p>
 </div>
 </div>
-<div id="outline-container-org9c808da" class="outline-3">
-<h3 id="org9c808da"><span class="section-number-3">3.3.</span> Concentrações urbanas</h3>
+<div id="outline-container-orgb01fe41" class="outline-3">
+<h3 id="orgb01fe41"><span class="section-number-3">3.3.</span> Concentrações urbanas</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 Os campos <code>CD_CONCU</code> e <code>NM_CONCU</code> indicam a concentração urbana à qual o
@@ -434,8 +435,8 @@ Bárbara d´Oeste/SP").
 </p>
 </div>
 </div>
-<div id="outline-container-org32644bf" class="outline-3">
-<h3 id="org32644bf"><span class="section-number-3">3.4.</span> Distribuição por região</h3>
+<div id="outline-container-orgf87fcfe" class="outline-3">
+<h3 id="orgf87fcfe"><span class="section-number-3">3.4.</span> Distribuição por região</h3>
 <div class="outline-text-3" id="text-3-4">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -480,8 +481,8 @@ Bárbara d´Oeste/SP").
 </table>
 </div>
 </div>
-<div id="outline-container-orga5c0aff" class="outline-3">
-<h3 id="orga5c0aff"><span class="section-number-3">3.5.</span> Unidades da federação com mais municípios</h3>
+<div id="outline-container-org57b3280" class="outline-3">
+<h3 id="org57b3280"><span class="section-number-3">3.5.</span> Unidades da federação com mais municípios</h3>
 <div class="outline-text-3" id="text-3-5">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -534,8 +535,8 @@ Bárbara d´Oeste/SP").
 </table>
 </div>
 </div>
-<div id="outline-container-orgce2a1d8" class="outline-3">
-<h3 id="orgce2a1d8"><span class="section-number-3">3.6.</span> Áreas</h3>
+<div id="outline-container-orgda0b809" class="outline-3">
+<h3 id="orgda0b809"><span class="section-number-3">3.6.</span> Áreas</h3>
 <div class="outline-text-3" id="text-3-6">
 <ul class="org-ul">
 <li>Área total informada: 8.509.379,6 km2 (o valor oficial do Brasil é de
@@ -546,8 +547,8 @@ aproximadamente 8,5 milhões de km2).</li>
 </div>
 </div>
 </div>
-<div id="outline-container-org2a57122" class="outline-2">
-<h2 id="org2a57122"><span class="section-number-2">4.</span> Observações e próximos passos</h2>
+<div id="outline-container-org78083cb" class="outline-2">
+<h2 id="org78083cb"><span class="section-number-2">4.</span> Observações e próximos passos</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>O campo <code>AREA_KM2</code> é fornecido pelo IBGE e pode ser comparado com o
@@ -561,7 +562,7 @@ diferença entre área planimétrica e área em coordenadas geográficas.</li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Projeto de aprendizagem</p>
-<p class="date">Created: 2026-08-30 dom 23:20</p>
+<p class="date">Created: 2026-11-19 qui 22:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

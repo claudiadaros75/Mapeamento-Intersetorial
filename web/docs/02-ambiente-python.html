@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="pt-br" xml:lang="pt-br">
 <head>
-<!-- 2026-08-30 dom 23:20 -->
+<!-- 2026-11-19 qui 22:19 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ambiente Python para análise geoespacial</title>
@@ -57,6 +57,7 @@
   pre.src-asymptote:before { content: 'Asymptote'; }
   pre.src-awk:before { content: 'Awk'; }
   pre.src-authinfo::before { content: 'Authinfo'; }
+  pre.src-c:before { content: 'C'; }
   pre.src-C:before { content: 'C'; }
   /* pre.src-C++ doesn't work in CSS */
   pre.src-clojure:before { content: 'Clojure'; }
@@ -71,7 +72,7 @@
   pre.src-haskell:before { content: 'Haskell'; }
   pre.src-hledger:before { content: 'hledger'; }
   pre.src-java:before { content: 'Java'; }
-  pre.src-js:before { content: 'Javascript'; }
+  pre.src-js:before { content: 'JavaScript'; }
   pre.src-latex:before { content: 'LaTeX'; }
   pre.src-ledger:before { content: 'Ledger'; }
   pre.src-lisp:before { content: 'Lisp'; }
@@ -201,18 +202,18 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org7ecbdaa">1. Objetivo</a></li>
-<li><a href="#org6c622cb">2. Bibliotecas utilizadas</a></li>
-<li><a href="#orgcf42532">3. Criação do ambiente virtual</a></li>
-<li><a href="#org0ce4881">4. Instalação das bibliotecas</a></li>
-<li><a href="#org1d1c0fc">5. Verificação do ambiente</a></li>
-<li><a href="#org1d975c4">6. Exercício: conferir os dados carregados</a></li>
-<li><a href="#org2825528">7. Notas</a></li>
+<li><a href="#org3bf68fb">1. Objetivo</a></li>
+<li><a href="#org0d6647c">2. Bibliotecas utilizadas</a></li>
+<li><a href="#org4e77a06">3. Criação do ambiente virtual</a></li>
+<li><a href="#orge7ac9eb">4. Instalação das bibliotecas</a></li>
+<li><a href="#orgb7552c6">5. Verificação do ambiente</a></li>
+<li><a href="#orgfe69262">6. Exercício: conferir os dados carregados</a></li>
+<li><a href="#org9a6133b">7. Notas</a></li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org7ecbdaa" class="outline-2">
-<h2 id="org7ecbdaa"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org3bf68fb" class="outline-2">
+<h2 id="org3bf68fb"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Este documento registra a preparação do ambiente de desenvolvimento usado
@@ -221,8 +222,8 @@ bibliotecas necessárias para trabalhar com dados geoespaciais.
 </p>
 </div>
 </div>
-<div id="outline-container-org6c622cb" class="outline-2">
-<h2 id="org6c622cb"><span class="section-number-2">2.</span> Bibliotecas utilizadas</h2>
+<div id="outline-container-org0d6647c" class="outline-2">
+<h2 id="org0d6647c"><span class="section-number-2">2.</span> Bibliotecas utilizadas</h2>
 <div class="outline-text-2" id="text-2">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -277,8 +278,8 @@ matplotlib foi instalado separadamente para visualização.
 </p>
 </div>
 </div>
-<div id="outline-container-orgcf42532" class="outline-2">
-<h2 id="orgcf42532"><span class="section-number-2">3.</span> Criação do ambiente virtual</h2>
+<div id="outline-container-org4e77a06" class="outline-2">
+<h2 id="org4e77a06"><span class="section-number-2">3.</span> Criação do ambiente virtual</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 O projeto usa um ambiente virtual Python isolado, criado dentro da pasta do
@@ -286,8 +287,8 @@ projeto:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">python3 -m venv .venv
-</pre>
+<pre class="src src-sh"><code>python3 -m venv .venv
+</code></pre>
 </div>
 
 <p>
@@ -295,22 +296,22 @@ O ambiente é ativado com:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">source .venv/bin/activate
-</pre>
+<pre class="src src-sh"><code>source .venv/bin/activate
+</code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org0ce4881" class="outline-2">
-<h2 id="org0ce4881"><span class="section-number-2">4.</span> Instalação das bibliotecas</h2>
+<div id="outline-container-orge7ac9eb" class="outline-2">
+<h2 id="orge7ac9eb"><span class="section-number-2">4.</span> Instalação das bibliotecas</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Com o ambiente ativado (ou usando o caminho do interpretador):
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">.venv/bin/pip install --upgrade pip
+<pre class="src src-sh"><code>.venv/bin/pip install --upgrade pip
 .venv/bin/pip install geopandas matplotlib
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -327,16 +328,16 @@ Versões instaladas na data deste registro:
 </ul>
 </div>
 </div>
-<div id="outline-container-org1d1c0fc" class="outline-2">
-<h2 id="org1d1c0fc"><span class="section-number-2">5.</span> Verificação do ambiente</h2>
+<div id="outline-container-orgb7552c6" class="outline-2">
+<h2 id="orgb7552c6"><span class="section-number-2">5.</span> Verificação do ambiente</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Para conferir que tudo foi instalado corretamente:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">.venv/bin/python -c "import geopandas; print(geopandas.__version__)"
-</pre>
+<pre class="src src-sh"><code>.venv/bin/python -c "import geopandas; print(geopandas.__version__)"
+</code></pre>
 </div>
 
 <p>
@@ -344,13 +345,13 @@ E para ver as versões completas:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">.venv/bin/pip list | grep -i -E "geopandas|matplotlib|pandas|shapely|pyproj|pyogrio"
-</pre>
+<pre class="src src-sh"><code>.venv/bin/pip list | grep -i -E "geopandas|matplotlib|pandas|shapely|pyproj|pyogrio"
+</code></pre>
 </div>
 </div>
 </div>
-<div id="outline-container-org1d975c4" class="outline-2">
-<h2 id="org1d975c4"><span class="section-number-2">6.</span> Exercício: conferir os dados carregados</h2>
+<div id="outline-container-orgfe69262" class="outline-2">
+<h2 id="orgfe69262"><span class="section-number-2">6.</span> Exercício: conferir os dados carregados</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Com o arquivo <code>data/ibge_malha_municipal/zipfiles/BR_Municipios_2024.zip</code> baixado e extraído, é possível
@@ -369,14 +370,14 @@ A leitura é feita com:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python">import geopandas as gpd
+<pre class="src src-python"><code>import geopandas as gpd
 
 municipios = gpd.read_file("data/ibge_malha_municipal/zipfiles/BR_Municipios_2024/BR_Municipios_2024.shp")
 print(municipios.shape)
 print(municipios.columns.tolist())
 print(municipios.crs)
 print(municipios.total_bounds)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -385,8 +386,8 @@ que os exercícios forem realizados.
 </p>
 </div>
 </div>
-<div id="outline-container-org2825528" class="outline-2">
-<h2 id="org2825528"><span class="section-number-2">7.</span> Notas</h2>
+<div id="outline-container-org9a6133b" class="outline-2">
+<h2 id="org9a6133b"><span class="section-number-2">7.</span> Notas</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li>O pip moderno pode recusar instalar pacotes para versões muito antigas do
@@ -399,7 +400,7 @@ dependências (<code>requirements.txt</code>) com as versões fixadas.</li>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Projeto de aprendizagem</p>
-<p class="date">Created: 2026-08-30 dom 23:20</p>
+<p class="date">Created: 2026-11-19 qui 22:19</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
