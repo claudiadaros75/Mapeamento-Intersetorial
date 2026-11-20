@@ -52,6 +52,10 @@ data/ibge_cnefe/
 data/cadastroescolar_inep/
 data/inep_catalogo_escolas.csv
 
+# Censo Escolar juntado ao Catalogo de Escolas (~235 MB, acima do limite do
+# GitHub) - use scripts/commands/inep_censo_escolar__juntar_cadastro_escolar.py
+data/inep_censo_escolar_*_+_cadastro_escolar_do_inep*.csv
+
 # -------------------------------------------------------------
 # Rascunhos locais
 # -------------------------------------------------------------

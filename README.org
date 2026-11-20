@@ -311,6 +311,102 @@ O roteiro evolui conforme o projeto avança. Os primeiros passos são:
 
 Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
 
+* Como rodar o pipeline das escolas (passo a passo manual)
+
+Todos os comandos rodam a partir da raiz do projeto, com o ambiente
+Python do projeto (=.venv/=, ver [[./docs/02-ambiente-python.org][02-ambiente-python]]). Os dados baixados e
+os CSVs grandes ficam em =data/= e não vão para o git.
+
+** 1. Baixar as bases oficiais
+
+#+begin_src sh
+  # Censo Escolar (INEP): 2025 para o pipeline novo; 2024 extraído para o ETL de 2024
+  .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2025
+  .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2024 --extrair
+
+  # CNEFE 2022 (IBGE), extraído, só das UFs que serão processadas
+  .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py am pa sp --extrair
+#+end_src
+
+** 2. Exportar o Catálogo de Escolas do INEP Data (manual, no navegador)
+
+O Catálogo de Escolas só exporta pelo painel do INEP Data
+(https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas),
+e corta cada exportação em 100.000 linhas. Por isso o Brasil é exportado
+por grande região (Norte e Nordeste, Centro-Oeste, Sudeste, Sul) e cada
+arquivo é salvo em =data/cadastroescolar_inep/=.
+
+*Atenção*: a pasta deve ter *só* as exportações do painel. Qualquer outro
+CSV nela (por exemplo, uma cópia da base já juntada) faz o passo 3 parar,
+porque cada escola apareceria duas vezes.
+
+** 3. Juntar as exportações em uma base só
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py
+#+end_src
+
+Gera =data/inep_catalogo_escolas.csv= (210.320 escolas; endereço em um
+campo só e o ponto do INEP em =Latitude=/=Longitude=).
+
+** 4. Juntar o Censo Escolar 2025 ao Catálogo pelo código da escola
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/inep_censo_escolar__juntar_cadastro_escolar.py
+#+end_src
+
+Liga =CO_ENTIDADE= (Censo) a =Código INEP= (Catálogo) e gera:
+
+| Arquivo                                                                               | Conteúdo                                                                |
+|---------------------------------------------------------------------------------------+-------------------------------------------------------------------------|
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep.csv=                         | todas as escolas, com =JUNCAO_CENSO_CADASTRO= dizendo em qual base estão |
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep__nocadastro_forado_censo.csv= | só as escolas que estão no Catálogo e não no Censo                      |
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep__nocenso_forado_cadastroescolar.csv= | só as escolas que estão no Censo e não no Catálogo                |
+
+As escolas só do Censo são todas extintas: o Catálogo não lista escolas
+extintas.
+
+** 5. Casar as escolas com o CNEFE (coordenadas)
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py          # UFs com CNEFE baixado
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py am pa    # só algumas UFs
+#+end_src
+
+Separa o endereço do Catálogo (logradouro, número, CEP...), aplica o mesmo
+casamento em níveis do ETL de 2024 (1 e 2 por endereço, 3 e 4 por nome) e
+escolhe a coordenada final. Gera =data/inep_+cnef.csv=, com todas as
+colunas da entrada e mais:
+
+| Campo                                                          | O que diz                                                            |
+|----------------------------------------------------------------+----------------------------------------------------------------------|
+| =JUNCAO_CENSO_CADASTRO=                                        | =censo_e_cadastro=, =so_censo= ou =so_cadastro=                      |
+| =ENDERECO_SEPARACAO=                                           | se o endereço tem CEP e número (=cep_e_numero=, =sem_numero=...)     |
+| =NIVEL_CASAMENTO=, =STATUS_CNEFE=, =MOTIVO_GEOLOCALIZACAO=     | como (ou por que não) a escola casou com o CNEFE                     |
+| =ALERTAS_GEOLOCALIZACAO=                                       | o que merece conferência (CEP genérico, ponto compartilhado...)      |
+| =LATITUDE=, =LONGITUDE=, =FONTE_COORDENADA=, =STATUS_GEOLOCALIZACAO= | a coordenada final e de onde veio (INEP ou CNEFE)               |
+| =N_CANDIDATOS=, =SIMILARIDADE_NOME=, nomes normalizados        | o "porquê" do casamento                                              |
+| =CNEFE_JUNTADO= e as colunas =CNEFE_*=                         | a linha original do CNEFE inteira, quando a escola casou com ela     |
+| =HISTORICO_PROCESSAMENTO=                                      | as etapas que o registro percorreu, em ordem                         |
+
+Escolas extintas, paralisadas ou em atividade: coluna
+=TP_SITUACAO_FUNCIONAMENTO= do Censo (1 em atividade, 2 paralisada, 3
+extinta).
+
+** ETL do Censo 2024 e mapas web
+
+O Censo 2024 ainda tem o endereço separado nos microdados e alimenta os
+mapas publicados:
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+#+end_src
+
+Detalhes, decisões e números de cada etapa ficam em =docs/= e em
+=docs/features/=.
+
 * Referências
 
 - Portal de downloads das Malhas do IBGE:
