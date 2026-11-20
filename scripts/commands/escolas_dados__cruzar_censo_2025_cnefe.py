@@ -156,8 +156,8 @@ def carregar_entrada(caminho: Path, codigos_uf: set) -> tuple:
     """Le a base juntada e devolve (escolas por UF, colunas, coordenadas do INEP).
 
     Separa o endereco de cada escola das UFs pedidas e marca
-    ENDERECO_SEPARACAO. Escola so do Cadastro nao tem CO_UF/SG_UF (vem do
-    Censo): usa a UF do Cadastro.
+    ENDERECO_SEPARACAO. Escola sem CO_UF (so do Cadastro, ou sem UF no
+    proprio Censo) usa a UF do Cadastro, para nao ficar de fora.
 
     coordenadas: CO_ENTIDADE -> (lat, lon, escolas_no_ponto), contando as
     escolas no mesmo ponto no Brasil todo, como carregar_coordenadas_inep do ETL.
@@ -176,8 +176,12 @@ def carregar_entrada(caminho: Path, codigos_uf: set) -> tuple:
         for linha in leitor:
             if not linha["CO_ENTIDADE"]:  # so no Cadastro
                 linha["CO_ENTIDADE"] = linha["Código INEP"]
+            # So no Cadastro, ou com a UF incompleta no proprio Censo (ex.: 43145833,
+            # com CO_UF e sem SG_UF): completa pela UF do Cadastro
+            if not linha["SG_UF"]:
                 linha["SG_UF"] = linha["UF"]
-                linha["CO_UF"] = etl.UFS.get(linha["UF"].lower(), "")
+            if not linha["CO_UF"]:
+                linha["CO_UF"] = etl.UFS.get(linha["SG_UF"].lower(), "")
             lat, lon = linha["Latitude"].strip(), linha["Longitude"].strip()
             if lat and lon:
                 pontos[linha["CO_ENTIDADE"]] = (round(float(lat), 6), round(float(lon), 6))
@@ -239,7 +243,7 @@ def montar_registros(linhas_saida: list, linhas_auditoria: list, linhas_cnefe: l
 def principal() -> None:
     analisador = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     analisador.add_argument("ufs", nargs="*", choices=list(etl.UFS) + [[]], type=str.lower,
-                            help="siglas das UFs a processar (padrao: as que ja tem CNEFE extraido)")
+                            help="siglas das UFs a processar (padrao: as que ja tem CNEFE baixado)")
     analisador.add_argument("--entrada", type=Path, default=ENTRADA, help="padrao: {}".format(ENTRADA))
     analisador.add_argument("--saida", type=Path, default=SAIDA, help="padrao: {}".format(SAIDA))
     argumentos = analisador.parse_args()
@@ -247,31 +251,58 @@ def principal() -> None:
     ufs_pedidas = argumentos.ufs or etl.ufs_com_cnefe_baixado()
     if not ufs_pedidas:
         raise SystemExit("nenhuma UF com CNEFE baixado em {}".format(etl.DIR_CNEFE))
+    ufs_processadas = {uf.upper() for uf in ufs_pedidas}
 
     etl.ANO_CENSO_ESCOLAR = ANO  # so aparece nas mensagens de processar_uf
     print("Censo Escolar {} + Cadastro Escolar: {}".format(ANO, argumentos.entrada))
     por_uf, colunas, coordenadas = carregar_entrada(argumentos.entrada, {etl.UFS[uf] for uf in ufs_pedidas})
     print("    {} escolas com ponto do INEP (Brasil)".format(len(coordenadas)))
 
-    registros, colunas_cnefe = [], []
-    contagens_totais = collections.Counter()
+    # Grava UF por UF num arquivo temporario (com 27 UFs, juntar todos os
+    # registros na memoria antes de gravar fica pesado). As linhas de UFs
+    # ja presentes na saida e nao reprocessadas agora sao mantidas, como no ETL.
+    temporario = argumentos.saida.with_suffix(argumentos.saida.suffix + ".tmp")
+    arquivo, escritor = None, None
+    contagens_totais, rastreio = collections.Counter(), collections.defaultdict(collections.Counter)
+    gravadas = 0
     for uf in ufs_pedidas:
+        escolas = por_uf.pop(etl.UFS[uf])
         linhas_saida, linhas_auditoria, _, linhas_cnefe, colunas_cnefe, contagens = etl.processar_uf(
-            uf, por_uf[etl.UFS[uf]], coordenadas)
-        registros += montar_registros(linhas_saida, linhas_auditoria, linhas_cnefe, colunas_cnefe)
+            uf, escolas, coordenadas)
+        registros = montar_registros(linhas_saida, linhas_auditoria, linhas_cnefe, colunas_cnefe)
+        del escolas, linhas_saida, linhas_auditoria, linhas_cnefe
+        if escritor is None:
+            # Colunas do CNEFE ja gravadas pelo ETL com o mesmo nome (mesmo valor) nao se repetem
+            colunas_saida = colunas + COLUNAS_ENDERECO + COLUNAS_RASTREIO + etl.COLUNAS_NOVAS + COLUNAS_DA_AUDITORIA
+            colunas_saida += [c for c in ("CNEFE_" + c for c in colunas_cnefe) if c not in colunas_saida]
+            argumentos.saida.parent.mkdir(parents=True, exist_ok=True)
+            arquivo = open(temporario, "w", encoding="utf-8", newline="")
+            escritor = csv.DictWriter(arquivo, fieldnames=colunas_saida, delimiter=";", restval="",
+                                      extrasaction="ignore")
+            escritor.writeheader()
+        escritor.writerows(registros)
+        gravadas += len(registros)
         contagens_totais.update(contagens)
+        for coluna in (COLUNA_JUNCAO, "ENDERECO_SEPARACAO", "CNEFE_JUNTADO"):
+            rastreio[coluna].update(r[coluna] for r in registros)
 
-    # Colunas do CNEFE ja gravadas pelo ETL com o mesmo nome (mesmo valor) nao se repetem
-    colunas_saida = colunas + COLUNAS_ENDERECO + COLUNAS_RASTREIO + etl.COLUNAS_NOVAS + COLUNAS_DA_AUDITORIA
-    colunas_saida += [coluna for coluna in ("CNEFE_" + c for c in colunas_cnefe) if coluna not in colunas_saida]
-    etl.gravar_mesclando(argumentos.saida, colunas_saida, registros, {uf.upper() for uf in ufs_pedidas})
+    mantidas = 0
+    if argumentos.saida.exists():
+        with open(argumentos.saida, encoding="utf-8", newline="") as anterior:
+            for linha in csv.DictReader(anterior, delimiter=";"):
+                if linha["SG_UF"] not in ufs_processadas:
+                    escritor.writerow(linha)
+                    mantidas += 1
+    arquivo.close()
+    temporario.replace(argumentos.saida)
+    print("{}: {} linhas novas, {} mantidas de outras UFs".format(argumentos.saida, gravadas, mantidas))
 
     total = sum(contagens_totais.values()) or 1
     print("\nResumo geral ({} UF(s), {} escolas)".format(len(ufs_pedidas), total))
     for status in etl.STATUS:
         print("  {:22s} {:6d}  ({:.1f}%)".format(status, contagens_totais[status], 100 * contagens_totais[status] / total))
-    for coluna in (COLUNA_JUNCAO, "ENDERECO_SEPARACAO", "CNEFE_JUNTADO"):
-        print("  {}: {}".format(coluna, dict(collections.Counter(r[coluna] for r in registros).most_common())))
+    for coluna, contagem in rastreio.items():
+        print("  {}: {}".format(coluna, dict(contagem.most_common())))
 
 
 if __name__ == "__main__":

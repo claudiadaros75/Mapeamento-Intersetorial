@@ -56,6 +56,10 @@ data/inep_catalogo_escolas.csv
 # GitHub) - use scripts/commands/inep_censo_escolar__juntar_cadastro_escolar.py
 data/inep_censo_escolar_*_+_cadastro_escolar_do_inep*.csv
 
+# Casamento do Censo 2025 com o CNEFE, Brasil inteiro (acima de 100 MB) - use
+# scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py
+data/inep_+cnef.csv
+
 # -------------------------------------------------------------
 # Rascunhos locais
 # -------------------------------------------------------------

@@ -143,9 +143,11 @@ import argparse
 import collections
 import csv
 import difflib
+import io
 import math
 import re
 import unicodedata
+import zipfile
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent.parent
@@ -498,8 +500,31 @@ def carregar_escolas_inep(caminho_csv: Path, codigos_uf: set) -> tuple:
     return por_uf, leitor.fieldnames
 
 
+def abrir_cnefe(uf_codigo: str, uf_sigla: str):
+    """Abre o CSV do CNEFE de uma UF como texto (latin-1).
+
+    Usa a pasta extraida (data/ibge_cnefe/zipfiles/<pacote>/<pacote>.csv) se
+    existir; senao le direto de dentro do ZIP, sem extrair - o Brasil
+    extraido ocupa 10 a 15 GB.
+    """
+    pacote = "{}_{}".format(uf_codigo, uf_sigla.upper())
+    extraido = DIR_CNEFE / pacote / "{}.csv".format(pacote)
+    if extraido.exists():
+        return open(extraido, encoding="latin-1", newline="")
+    caminho_zip = DIR_CNEFE / "{}.zip".format(pacote)
+    if not caminho_zip.exists():
+        raise FileNotFoundError(
+            "{} nem {} encontrados - rode antes: ibge_cnefe__baixar_dados.py {}".format(
+                extraido, caminho_zip, uf_sigla
+            )
+        )
+    pacote_zip = zipfile.ZipFile(caminho_zip)
+    binario = pacote_zip.open("{}.csv".format(pacote))
+    return io.TextIOWrapper(binario, encoding="latin-1", newline="")
+
+
 def carregar_cnefe_ensino(uf_codigo: str, uf_sigla: str) -> tuple:
-    """Le o CNEFE extraido de uma UF e devolve (registros, cabecalho) so dos estabelecimentos de ensino.
+    """Le o CNEFE de uma UF (extraido ou do ZIP) e devolve (registros, cabecalho) so dos estabelecimentos de ensino.
 
     Cada registro guarda tambem a linha original ("linha"), para a copia
     marcada do CNEFE.
@@ -508,17 +533,8 @@ def carregar_cnefe_ensino(uf_codigo: str, uf_sigla: str) -> tuple:
     docs/06-georeferenciamento-escolas.org) - o dicionario oficial do CNEFE
     ainda nao foi lido para confirmar.
     """
-    pacote = "{}_{}".format(uf_codigo, uf_sigla.upper())
-    caminho = DIR_CNEFE / pacote / "{}.csv".format(pacote)
-    if not caminho.exists():
-        raise FileNotFoundError(
-            "{} nao encontrado - rode antes: ibge_cnefe__baixar_dados.py {} --extrair".format(
-                caminho, uf_sigla
-            )
-        )
-
     registros = []
-    with open(caminho, encoding="latin-1", newline="") as arquivo:
+    with abrir_cnefe(uf_codigo, uf_sigla) as arquivo:
         leitor = csv.reader(arquivo, delimiter=";")
         cabecalho = next(leitor)
         indice = {nome: posicao for posicao, nome in enumerate(cabecalho)}
@@ -780,14 +796,14 @@ def gravar_mesclando(caminho: Path, colunas: list, linhas_novas: list, ufs_proce
 
 
 def ufs_com_cnefe_baixado() -> list:
-    """Lista as siglas de UF que ja tem o CNEFE extraido em data/ibge_cnefe/zipfiles/."""
+    """Lista as siglas de UF que ja tem o CNEFE em data/ibge_cnefe/zipfiles/ (extraido ou so o ZIP)."""
     if not DIR_CNEFE.exists():
         return []
     encontradas = []
-    for pasta in sorted(DIR_CNEFE.iterdir()):
-        codigo = pasta.name.split("_", 1)[0]
-        if codigo in CODIGO_PARA_SIGLA and (pasta / "{}.csv".format(pasta.name)).exists():
-            encontradas.append(CODIGO_PARA_SIGLA[codigo])
+    for codigo, sigla in sorted(CODIGO_PARA_SIGLA.items()):
+        pacote = "{}_{}".format(codigo, sigla.upper())
+        if (DIR_CNEFE / pacote / "{}.csv".format(pacote)).exists() or (DIR_CNEFE / "{}.zip".format(pacote)).exists():
+            encontradas.append(sigla)
     return encontradas
 
 
@@ -799,7 +815,7 @@ def principal() -> None:
         nargs="*",
         choices=list(UFS) + [[]],
         type=str.lower,
-        help="siglas das UFs a processar (padrao: as que ja tem CNEFE extraido)",
+        help="siglas das UFs a processar (padrao: as que ja tem CNEFE baixado)",
     )
     analisador.add_argument(
         "--saida",
@@ -819,7 +835,7 @@ def principal() -> None:
     if argumentos.listar:
         disponiveis = ufs_com_cnefe_baixado()
         if not disponiveis:
-            print("nenhuma UF com CNEFE extraido em {}".format(DIR_CNEFE))
+            print("nenhuma UF com CNEFE baixado em {}".format(DIR_CNEFE))
         for uf in disponiveis:
             print(uf)
         return
@@ -828,7 +844,7 @@ def principal() -> None:
     if not ufs_pedidas:
         raise SystemExit(
             "nenhuma UF com CNEFE baixado em {} - rode antes: "
-            "ibge_cnefe__baixar_dados.py <uf> --extrair".format(DIR_CNEFE)
+            "ibge_cnefe__baixar_dados.py <uf>".format(DIR_CNEFE)
         )
 
     caminho_inep = localizar_csv_inep(ANO_CENSO_ESCOLAR)

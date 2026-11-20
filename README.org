@@ -313,8 +313,9 @@ os CSVs grandes ficam em =data/= e não vão para o git.
   .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2025
   .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2024 --extrair
 
-  # CNEFE 2022 (IBGE), extraído, só das UFs que serão processadas
-  .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py am pa sp --extrair
+  # CNEFE 2022 (IBGE), as 27 UFs (~3,9 GB). Não precisa extrair: o ETL lê
+  # o CSV direto do ZIP (extraído, o Brasil ocupa de 10 a 15 GB)
+  .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py
 #+end_src
 
 ** 2. Exportar o Catálogo de Escolas do INEP Data (manual, no navegador)
@@ -358,7 +359,7 @@ extintas.
 ** 5. Casar as escolas com o CNEFE (coordenadas)
 
 #+begin_src sh
-  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py          # UFs com CNEFE baixado
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py          # UFs com CNEFE baixado (Brasil)
   .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py am pa    # só algumas UFs
 #+end_src
 
