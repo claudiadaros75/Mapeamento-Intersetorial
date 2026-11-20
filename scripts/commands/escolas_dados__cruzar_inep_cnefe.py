@@ -2,14 +2,17 @@
 """ETL: georreferencia as escolas do Censo Escolar (INEP) e gera escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv.
 
 Le os dados ja baixados por inep_censo_escolar__baixar_dados.py,
-ibge_cnefe__baixar_dados.py e ipea_geobr_escolas__baixar_dados.py (scripts
-separados deste - o download nao faz nenhuma transformacao) e produz uma
+e ibge_cnefe__baixar_dados.py, e a base
+do Catalogo de Escolas montada por inep_cadastro_escolar__juntar_exportacoes.py
+(scripts separados deste - nenhum deles faz transformacao) e produz uma
 linha por escola do Censo Escolar, com LATITUDE/LONGITUDE de uma de duas
 fontes (o nome do arquivo de saida ficou o mesmo por compatibilidade):
 
-    1. Catalogo de Escolas do INEP (cadastro de 2023, via geobr/Ipea),
-       ligado pelo codigo da escola (code_school = CO_ENTIDADE): nao
-       depende de casamento por nome ou endereco.
+    1. Catalogo de Escolas do INEP, ligado pelo codigo da escola
+       (Codigo INEP = CO_ENTIDADE): nao depende de casamento por nome ou
+       endereco. Vem da exportacao do painel do INEP Data
+       (data/inep_catalogo_escolas.csv, o cadastro atual). Escolas do
+       Censo 2024 que ja sairam do cadastro ficam sem ponto do INEP.
     2. CNEFE 2022 (IBGE), pelo casamento em niveis descrito abaixo.
 
 Qual das duas vale depende do nivel do casamento com o CNEFE
@@ -106,8 +109,8 @@ Saidas:
         auditar o casamento e a escolha da coordenada.
     data/auditoria/cnefe_ensino_nao_usados_2024.csv
         pontos de ensino do CNEFE que nenhuma escola usou.
-    data/inep_catalogo_escolas_2023_marcado.csv
-        copia do Catalogo de Escolas do INEP (so as UFs processadas, com a
+    data/inep_catalogo_escolas_marcado.csv
+        copia da exportacao do Catalogo de Escolas do INEP (so as UFs processadas, com a
         coordenada do INEP em INEP_LATITUDE/INEP_LONGITUDE), mais o nivel
         do casamento de cada escola, o ponto do CNEFE ligado, a distancia
         entre os dois pontos e a fonte da coordenada escolhida.
@@ -149,10 +152,10 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 DIR_INEP = RAIZ / "data" / "inep_censo_escolar" / "zipfiles"
 DIR_CNEFE = RAIZ / "data" / "ibge_cnefe" / "zipfiles"
 SAIDA_PADRAO = RAIZ / "data" / "escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv"
-SAIDA_INEP_MARCADO = RAIZ / "data" / "inep_catalogo_escolas_2023_marcado.csv"
+SAIDA_INEP_MARCADO = RAIZ / "data" / "inep_catalogo_escolas_marcado.csv"
 SAIDA_CNEFE_MARCADO = RAIZ / "data" / "cnefe_2022_ensino_marcado.csv"
 DIR_AUDITORIA = RAIZ / "data" / "auditoria"
-ARQUIVO_INEP_COORDENADAS = RAIZ / "data" / "ipea_geobr_escolas" / "schools_2023.gpkg"
+ARQUIVO_INEP_CATALOGO = RAIZ / "data" / "inep_catalogo_escolas.csv"
 
 ANO_CENSO_ESCOLAR = "2024"
 
@@ -386,34 +389,37 @@ def distancia_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 6371.0 * 2 * math.asin(math.sqrt(a))
 
 
-def carregar_coordenadas_inep(caminho: Path) -> tuple:
-    """Le o cadastro de escolas do INEP (geobr) e devolve (coordenadas, catalogo, colunas_catalogo).
+def carregar_coordenadas_inep(caminho_catalogo: Path) -> tuple:
+    """Le o Catalogo de Escolas do INEP e devolve (coordenadas, catalogo, colunas_catalogo).
 
-    coordenadas: CO_ENTIDADE -> (lat, lon, escolas_no_ponto). Escolas sem
-    geometria no cadastro ficam de fora. escolas_no_ponto conta quantas
-    escolas do cadastro inteiro tem exatamente o mesmo ponto (6 casas
-    decimais, ~0,1 m), para detectar marcacoes genericas.
-    catalogo: o cadastro inteiro sem a geometria, uma lista de dicts com o
-    ponto em INEP_LATITUDE/INEP_LONGITUDE, para a copia marcada.
+    Ponto de cada escola: o da exportacao do painel do INEP Data
+    (caminho_catalogo).
+
+    coordenadas: CO_ENTIDADE -> (lat, lon, escolas_no_ponto).
+    Escolas sem ponto ficam de fora. escolas_no_ponto conta quantas escolas
+    tem exatamente o mesmo ponto (6 casas decimais, ~0,1 m), para detectar
+    marcacoes genericas.
+    catalogo: a exportacao inteira, uma lista de dicts com o ponto em
+    INEP_LATITUDE/INEP_LONGITUDE, para a copia marcada.
     """
-    if not caminho.exists():
+    if not caminho_catalogo.exists():
         raise SystemExit(
-            "cadastro do INEP nao encontrado em {} - rode antes: "
-            "ipea_geobr_escolas__baixar_dados.py".format(caminho)
+            "Catalogo de Escolas do INEP nao encontrado em {} - rode antes: "
+            "inep_cadastro_escolar__juntar_exportacoes.py".format(caminho_catalogo)
         )
-    import geopandas  # so este passo precisa ler GeoPackage
-
-    cadastro = geopandas.read_file(caminho)
-    colunas = [c for c in cadastro.columns if c != "geometry"]
     pontos, catalogo = {}, []
-    for registro, geometria in zip(cadastro[colunas].astype(object).where(cadastro[colunas].notna(), "")
-                                   .to_dict("records"), cadastro.geometry):
-        registro["code_school"] = str(int(registro["code_school"]))
-        tem_ponto = geometria is not None and not geometria.is_empty
-        if tem_ponto:
-            pontos[registro["code_school"]] = (round(geometria.y, 6), round(geometria.x, 6))
-        lat, lon = pontos[registro["code_school"]] if tem_ponto else ("", "")
-        catalogo.append(dict(registro, SG_UF=registro["abbrev_state"], INEP_LATITUDE=lat, INEP_LONGITUDE=lon))
+    with open(caminho_catalogo, encoding="utf-8-sig", newline="") as arquivo:
+        leitor = csv.DictReader(arquivo)
+        colunas = list(leitor.fieldnames or [])
+        for registro in leitor:
+            codigo = registro["Código INEP"].strip()
+            lat, lon = registro["Latitude"].strip(), registro["Longitude"].strip()
+            if lat and lon:
+                lat, lon = round(float(lat), 6), round(float(lon), 6)
+                pontos[codigo] = (lat, lon)
+            catalogo.append(dict(registro, SG_UF=registro["UF"], INEP_LATITUDE=lat, INEP_LONGITUDE=lon))
+    print("    exportacao do INEP Data: {} escolas, {} com ponto".format(len(catalogo), len(pontos)))
+
     no_ponto = collections.Counter(pontos.values())
     coordenadas = {codigo: (lat, lon, no_ponto[(lat, lon)]) for codigo, (lat, lon) in pontos.items()}
     return coordenadas, catalogo, ["SG_UF"] + colunas + ["INEP_LATITUDE", "INEP_LONGITUDE"]
@@ -829,8 +835,8 @@ def principal() -> None:
     print("Censo Escolar: {}".format(caminho_inep))
     codigos_uf = {UFS[uf] for uf in ufs_pedidas}
     escolas_por_uf, colunas_inep = carregar_escolas_inep(caminho_inep, codigos_uf)
-    print("Cadastro de escolas do INEP (coordenadas): {}".format(ARQUIVO_INEP_COORDENADAS))
-    coordenadas_inep, catalogo_inep, colunas_catalogo = carregar_coordenadas_inep(ARQUIVO_INEP_COORDENADAS)
+    print("Catalogo de Escolas do INEP (coordenadas): {}".format(ARQUIVO_INEP_CATALOGO))
+    coordenadas_inep, catalogo_inep, colunas_catalogo = carregar_coordenadas_inep(ARQUIVO_INEP_CATALOGO)
     print("    {} escolas com coordenada".format(len(coordenadas_inep)))
 
     saida, auditoria, nao_usados, cnefe_marcado = [], [], [], []
@@ -854,7 +860,7 @@ def principal() -> None:
     for escola in catalogo_inep:
         if escola["SG_UF"] not in ufs_processadas:
             continue
-        linha = por_codigo.get(escola["code_school"])
+        linha = por_codigo.get(escola["Código INEP"].strip())
         marcas = {coluna: linha[coluna] for coluna in COLUNAS_MARCADAS_INEP[1:]} if linha else {}
         inep_marcado.append(dict(escola, NO_CENSO_ESCOLAR_2024="sim" if linha else "nao", **marcas))
 

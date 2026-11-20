@@ -14,7 +14,8 @@ escolhemos para georreferenciar escolas neste projeto: o *CNEFE* do IBGE.
 
 *Atualização (26/10/2026):* a estratégia mudou. A fonte principal passou a
 ser o *Catálogo de Escolas do INEP* (coordenada por escola, ligada pelo
-código =CO_ENTIDADE=, redistribuída pelo geobr do Ipea); o CNEFE ficou como
+código =CO_ENTIDADE=, redistribuída pelo geobr do Ipea; desde 19/11/2026,
+lida da exportação do painel do INEP Data, sem o geobr); o CNEFE ficou como
 *reserva* (escolas sem coordenada no INEP) e como *conferência* do ponto do
 INEP. A análise, as regras e os números estão em
 [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]], seções "Qual coordenada usar: INEP primeiro, CNEFE como reserva" e

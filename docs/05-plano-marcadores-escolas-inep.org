@@ -35,7 +35,8 @@ Este é um documento *vivo*, mantido entre sessões de trabalho:
 - UFs processadas: SP, AM e PA (branch =mapeamento-intersetorial-nacional=,
   já mesclada na =main=).
 - Coordenada de cada escola: primeiro a do *Catálogo de Escolas do INEP*
-  (cadastro de 2023, via geobr/Ipea, ligado pelo código da escola),
+  (exportação do painel do INEP Data desde 19/11/2026; antes, cadastro de
+  2023 via geobr/Ipea; ligado pelo código da escola),
   conferida com o CNEFE; o CNEFE só para quem não tem ponto no INEP.
   Escolas com ponto: AM 73,0%, PA 84,1%, SP 91,7%.
 - Dois mapas publicados no GitHub Pages: =web/escolas_mapa.html= (usuário
@@ -121,7 +122,8 @@ com a descoberta do CNEFE (ver decisão abaixo).
 
 A coordenada principal passou a ser a do Catálogo de Escolas do INEP, que
 o geobr (Ipea) redistribui com o código da escola (=code_school= =
-=CO_ENTIDADE=). O casamento com o CNEFE, descrito na decisão seguinte,
+=CO_ENTIDADE=). Desde 19/11/2026 o ponto vem da exportação do painel do
+INEP Data, e o geobr saiu do projeto. O casamento com o CNEFE, descrito na decisão seguinte,
 virou reserva (escolas sem ponto no INEP) e conferência (distância entre
 os dois pontos). Motivo, medições e regras em [[file:08-mapeamento-intersetorial-nacional-diagnostico-norte.org][08-mapeamento-intersetorial-nacional-diagnostico-norte.org]], seção "Qual
 coordenada usar: INEP primeiro, CNEFE como reserva".

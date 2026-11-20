@@ -8,8 +8,8 @@
  *
  *   endereco_exato CNEFE, nível 1: mesmo CEP + número + rua
  *   cep_numero     CNEFE, nível 2: mesmo CEP + número, rua diferente
- *   inep_*         ponto do Catálogo de Escolas do INEP (cadastro de 2023,
- *                  via geobr/Ipea), conforme a distância até o ponto do CNEFE
+ *   inep_*         ponto do Catálogo de Escolas do INEP (exportação do painel
+ *                  do INEP Data), conforme a distância até o ponto do CNEFE
  *   nome_exato     CNEFE, nível 3: mesmo nome + município (escola sem ponto no INEP)
  *   nome_ajustado  CNEFE, nível 4: mesmo núcleo do nome + município (idem)
  *

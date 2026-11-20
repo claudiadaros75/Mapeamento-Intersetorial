@@ -45,9 +45,12 @@ data/ibge_malha_municipal/geojsonfiles/*_maxima.geojson
 data/inep_censo_escolar/
 data/ibge_cnefe/
 
-# Coordenadas das escolas do INEP redistribuidas pelo geobr (Ipea, ~97 MB
-# por ano) - use scripts/commands/ipea_geobr_escolas__baixar_dados.py
-data/ipea_geobr_escolas/
+
+# Catalogo de Escolas do INEP exportado a mao do painel do INEP Data, por
+# grande regiao (~85 MB), e a base unica gerada a partir dele (~99 MB) - use
+# scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py
+data/cadastroescolar_inep/
+data/inep_catalogo_escolas.csv
 
 # -------------------------------------------------------------
 # Rascunhos locais

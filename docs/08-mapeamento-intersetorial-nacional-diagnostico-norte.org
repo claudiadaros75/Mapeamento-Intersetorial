@@ -601,6 +601,14 @@ gerou a raiz com a =main=, =versoes/ibge_malhas/=,
 
 * Coordenadas do INEP (Catálogo de Escolas, via geobr)
 
+*Atualização (19/11/2026):* o geobr saiu do projeto. O ponto do INEP vem só
+da exportação manual do Catálogo de Escolas no painel do INEP Data
+(=data/inep_catalogo_escolas.csv=, montada por
+=inep_cadastro_escolar__juntar_exportacoes.py=), que é o que o público em
+geral tem à mão. O script =ipea_geobr_escolas__baixar_dados.py= foi
+apagado. Esta seção fica como registro. Ver
+[[file:features/remover-geobr.md][features/remover-geobr.md]] e o doc 09.
+
 ** Contexto
 
 Para o mapa de auditoria (um segundo mapa, só para mostrar como cada escola
@@ -740,8 +748,8 @@ fica guardado para comparação.
 ** Arquivos
 
 - Gerador: =scripts/commands/escolas_mapa__gerar_dados_auditoria.py= (lê
-  =data/auditoria/escolas_inep_x_cnefe_2024.csv=, o GeoPackage do geobr e a
-  malha municipal).
+  =data/auditoria/escolas_inep_x_cnefe_2024.csv= e a malha municipal).
+  Até 26/10/2026 lia também o GeoPackage do geobr.
 - Saída: =web/data/auditoria/auditoria_<UF>_2024.json= (AM 1,1 MB, PA
   2,3 MB, SP 7,9 MB) e =indice.json=.
 - Página: =web/escolas_auditoria.html=, =web/js/escolas_auditoria.js=,
@@ -749,7 +757,6 @@ fica guardado para comparação.
   pontos com as três UFs, redesenho em ~0,3 s).
 
 #+begin_src sh
-  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py
   .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
 #+end_src
 
@@ -959,7 +966,7 @@ Cores (iguais nos dois mapas):
 ** Como reproduzir
 
 #+begin_src sh
-  .venv/bin/python scripts/commands/ipea_geobr_escolas__baixar_dados.py
+  .venv/bin/python scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py
   .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
   .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
   .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
@@ -970,9 +977,10 @@ Cores (iguais nos dois mapas):
 0. Conferir no mapa de auditoria uma amostra das =inep_divergente= (filtro
    "INEP × CNEFE a mais de N km") para confirmar, caso a caso, que o ponto
    do INEP é o certo; e as =ponto_inep_repetido=.
-0b. Quando o geobr publicar um cadastro mais novo que o de 2023, atualizar
-   =ANOS= em =ipea_geobr_escolas__baixar_dados.py= e =ARQUIVO_INEP_COORDENADAS=
-   no ETL.
+0b. +Quando o geobr publicar um cadastro mais novo que o de 2023, atualizar+
+   +o script de download e o ETL.+ Superado (19/11/2026): o geobr saiu do
+   projeto; para atualizar o ponto do INEP, exportar de novo o Catálogo de
+   Escolas no painel do INEP Data.
 1. Conferir amostras do estágio 2b no mapa, começando pelos núcleos de uma
    palavra e pelos alertas.
 2. Analisar o motivo =nome_nao_encontrado= (maior grupo sem coordenada):

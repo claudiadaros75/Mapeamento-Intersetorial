@@ -145,7 +145,7 @@ auditar direto nos dados:
    Substitui a regra "INEP primeiro" de 26/10/2026 para os níveis 1 e 2, e
    testa a hipótese levantada para SP.
 3. *Bases primárias marcadas*: o Catálogo de Escolas do INEP (geobr, com a
-   coordenada do INEP) e os pontos de ensino do CNEFE. Os arquivos baixados
+   coordenada do INEP; desde 19/11/2026, a exportação do INEP Data) e os pontos de ensino do CNEFE. Os arquivos baixados
    não são alterados; o ETL grava cópias com as colunas novas.
 
 ** Tarefas
@@ -296,6 +296,116 @@ casamento. O motivo =ponto_ja_usado= deixou de existir.
   ponto no INEP. Escolas sem ponto: AM 1.668 -> 1.662, PA 1.878 (igual),
   SP 2.803 -> 2.796.
 
+* Catálogo de Escolas mais novo: dá para baixar automaticamente? (02/11/2026)
+
+** A pergunta
+
+O Censo Escolar 2025 (microdados) não tem latitude/longitude nem endereço
+(ver doc 06). A coordenada do INEP vem do Catálogo de Escolas, e a cópia
+que usamos é a de 2023 (geobr 1.7.0, =date_update= 2024-03-22). Existe uma
+versão mais nova que possa ser baixada por script?
+
+** Painel do INEP Data: não automatizável
+
+- O Catálogo é um painel de BI (Oracle Analytics,
+  =https://anonymousdata.inep.gov.br/analytics/saw.dll?Portal&PortalPath=...Catálogo de Escolas=);
+  a página do INEP diz só que "é possível exportar os dados", sem arquivo
+  para download, formato ou limite documentados.
+- A página responde sem login, mas é uma aplicação JavaScript: a exportação
+  é manual, pelo navegador. Não vale a pena automatizar, porque existe
+  alternativa melhor (abaixo).
+- Página informativa:
+  https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas
+
+** geobr 2.x: um arquivo por ano, de 2007 a 2025
+
+*Atualização (19/11/2026):* não adotado. O geobr saiu do projeto (ver a
+entrada de 19/11 em "O que foi feito"); a exportação do INEP Data também
+traz o endereço por escola, que era o motivo para usar o geobr 2.x no
+Censo 2025.
+
+O geobr mudou de versão (pacote 2.1.0; release de dados =v2.0.0=,
+publicada em 15/09/2026). As escolas agora vêm em um arquivo parquet por
+ano, baixável direto:
+
+#+begin_example
+https://github.com/ipea/geobr_prep_data/releases/download/v2.0.0/schools_<ano>.parquet
+#+end_example
+
+| Ano  | Escolas (Brasil) | Tamanho |
+|------+------------------+---------|
+| 2024 |          215.545 | 18,1 MB |
+| 2025 |          214.192 | 17,5 MB |
+
+Colunas (29): código e nome da escola e do município, UF,
+=tp_dependencia=, =tp_situacao_funcionamento=, =tp_localizacao=,
+=tp_localizacao_diferenciada=, *=ds_endereco=, =nu_endereco=,
+=ds_complemento=, =no_bairro=, =co_cep=*, *=lat_inep=, =lon_inep=* (ponto
+do INEP), *=lat_geocodebr=, =lon_geocodebr=, =precisao_geocodebr=,
+=tipo_resultado_geocodebr=, =desvio_metros_geocodebr=* (geocodificação
+do Ipea pelo endereço), *=coords_source=* (qual das duas está em
+=geometry=), =year=, =geometry=.
+
+*Atenção*: a =geometry= do geobr 2.x não é mais só o ponto do INEP. Segundo
+a documentação de =read_schools=, o geobr usa o ponto do INEP quando ele e
+a geocodificação ficam a menos de 800 m; acima disso, usa a geocodificação
+se ela for mais precisa que 800 m; sem ponto do INEP, usa a geocodificação
+de qualquer precisão. Para nós, o certo é ler =lat_inep=/=lon_inep= e
+=lat_geocodebr=/=lon_geocodebr= separados, nunca a =geometry=.
+
+** O que medimos (AM, PA e SP)
+
+1. *O ponto do INEP não mudou.* Comparando a mesma escola, =lat_inep= de
+   2025 é igual ao ponto do cadastro de 2023 em 100% dos casos (AM 3.939,
+   PA 9.327, SP 28.513 escolas; nenhuma diferença acima de 1 m). Também não
+   há ganho de cobertura: das escolas do Censo 2024 hoje sem ponto, só 16
+   ganham ponto do INEP no arquivo de 2025 (AM 4, PA 4, SP 8). *Trocar o
+   cadastro de 2023 pelo de 2025 não melhora as coordenadas do INEP.*
+2. *O arquivo de 2024 cobre exatamente o nosso Censo 2024* (AM 6.181, PA
+   11.848, SP 33.863 escolas), e o de 2025 traz o *endereço* que os
+   microdados de 2025 deixaram de publicar. É a ponte para fazer o
+   casamento por endereço (níveis 1 e 2) com o Censo 2025.
+3. *A geocodificação depende muito da precisão.* Distância até o ponto
+   que usamos hoje:
+
+   | Precisão     | AM: até 300 m | PA: até 300 m | SP: até 300 m |
+   |--------------+---------------+---------------+---------------|
+   | =numero=     | 86,6%         | 90,5%         | 95,5%         |
+   | =numero_aproximado= | 64,7%  | 58,9%         | 70,0%         |
+   | =logradouro= | 42,9%         | 32,1%         | 50,7%         |
+   | =cep=        | 7,5% (mediana 25,6 km) | 9,5% (mediana 16,3 km) | 68,6% |
+
+   No Norte, o ponto "por CEP" é o centro do CEP genérico do município:
+   inútil. Por número, é tão bom quanto o CNEFE.
+4. *Escolas em funcionamento hoje sem ponto*, pela precisão da
+   geocodificação:
+
+   | Precisão                       | AM  | PA  | SP    |
+   |--------------------------------+-----+-----+-------|
+   | =numero=                       |  15 |  47 |   137 |
+   | =numero_aproximado=            |  51 |  97 |   121 |
+   | =logradouro=                   | 169 | 315 |    28 |
+   | =cep=, =localidade=, =municipio= | 1.007 | 836 | 1.334 |
+
+** Conclusão e proposta
+
+- Para a *coordenada do INEP*, o cadastro de 2023 que já usamos é
+  equivalente ao de 2025. Não há o que atualizar.
+- O geobr 2.x é a fonte para *levar o projeto ao Censo 2025*: traz o
+  endereço por escola e é baixável por script, um arquivo por ano.
+- A geocodificação do Ipea pode ser uma *reserva* para quem fica sem
+  ponto, mas só com precisão =numero= (e talvez =numero_aproximado=):
+  ~470 escolas em funcionamento nas três UFs. Não resolve o Norte rural.
+
+Tarefas propostas (a decidir; *descartadas em 19/11/2026*, com a remoção do
+geobr):
+
+| # | Tarefa                                                           | Justificativa |
+|---+------------------------------------------------------------------+---------------|
+| 1 | Script =ipea_geobr_escolas__baixar_dados.py= baixar também os parquet do geobr 2.x (=pyarrow= no =.venv=) | Fonte oficial, por ano, sem exportação manual do painel. |
+| 2 | Reserva "geocodificação do Ipea" com precisão =numero= para escolas sem ponto | ~200 escolas em funcionamento ganham um ponto confiável (86-96% até 300 m). |
+| 3 | Pipeline do Censo 2025 usando o endereço do arquivo do geobr 2025 | Os microdados de 2025 não têm endereço; sem isso, só restam os níveis 3 e 4. |
+
 * Próximas etapas
 
 Ponto de partida, conforme a revisão de 02/11/2026:
@@ -319,3 +429,51 @@ Ponto de partida, conforme a revisão de 02/11/2026:
   funcionamento (=TP_SITUACAO_FUNCIONAMENTO = 1=) é de 77,5% no AM e 87,8%
   no PA; das escolas sem ponto, 1.248 (AM) e 1.295 (PA) estão em
   funcionamento, ~85% rurais, quase todas com motivo =nome_nao_encontrado=.
+
+** 19/11/2026: ponto do INEP vindo da exportação do painel do INEP Data
+
+- O Catálogo de Escolas foi exportado à mão do painel do INEP Data, por
+  grande região (o painel corta a exportação em 100.000 linhas), em
+  =data/cadastroescolar_inep/=. O script
+  =scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py= junta as
+  partes em =data/inep_catalogo_escolas.csv= (210.320 escolas, 27 UFs,
+  155.771 com ponto). Detalhes em
+  =docs/features/juntar-exportacoes-catalogo-inep.md=.
+- É o mesmo ponto do geobr 2023: as 155.232 escolas com ponto nas duas
+  bases têm o mesmo ponto (menos de 1 m de diferença).
+- O ETL passou a usar essa exportação como fonte do ponto do INEP, com o
+  geobr 2023 como *reserva* para as escolas que não estão nela. Sem a
+  reserva, 1.007 escolas do Censo 2024 (AM, PA, SP; 201 em funcionamento
+  em 2024) perderiam o ponto: são escolas que saíram do cadastro atual.
+- Nova coluna =INEP_ORIGEM_PONTO= (=catalogo_inep_data= ou =geobr_2023=)
+  no CSV principal e na auditoria. A cópia marcada do Catálogo passou a
+  ser =data/inep_catalogo_escolas_marcado.csv= (base: a exportação) e
+  substitui =data/inep_catalogo_escolas_2023_marcado.csv=.
+- Resultado (AM, PA, SP; 51.892 escolas): origem do ponto do INEP
+  =catalogo_inep_data= 41.501, =geobr_2023= 1.007, sem ponto 9.384. Escolas
+  com ponto do INEP: 42.478 -> 42.508. Sem coordenada final: 6.336 ->
+  6.320. Mudaram de status 19 escolas (16 =sem_correspondencia= ->
+  =inep_sem_cnefe=; 3 de casamento por nome -> ponto do INEP); 5 só
+  mudaram na 6ª casa decimal (arredondamento).
+
+** 19/11/2026: geobr removido do projeto
+
+- Decisão: o ponto do INEP vem *só* da exportação do painel do INEP Data,
+  que é o que o público em geral tem à mão. O geobr apenas redistribuía o
+  mesmo cadastro, e a exportação também traz o endereço (coluna
+  =Endereço=, preenchida nas 210.320 escolas). Detalhes em
+  [[file:features/remover-geobr.md][features/remover-geobr.md]].
+- Saíram: a reserva do geobr 2023 no ETL, a coluna =INEP_ORIGEM_PONTO= (com
+  uma fonte só, teria um valor único), o script
+  =ipea_geobr_escolas__baixar_dados.py= e =data/ipea_geobr_escolas/=.
+- Resultado (AM, PA, SP; 51.892 escolas), comparado com a saída anterior:
+  - As 1.007 escolas da reserva (SP 726, PA 246, AM 35) perderam o ponto do
+    INEP. Escolas com ponto do INEP: 42.508 -> 41.501.
+  - Dessas, 583 ficaram sem coordenada (=inep_sem_cnefe= ->
+    =sem_correspondencia=) e 424 passaram para o ponto do CNEFE (323 já
+    estavam nos níveis 1-2 e não mudaram de ponto; 101 mudaram para
+    =cep_numero=, =nome_exato= ou =nome_ajustado=). Sem coordenada final:
+    6.320 -> 6.903.
+  - Das 201 em funcionamento em 2024, 92 ficaram sem coordenada.
+  - Fora delas, só 3 escolas mudaram, e só em =INEP_ESCOLAS_NO_PONTO= (2 ->
+    1): dividiam o ponto com uma escola que só estava no geobr.
