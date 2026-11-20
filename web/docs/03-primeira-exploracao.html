@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 21:58 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Primeira exploração da MMD 2024</title>
@@ -30,24 +30,24 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org351ac45">1. Objetivo</a></li>
-<li><a href="#orgc257089">2. O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></a></li>
-<li><a href="#orge5f6e9f">3. Resultados obtidos</a>
+<li><a href="#org97537f0">1. Objetivo</a></li>
+<li><a href="#org15de380">2. O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></a></li>
+<li><a href="#org3bfa7fb">3. Resultados obtidos</a>
 <ul>
-<li><a href="#org2de689d">3.1. Estrutura geral</a></li>
-<li><a href="#org2c6f927">3.2. Colunas da tabela de atributos</a></li>
-<li><a href="#orgd0fee2b">3.3. Concentrações urbanas</a></li>
-<li><a href="#orgb3148b3">3.4. Distribuição por região</a></li>
-<li><a href="#org073ab49">3.5. Unidades da federação com mais municípios</a></li>
-<li><a href="#org7d5cd03">3.6. Áreas</a></li>
+<li><a href="#orgb083c4d">3.1. Estrutura geral</a></li>
+<li><a href="#orgdc0008e">3.2. Colunas da tabela de atributos</a></li>
+<li><a href="#org14e0aea">3.3. Concentrações urbanas</a></li>
+<li><a href="#org21e8e34">3.4. Distribuição por região</a></li>
+<li><a href="#orgf63b738">3.5. Unidades da federação com mais municípios</a></li>
+<li><a href="#orgdc5b2a2">3.6. Áreas</a></li>
 </ul>
 </li>
-<li><a href="#org45864f3">4. Observações e próximos passos</a></li>
+<li><a href="#org028edae">4. Observações e próximos passos</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org351ac45" class="outline-2">
-<h2 id="org351ac45"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org97537f0" class="outline-2">
+<h2 id="org97537f0"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Registrar os resultados da primeira leitura da Malha Municipal Digital 2024
@@ -61,8 +61,8 @@ com o geopandas. O script de exploração está em
 </div>
 </div>
 </div>
-<div id="outline-container-orgc257089" class="outline-2">
-<h2 id="orgc257089"><span class="section-number-2">2.</span> O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></h2>
+<div id="outline-container-org15de380" class="outline-2">
+<h2 id="org15de380"><span class="section-number-2">2.</span> O que há dentro do pacote BR<sub>Municipios</sub><sub>2024</sub></h2>
 <div class="outline-text-2" id="text-2">
 <p>
 O arquivo <code>BR_Municipios_2024.zip</code> (208 MB) contém apenas os cinco arquivos
@@ -118,12 +118,12 @@ geopandas interpreta como EPSG:4674.
 </p>
 </div>
 </div>
-<div id="outline-container-orge5f6e9f" class="outline-2">
-<h2 id="orge5f6e9f"><span class="section-number-2">3.</span> Resultados obtidos</h2>
+<div id="outline-container-org3bfa7fb" class="outline-2">
+<h2 id="org3bfa7fb"><span class="section-number-2">3.</span> Resultados obtidos</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org2de689d" class="outline-3">
-<h3 id="org2de689d"><span class="section-number-3">3.1.</span> Estrutura geral</h3>
+<div id="outline-container-orgb083c4d" class="outline-3">
+<h3 id="orgb083c4d"><span class="section-number-3">3.1.</span> Estrutura geral</h3>
 <div class="outline-text-3" id="text-3-1">
 <ul class="org-ul">
 <li>Feições: 5573</li>
@@ -140,8 +140,8 @@ edição de 2024.
 </p>
 </div>
 </div>
-<div id="outline-container-org2c6f927" class="outline-3">
-<h3 id="org2c6f927"><span class="section-number-3">3.2.</span> Colunas da tabela de atributos</h3>
+<div id="outline-container-orgdc0008e" class="outline-3">
+<h3 id="orgdc0008e"><span class="section-number-3">3.2.</span> Colunas da tabela de atributos</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 A malha municipal de 2024 traz, além da geometria, uma série de campos
@@ -251,8 +251,8 @@ As regiões geográficas imediatas e intermediárias substituíram, a partir de
 </p>
 </div>
 </div>
-<div id="outline-container-orgd0fee2b" class="outline-3">
-<h3 id="orgd0fee2b"><span class="section-number-3">3.3.</span> Concentrações urbanas</h3>
+<div id="outline-container-org14e0aea" class="outline-3">
+<h3 id="org14e0aea"><span class="section-number-3">3.3.</span> Concentrações urbanas</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 Os campos <code>CD_CONCU</code> e <code>NM_CONCU</code> indicam a concentração urbana à qual o
@@ -263,8 +263,8 @@ Bárbara d´Oeste/SP").
 </p>
 </div>
 </div>
-<div id="outline-container-orgb3148b3" class="outline-3">
-<h3 id="orgb3148b3"><span class="section-number-3">3.4.</span> Distribuição por região</h3>
+<div id="outline-container-org21e8e34" class="outline-3">
+<h3 id="org21e8e34"><span class="section-number-3">3.4.</span> Distribuição por região</h3>
 <div class="outline-text-3" id="text-3-4">
 <table>
 
@@ -309,8 +309,8 @@ Bárbara d´Oeste/SP").
 </table>
 </div>
 </div>
-<div id="outline-container-org073ab49" class="outline-3">
-<h3 id="org073ab49"><span class="section-number-3">3.5.</span> Unidades da federação com mais municípios</h3>
+<div id="outline-container-orgf63b738" class="outline-3">
+<h3 id="orgf63b738"><span class="section-number-3">3.5.</span> Unidades da federação com mais municípios</h3>
 <div class="outline-text-3" id="text-3-5">
 <table>
 
@@ -363,8 +363,8 @@ Bárbara d´Oeste/SP").
 </table>
 </div>
 </div>
-<div id="outline-container-org7d5cd03" class="outline-3">
-<h3 id="org7d5cd03"><span class="section-number-3">3.6.</span> Áreas</h3>
+<div id="outline-container-orgdc5b2a2" class="outline-3">
+<h3 id="orgdc5b2a2"><span class="section-number-3">3.6.</span> Áreas</h3>
 <div class="outline-text-3" id="text-3-6">
 <ul class="org-ul">
 <li>Área total informada: 8.509.379,6 km2 (o valor oficial do Brasil é de
@@ -375,8 +375,8 @@ aproximadamente 8,5 milhões de km2).</li>
 </div>
 </div>
 </div>
-<div id="outline-container-org45864f3" class="outline-2">
-<h2 id="org45864f3"><span class="section-number-2">4.</span> Observações e próximos passos</h2>
+<div id="outline-container-org028edae" class="outline-2">
+<h2 id="org028edae"><span class="section-number-2">4.</span> Observações e próximos passos</h2>
 <div class="outline-text-2" id="text-4">
 <ul class="org-ul">
 <li>O campo <code>AREA_KM2</code> é fornecido pelo IBGE e pode ser comparado com o

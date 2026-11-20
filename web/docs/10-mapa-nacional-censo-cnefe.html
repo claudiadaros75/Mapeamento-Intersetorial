@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 23:32 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mapa nacional de escolas: como comparamos o INEP e o CNEFE</title>
@@ -30,22 +30,22 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgef766ec">1. O que foi feito</a></li>
-<li><a href="#org5951ac0">2. Os dados</a></li>
-<li><a href="#org1b0ad25">3. O pareamento</a>
+<li><a href="#org32b4f53">1. O que foi feito</a></li>
+<li><a href="#org07f7820">2. Os dados</a></li>
+<li><a href="#orgcc9e8fd">3. O pareamento</a>
 <ul>
-<li><a href="#org35c463b">3.1. A regra mais importante: a distância não escolhe o par</a></li>
-<li><a href="#org8551e47">3.2. Resultado geral</a></li>
+<li><a href="#org0ca456b">3.1. A regra mais importante: a distância não escolhe o par</a></li>
+<li><a href="#org21facca">3.2. Resultado geral</a></li>
 </ul>
 </li>
-<li><a href="#org1b8eda1">4. O que a validação manual mudou</a></li>
-<li><a href="#org2f243a6">5. Problemas que encontramos</a></li>
-<li><a href="#orgfd8ca1e">6. Decisões e pendências</a></li>
+<li><a href="#orgc283de4">4. O que a validação manual mudou</a></li>
+<li><a href="#org9880259">5. Problemas que encontramos</a></li>
+<li><a href="#orgd12d997">6. Decisões e pendências</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-orgef766ec" class="outline-2">
-<h2 id="orgef766ec"><span class="section-number-2">1.</span> O que foi feito</h2>
+<div id="outline-container-org32b4f53" class="outline-2">
+<h2 id="org32b4f53"><span class="section-number-2">1.</span> O que foi feito</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Entre 7 e 8 de novembro de 2026, levamos a comparação de escolas do piloto de São Paulo para as 27 UFs. O trabalho responde a três perguntas:
@@ -67,8 +67,8 @@ O resultado está em dois mapas e em arquivos de auditoria. O <a href="11-censo-
 </ul>
 </div>
 </div>
-<div id="outline-container-org5951ac0" class="outline-2">
-<h2 id="org5951ac0"><span class="section-number-2">2.</span> Os dados</h2>
+<div id="outline-container-org07f7820" class="outline-2">
+<h2 id="org07f7820"><span class="section-number-2">2.</span> Os dados</h2>
 <div class="outline-text-2" id="text-2">
 <table>
 
@@ -112,8 +112,8 @@ Os arquivos do CNEFE vêm de <code>Censo_Demografico_2022/Arquivos_CNEFE/CSV/UF<
 </p>
 </div>
 </div>
-<div id="outline-container-org1b0ad25" class="outline-2">
-<h2 id="org1b0ad25"><span class="section-number-2">3.</span> O pareamento</h2>
+<div id="outline-container-orgcc9e8fd" class="outline-2">
+<h2 id="orgcc9e8fd"><span class="section-number-2">3.</span> O pareamento</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Os níveis são aplicados em cascata, sempre dentro do mesmo município. Cada registro do CNEFE só pode ser usado uma vez.
@@ -195,16 +195,16 @@ Os níveis são aplicados em cascata, sempre dentro do mesmo município. Cada re
 As distâncias usam só os pares em que as duas coordenadas existem (107.950 no total).
 </p>
 </div>
-<div id="outline-container-org35c463b" class="outline-3">
-<h3 id="org35c463b"><span class="section-number-3">3.1.</span> A regra mais importante: a distância não escolhe o par</h3>
+<div id="outline-container-org0ca456b" class="outline-3">
+<h3 id="org0ca456b"><span class="section-number-3">3.1.</span> A regra mais importante: a distância não escolhe o par</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 A distância é o que queremos medir. Se ela também escolhesse os pares, eles pareceriam mais próximos do que são. Por isso, os empates são resolvidos pela nota do nome, e o que continua empatado vira <code>ambíguo</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-org8551e47" class="outline-3">
-<h3 id="org8551e47"><span class="section-number-3">3.2.</span> Resultado geral</h3>
+<div id="outline-container-org21facca" class="outline-3">
+<h3 id="org21facca"><span class="section-number-3">3.2.</span> Resultado geral</h3>
 <div class="outline-text-3" id="text-3-2">
 <table>
 
@@ -254,8 +254,8 @@ Como efeito colateral, 22.744 escolas sem coordenada no INEP ganharam uma posiç
 </div>
 </div>
 </div>
-<div id="outline-container-org1b8eda1" class="outline-2">
-<h2 id="org1b8eda1"><span class="section-number-2">4.</span> O que a validação manual mudou</h2>
+<div id="outline-container-orgc283de4" class="outline-2">
+<h2 id="orgc283de4"><span class="section-number-2">4.</span> O que a validação manual mudou</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 Conferimos à mão uma amostra de 25 pares por nível. A amostra é pequena, então os números indicam uma ordem de grandeza.
@@ -307,8 +307,8 @@ A distância agregada serviu para confirmar esse limiar, escolhido na amostra ma
 </p>
 </div>
 </div>
-<div id="outline-container-org2f243a6" class="outline-2">
-<h2 id="org2f243a6"><span class="section-number-2">5.</span> Problemas que encontramos</h2>
+<div id="outline-container-org9880259" class="outline-2">
+<h2 id="org9880259"><span class="section-number-2">5.</span> Problemas que encontramos</h2>
 <div class="outline-text-2" id="text-5">
 <ul class="org-ul">
 <li><b>Dados:</b> os testes pegaram normalizações que apagavam ruas como <code>RUA D</code> e confundiam <code>D PEDRO I</code> com <code>D PEDRO II</code>.</li>
@@ -320,8 +320,8 @@ A distância agregada serviu para confirmar esse limiar, escolhido na amostra ma
 </ul>
 </div>
 </div>
-<div id="outline-container-orgfd8ca1e" class="outline-2">
-<h2 id="orgfd8ca1e"><span class="section-number-2">6.</span> Decisões e pendências</h2>
+<div id="outline-container-orgd12d997" class="outline-2">
+<h2 id="orgd12d997"><span class="section-number-2">6.</span> Decisões e pendências</h2>
 <div class="outline-text-2" id="text-6">
 <ul class="org-ul">
 <li><b>Dados no git:</b> os 69 MB de <code>web/data/escolas/</code> foram versionados para o mapa funcionar no GitHub Pages.</li>

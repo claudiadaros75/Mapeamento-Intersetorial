@@ -1,54 +1,72 @@
 {
   "ano_censo_escolar": "2024",
-  "ano_cadastro_inep": "2023",
+  "fonte_ponto_inep": "Catalogo de Escolas do INEP (exportacao do painel do INEP Data)",
   "ufs": {
     "AM": {
       "arquivo": "data/auditoria/auditoria_AM_2024.json",
-      "tamanho_bytes": 1141505,
+      "tamanho_bytes": 1279758,
       "total_escolas": 6181,
       "por_origem": {
-        "nome_ajustado": 1199,
-        "inep": 2410,
-        "nome_exato": 604,
-        "sem_ponto": 1668,
-        "cep_numero": 300
+        "inep_confirmado": 1202,
+        "inep_sem_cnefe": 2382,
+        "sem_correspondencia": 1683,
+        "inep_divergente": 146,
+        "inep_proximo": 36,
+        "endereco_exato": 177,
+        "nome_ajustado": 352,
+        "nome_exato": 133,
+        "cep_numero": 70
       },
       "fora_do_municipio": {
-        "inep": 27,
+        "inep_divergente": 4,
+        "inep_sem_cnefe": 27,
         "nome_ajustado": 1
       }
     },
     "PA": {
       "arquivo": "data/auditoria/auditoria_PA_2024.json",
-      "tamanho_bytes": 2446947,
+      "tamanho_bytes": 2726265,
       "total_escolas": 11848,
       "por_origem": {
-        "cep_numero": 809,
-        "inep": 5834,
-        "nome_ajustado": 2986,
-        "sem_ponto": 1878,
-        "nome_exato": 341
+        "inep_confirmado": 2781,
+        "endereco_exato": 486,
+        "inep_sem_cnefe": 5658,
+        "inep_divergente": 237,
+        "nome_ajustado": 368,
+        "sem_correspondencia": 2038,
+        "inep_proximo": 82,
+        "cep_numero": 147,
+        "nome_exato": 51
       },
       "fora_do_municipio": {
-        "inep": 63,
+        "inep_sem_cnefe": 63,
+        "inep_proximo": 1,
+        "inep_divergente": 3,
         "nome_exato": 1,
-        "nome_ajustado": 7
+        "nome_ajustado": 2,
+        "inep_confirmado": 4
       }
     },
     "SP": {
       "arquivo": "data/auditoria/auditoria_SP_2024.json",
-      "tamanho_bytes": 8225192,
+      "tamanho_bytes": 9085069,
       "total_escolas": 33863,
       "por_origem": {
-        "nome_ajustado": 2951,
-        "inep": 12511,
-        "cep_numero": 15218,
-        "sem_ponto": 2803,
-        "nome_exato": 380
+        "inep_confirmado": 3572,
+        "inep_sem_cnefe": 12069,
+        "endereco_exato": 13453,
+        "sem_correspondencia": 3182,
+        "cep_numero": 1159,
+        "inep_proximo": 74,
+        "inep_divergente": 114,
+        "nome_exato": 75,
+        "nome_ajustado": 165
       },
       "fora_do_municipio": {
-        "cep_numero": 6,
-        "inep": 30
+        "endereco_exato": 5,
+        "inep_sem_cnefe": 29,
+        "cep_numero": 1,
+        "inep_confirmado": 1
       }
     }
   }

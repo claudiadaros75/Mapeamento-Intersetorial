@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 23:32 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Censo Escolar 2025 georreferenciado</title>
@@ -30,27 +30,27 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orge8b38b0">1. Resumo</a></li>
-<li><a href="#orge3cbf8b">2. Como cada escola é localizada</a>
+<li><a href="#org5114010">1. Resumo</a></li>
+<li><a href="#orgdb5b9d4">2. Como cada escola é localizada</a>
 <ul>
-<li><a href="#org417d34f">2.1. Regras do CNEFE</a></li>
-<li><a href="#org5e454b4">2.2. O que muda nas escolas fora do catálogo</a></li>
+<li><a href="#orgf6de0c0">2.1. Regras do CNEFE</a></li>
+<li><a href="#org7629e55">2.2. O que muda nas escolas fora do catálogo</a></li>
 </ul>
 </li>
-<li><a href="#org7056630">3. Até onde confiar</a></li>
-<li><a href="#org6aefa93">4. Resultado</a>
+<li><a href="#org76c6da1">3. Até onde confiar</a></li>
+<li><a href="#org793d3b3">4. Resultado</a>
 <ul>
-<li><a href="#orgfcb4697">4.1. Por que não foi possível localizar</a></li>
-<li><a href="#org6857885">4.2. Por UF</a></li>
+<li><a href="#orgbcafbb8">4.1. Por que não foi possível localizar</a></li>
+<li><a href="#org5b03d77">4.2. Por UF</a></li>
 </ul>
 </li>
-<li><a href="#org15a05b9">5. A safra do catálogo</a></li>
-<li><a href="#orgd35072b">6. Como refazer</a></li>
+<li><a href="#org5f42afe">5. A safra do catálogo</a></li>
+<li><a href="#orga228dbe">6. Como refazer</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-orge8b38b0" class="outline-2">
-<h2 id="orge8b38b0"><span class="section-number-2">1.</span> Resumo</h2>
+<div id="outline-container-org5114010" class="outline-2">
+<h2 id="org5114010"><span class="section-number-2">1.</span> Resumo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Colocamos no mapa <b>179.574 das 214.192 escolas do Censo Escolar 2025 (83,8%)</b>. As outras 34.618 estão em uma tabela e em um CSV, para não sumirem da análise.
@@ -62,8 +62,8 @@ Colocamos no mapa <b>179.574 das 214.192 escolas do Censo Escolar 2025 (83,8%)</
 </ul>
 </div>
 </div>
-<div id="outline-container-orge3cbf8b" class="outline-2">
-<h2 id="orge3cbf8b"><span class="section-number-2">2.</span> Como cada escola é localizada</h2>
+<div id="outline-container-orgdb5b9d4" class="outline-2">
+<h2 id="orgdb5b9d4"><span class="section-number-2">2.</span> Como cada escola é localizada</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 A lista de escolas é do Censo 2025. Os microdados não têm coordenada, então cada escola passa por esta cascata:
@@ -120,8 +120,8 @@ A lista de escolas é do Censo 2025. Os microdados não têm coordenada, então 
 </tbody>
 </table>
 </div>
-<div id="outline-container-org417d34f" class="outline-3">
-<h3 id="org417d34f"><span class="section-number-3">2.1.</span> Regras do CNEFE</h3>
+<div id="outline-container-orgf6de0c0" class="outline-3">
+<h3 id="orgf6de0c0"><span class="section-number-3">2.1.</span> Regras do CNEFE</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 São as mesmas do <a href="10-mapa-nacional-censo-cnefe.html">doc 10</a>, com pareamento 1:1 e sem usar a distância para decidir.
@@ -179,8 +179,8 @@ São as mesmas do <a href="10-mapa-nacional-censo-cnefe.html">doc 10</a>, com pa
 </table>
 </div>
 </div>
-<div id="outline-container-org5e454b4" class="outline-3">
-<h3 id="org5e454b4"><span class="section-number-3">2.2.</span> O que muda nas escolas fora do catálogo</h3>
+<div id="outline-container-org7629e55" class="outline-3">
+<h3 id="org7629e55"><span class="section-number-3">2.2.</span> O que muda nas escolas fora do catálogo</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 As 4.985 escolas de 2025 fora do catálogo não têm endereço nos microdados daquele ano. Por isso:
@@ -194,8 +194,8 @@ As 4.985 escolas de 2025 fora do catálogo não têm endereço nos microdados da
 </div>
 </div>
 </div>
-<div id="outline-container-org7056630" class="outline-2">
-<h2 id="org7056630"><span class="section-number-2">3.</span> Até onde confiar</h2>
+<div id="outline-container-org76c6da1" class="outline-2">
+<h2 id="org76c6da1"><span class="section-number-2">3.</span> Até onde confiar</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li><b>Catálogo:</b> a coordenada é usada como publicada, sem correção. Ela não foi validada aqui.</li>
@@ -209,8 +209,8 @@ Por isso, o mapa separa a camada "CNEFE, por nome", e o popup avisa que a locali
 </p>
 </div>
 </div>
-<div id="outline-container-org6aefa93" class="outline-2">
-<h2 id="org6aefa93"><span class="section-number-2">4.</span> Resultado</h2>
+<div id="outline-container-org793d3b3" class="outline-2">
+<h2 id="org793d3b3"><span class="section-number-2">4.</span> Resultado</h2>
 <div class="outline-text-2" id="text-4">
 <table>
 
@@ -266,8 +266,8 @@ Por isso, o mapa separa a camada "CNEFE, por nome", e o popup avisa que a locali
 Entre as escolas em atividade, 16.888 seguem sem localização.
 </p>
 </div>
-<div id="outline-container-orgfcb4697" class="outline-3">
-<h3 id="orgfcb4697"><span class="section-number-3">4.1.</span> Por que não foi possível localizar</h3>
+<div id="outline-container-orgbcafbb8" class="outline-3">
+<h3 id="orgbcafbb8"><span class="section-number-3">4.1.</span> Por que não foi possível localizar</h3>
 <div class="outline-text-3" id="text-4-1">
 <table>
 
@@ -306,8 +306,8 @@ Nos empates, a regra prefere não localizar a escolher um registro sem critério
 </p>
 </div>
 </div>
-<div id="outline-container-org6857885" class="outline-3">
-<h3 id="org6857885"><span class="section-number-3">4.2.</span> Por UF</h3>
+<div id="outline-container-org5b03d77" class="outline-3">
+<h3 id="org5b03d77"><span class="section-number-3">4.2.</span> Por UF</h3>
 <div class="outline-text-3" id="text-4-2">
 <table>
 
@@ -523,16 +523,16 @@ Nos empates, a regra prefere não localizar a escolher um registro sem critério
 </div>
 </div>
 </div>
-<div id="outline-container-org15a05b9" class="outline-2">
-<h2 id="org15a05b9"><span class="section-number-2">5.</span> A safra do catálogo</h2>
+<div id="outline-container-org5f42afe" class="outline-2">
+<h2 id="org5f42afe"><span class="section-number-2">5.</span> A safra do catálogo</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 Segundo a informação do projeto, a exportação do catálogo é recente, e o arquivo no Drive foi modificado em 07/11/2026. O conteúdo, porém, corresponde ao Censo 2024 (ver <a href="11-censo-escolar-x-cnefe.html">doc 11</a>). A explicação mais provável é que o próprio catálogo ainda não incorporou o Censo 2025. Quando isso acontecer, as escolas das etapas 2 a 4 podem ganhar coordenada, e basta refazer o processo.
 </p>
 </div>
 </div>
-<div id="outline-container-orgd35072b" class="outline-2">
-<h2 id="orgd35072b"><span class="section-number-2">6.</span> Como refazer</h2>
+<div id="outline-container-orga228dbe" class="outline-2">
+<h2 id="orga228dbe"><span class="section-number-2">6.</span> Como refazer</h2>
 <div class="outline-text-2" id="text-6">
 <div class="org-src-container">
 <pre class="src src-bash"><code>.venv/bin/python scripts/commands/censo_escolar_2025__cruzar_catalogo.py

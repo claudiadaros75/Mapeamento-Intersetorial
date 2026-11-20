@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 21:58 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Georreferenciamento de Escolas Brasileiras com Dados Oficiais</title>
@@ -30,57 +30,70 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga0af2f8">1. Objetivo</a></li>
-<li><a href="#org54d9c3d">2. Resumo executivo</a></li>
-<li><a href="#orgb856cc0">3. Panorama das fontes oficiais pesquisadas</a>
+<li><a href="#org383448d">1. Objetivo</a></li>
+<li><a href="#orgcf40f5a">2. Resumo executivo</a></li>
+<li><a href="#org31e5740">3. Panorama das fontes oficiais pesquisadas</a>
 <ul>
-<li><a href="#org3d4c234">3.1. dados.gov.br (Portal Brasileiro de Dados Abertos)</a></li>
-<li><a href="#orgb24c973">3.2. INEP - Censo Escolar / Catálogo de Escolas</a></li>
-<li><a href="#org77355a5">3.3. MEC (Ministério da Educação)</a></li>
-<li><a href="#org3d56214">3.4. e-MEC (cadastro do ensino superior)</a></li>
-<li><a href="#org183758d">3.5. FNDE (Fundo Nacional de Desenvolvimento da Educação)</a></li>
-<li><a href="#org5294b0a">3.6. IBGE - CNEFE ✅ fonte principal</a></li>
-<li><a href="#org17ec2e4">3.7. OpenStreetMap ✅ fonte complementar de alta confiança (adicionada depois)</a></li>
-<li><a href="#org06e9b98">3.8. Outras fontes de uma tabela trazida pelo usuário (pesquisadas, baixa prioridade)</a></li>
+<li><a href="#orgb137578">3.1. dados.gov.br (Portal Brasileiro de Dados Abertos)</a></li>
+<li><a href="#orgef288c1">3.2. INEP - Censo Escolar / Catálogo de Escolas ✅ fonte principal (desde 26/10/2026)</a></li>
+<li><a href="#org28960e4">3.3. MEC (Ministério da Educação)</a></li>
+<li><a href="#org65c747c">3.4. e-MEC (cadastro do ensino superior)</a></li>
+<li><a href="#orgd0b9db8">3.5. FNDE (Fundo Nacional de Desenvolvimento da Educação)</a></li>
+<li><a href="#org97f3025">3.6. IBGE - CNEFE ✅ reserva e conferência (fonte principal até 25/10/2026)</a></li>
+<li><a href="#org61ef053">3.7. OpenStreetMap ✅ fonte complementar de alta confiança (adicionada depois)</a></li>
+<li><a href="#org38fa9e9">3.8. Outras fontes de uma tabela trazida pelo usuário (pesquisadas, baixa prioridade)</a></li>
 </ul>
 </li>
-<li><a href="#orgc7850fc">4. Por que o INEP não publica latitude/longitude por escola</a></li>
-<li><a href="#org0153921">5. CNEFE - Cadastro Nacional de Endereços para Fins Estatísticos (IBGE)</a>
+<li><a href="#org6b2927c">4. Por que o INEP não publica latitude/longitude por escola</a></li>
+<li><a href="#org87ca325">5. CNEFE - Cadastro Nacional de Endereços para Fins Estatísticos (IBGE)</a>
 <ul>
-<li><a href="#org07237b1">5.1. O que é</a></li>
-<li><a href="#org78cb0a2">5.2. Estrutura dos dados (confirmado nesta sessão, baixando uma amostra real)</a></li>
-<li><a href="#org599289b">5.3. Limitações conhecidas</a></li>
+<li><a href="#orgc29986b">5.1. O que é</a></li>
+<li><a href="#orga37a87c">5.2. Estrutura dos dados (confirmado nesta sessão, baixando uma amostra real)</a></li>
+<li><a href="#orgd7b7944">5.3. Limitações conhecidas</a></li>
 </ul>
 </li>
-<li><a href="#org8cdce2f">6. Decisão desta sessão (revista)</a></li>
-<li><a href="#org012c5f1">7. Estratégia do ETL de cruzamento (INEP x CNEFE)</a>
+<li><a href="#orgf2623c0">6. Decisão desta sessão (revista)</a></li>
+<li><a href="#org0afb8e7">7. Estratégia do ETL de cruzamento (INEP x CNEFE)</a>
 <ul>
-<li><a href="#orgaa5ffe0">7.1. Quem é a lista mestra</a></li>
-<li><a href="#orgc0d84de">7.2. Nome de escola sozinho não é chave suficiente</a></li>
-<li><a href="#org2553edf">7.3. Endereço (CEP + número) é uma chave bem mais forte - testado com dados reais</a></li>
-<li><a href="#org27a162f">7.4. Como o casamento é feito (estratégia em camadas por confiança)</a></li>
-<li><a href="#org4198d14">7.5. O que acontece com quem não bate dos dois lados</a></li>
-<li><a href="#orgce8a989">7.6. Transparência do resultado</a></li>
+<li><a href="#orgac0802e">7.1. Quem é a lista mestra</a></li>
+<li><a href="#orged2704d">7.2. Nome de escola sozinho não é chave suficiente</a></li>
+<li><a href="#org2d7a9a3">7.3. Endereço (CEP + número) é uma chave bem mais forte - testado com dados reais</a></li>
+<li><a href="#orgb052fb1">7.4. Como o casamento é feito (estratégia em camadas por confiança)</a></li>
+<li><a href="#org5a7ba40">7.5. O que acontece com quem não bate dos dois lados</a></li>
+<li><a href="#orgccaa966">7.6. Transparência do resultado</a></li>
 </ul>
 </li>
-<li><a href="#orgd9aaa42">8. Próximos passos / pendências</a>
+<li><a href="#orga0acdeb">8. Próximos passos / pendências</a>
 <ul>
-<li><a href="#org884c0b4">8.1. Segunda rodada (fim desta sessão) - correções implementadas, resultado pendente de conferência</a></li>
+<li><a href="#orga8253a9">8.1. Segunda rodada (fim desta sessão) - correções implementadas, resultado pendente de conferência</a></li>
 </ul>
 </li>
-<li><a href="#orgbfcc3c9">9. Execucao do Script</a></li>
-<li><a href="#org27c19a3">10. Referências</a></li>
+<li><a href="#org7392075">9. Execucao do Script</a></li>
+<li><a href="#org5aaaa85">10. Referências</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-orga0af2f8" class="outline-2">
-<h2 id="orga0af2f8"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org383448d" class="outline-2">
+<h2 id="org383448d"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Este documento cataloga as fontes <b>oficiais</b> do governo brasileiro que
 poderiam fornecer latitude/longitude de escolas, registra o que cada uma
 realmente entrega (testado, não só documentado), e explica a fonte que
 escolhemos para georreferenciar escolas neste projeto: o <b>CNEFE</b> do IBGE.
+</p>
+
+<p>
+<b>Atualização (26/10/2026):</b> a estratégia mudou. A fonte principal passou a
+ser o <b>Catálogo de Escolas do INEP</b> (coordenada por escola, ligada pelo
+código <code>CO_ENTIDADE</code>, redistribuída pelo geobr do Ipea; desde 19/11/2026,
+lida da exportação do painel do INEP Data, sem o geobr); o CNEFE ficou como
+<b>reserva</b> (escolas sem coordenada no INEP) e como <b>conferência</b> do ponto do
+INEP. A análise, as regras e os números estão em
+<a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>, seções "Qual coordenada usar: INEP primeiro, CNEFE como reserva" e
+seguintes. O restante deste documento é mantido como registro de como
+chegamos ao CNEFE e de como o casamento com ele funciona; os trechos
+superados estão marcados.
 </p>
 
 <p>
@@ -92,8 +105,8 @@ o plano registra como pendente na Fase 7.
 </p>
 </div>
 </div>
-<div id="outline-container-org54d9c3d" class="outline-2">
-<h2 id="org54d9c3d"><span class="section-number-2">2.</span> Resumo executivo</h2>
+<div id="outline-container-orgcf40f5a" class="outline-2">
+<h2 id="orgcf40f5a"><span class="section-number-2">2.</span> Resumo executivo</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
 <li>O <b>Censo Escolar do INEP</b> (fonte primária de dados sobre escolas) <b>não
@@ -111,17 +124,22 @@ tem coordenada real, por prédio, de graça, sem cadastro.</li>
 <li>Nenhuma outra fonte oficial pesquisada (MEC, e-MEC, FNDE, dados.gov.br)
 tem um dataset público e baixável em massa com coordenadas de escolas -
 ver panorama completo abaixo.</li>
+<li><b>Estratégia atual (26/10/2026):</b> coordenada do Catálogo de Escolas do
+INEP primeiro, conferida com o CNEFE; CNEFE só para quem não tem ponto no
+INEP. Medimos que, quando as duas fontes divergem muito, o ponto do INEP
+é o que fica sobre um prédio de ensino em 84-90% dos casos - o erro está
+no nosso casamento com o CNEFE, não no INEP. Ver <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>.</li>
 
 <li><b>Ano do catálogo (08/11/2026):</b> a cópia do Catálogo de Escolas usada no mapa nacional corresponde ao Censo Escolar 2024. Ver <a href="11-censo-escolar-x-cnefe.html">doc 11</a> e o <a href="10-mapa-nacional-censo-cnefe.html">doc 10</a>, com os resultados das 27 UFs.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgb856cc0" class="outline-2">
-<h2 id="orgb856cc0"><span class="section-number-2">3.</span> Panorama das fontes oficiais pesquisadas</h2>
+<div id="outline-container-org31e5740" class="outline-2">
+<h2 id="org31e5740"><span class="section-number-2">3.</span> Panorama das fontes oficiais pesquisadas</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-org3d4c234" class="outline-3">
-<h3 id="org3d4c234"><span class="section-number-3">3.1.</span> dados.gov.br (Portal Brasileiro de Dados Abertos)</h3>
+<div id="outline-container-orgb137578" class="outline-3">
+<h3 id="orgb137578"><span class="section-number-3">3.1.</span> dados.gov.br (Portal Brasileiro de Dados Abertos)</h3>
 <div class="outline-text-3" id="text-3-1">
 <p>
 Catálogo central do governo federal - não é uma fonte própria, é um índice
@@ -132,11 +150,13 @@ coordenadas. Acesso: <a href="https://dados.gov.br">https://dados.gov.br</a>
 </p>
 </div>
 </div>
-<div id="outline-container-orgb24c973" class="outline-3">
-<h3 id="orgb24c973"><span class="section-number-3">3.2.</span> INEP - Censo Escolar / Catálogo de Escolas</h3>
+<div id="outline-container-orgef288c1" class="outline-3">
+<h3 id="orgef288c1"><span class="section-number-3">3.2.</span> INEP - Censo Escolar / Catálogo de Escolas ✅ fonte principal (desde 26/10/2026)</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-<b>Sem latitude/longitude pública.</b> Confirmado de duas formas nesta sessão:
+<b>Sem latitude/longitude nos microdados; com latitude/longitude no Catálogo
+de Escolas</b> (ver as correções abaixo). A conclusão original desta seção era
+"sem latitude/longitude pública", confirmada de duas formas:
 </p>
 
 <ul class="org-ul">
@@ -162,8 +182,8 @@ Acesso: <a href="https://www.gov.br/inep">https://www.gov.br/inep</a>
 </p>
 </div>
 </div>
-<div id="outline-container-org77355a5" class="outline-3">
-<h3 id="org77355a5"><span class="section-number-3">3.3.</span> MEC (Ministério da Educação)</h3>
+<div id="outline-container-org28960e4" class="outline-3">
+<h3 id="org28960e4"><span class="section-number-3">3.3.</span> MEC (Ministério da Educação)</h3>
 <div class="outline-text-3" id="text-3-3">
 <p>
 Agrega políticas e aponta para os sistemas abaixo (INEP, e-MEC, FNDE); não
@@ -171,8 +191,8 @@ publica um dataset de coordenadas próprio. Acesso: <a href="https://www.gov.br/
 </p>
 </div>
 </div>
-<div id="outline-container-org3d56214" class="outline-3">
-<h3 id="org3d56214"><span class="section-number-3">3.4.</span> e-MEC (cadastro do ensino superior)</h3>
+<div id="outline-container-org65c747c" class="outline-3">
+<h3 id="org65c747c"><span class="section-number-3">3.4.</span> e-MEC (cadastro do ensino superior)</h3>
 <div class="outline-text-3" id="text-3-4">
 <p>
 Cobre <b>faculdades e universidades</b>, não escolas de educação básica (o
@@ -182,8 +202,8 @@ definição, independente de ter ou não coordenadas. Acesso:
 </p>
 </div>
 </div>
-<div id="outline-container-org183758d" class="outline-3">
-<h3 id="org183758d"><span class="section-number-3">3.5.</span> FNDE (Fundo Nacional de Desenvolvimento da Educação)</h3>
+<div id="outline-container-orgd0b9db8" class="outline-3">
+<h3 id="orgd0b9db8"><span class="section-number-3">3.5.</span> FNDE (Fundo Nacional de Desenvolvimento da Educação)</h3>
 <div class="outline-text-3" id="text-3-5">
 <p>
 Encontramos referências (tutoriais de terceiros, projetos de análise) a um
@@ -200,8 +220,8 @@ Acesso: <a href="https://www.gov.br/fnde">https://www.gov.br/fnde</a>
 </p>
 </div>
 </div>
-<div id="outline-container-org5294b0a" class="outline-3">
-<h3 id="org5294b0a"><span class="section-number-3">3.6.</span> IBGE - CNEFE ✅ fonte principal</h3>
+<div id="outline-container-org97f3025" class="outline-3">
+<h3 id="org97f3025"><span class="section-number-3">3.6.</span> IBGE - CNEFE ✅ reserva e conferência (fonte principal até 25/10/2026)</h3>
 <div class="outline-text-3" id="text-3-6">
 <p>
 Não é a fonte do Censo Escolar, mas é a fonte com <b>melhor cobertura
@@ -210,8 +230,8 @@ Nacional de Endereços para Fins Estatísticos. Detalhada na próxima seção.
 </p>
 </div>
 </div>
-<div id="outline-container-org17ec2e4" class="outline-3">
-<h3 id="org17ec2e4"><span class="section-number-3">3.7.</span> OpenStreetMap ✅ fonte complementar de alta confiança (adicionada depois)</h3>
+<div id="outline-container-org61ef053" class="outline-3">
+<h3 id="org61ef053"><span class="section-number-3">3.7.</span> OpenStreetMap ✅ fonte complementar de alta confiança (adicionada depois)</h3>
 <div class="outline-text-3" id="text-3-7">
 <p>
 Pesquisa de sessão posterior, motivada por uma tabela de fontes trazida
@@ -259,8 +279,8 @@ da "alta" atual) - ver pendências.
 </p>
 </div>
 </div>
-<div id="outline-container-org06e9b98" class="outline-3">
-<h3 id="org06e9b98"><span class="section-number-3">3.8.</span> Outras fontes de uma tabela trazida pelo usuário (pesquisadas, baixa prioridade)</h3>
+<div id="outline-container-org38fa9e9" class="outline-3">
+<h3 id="org38fa9e9"><span class="section-number-3">3.8.</span> Outras fontes de uma tabela trazida pelo usuário (pesquisadas, baixa prioridade)</h3>
 <div class="outline-text-3" id="text-3-8">
 <ul class="org-ul">
 <li><b>CEM/USP</b> (Centro de Estudos da Metrópole): mantém a "Base Cartográfica
@@ -309,9 +329,15 @@ seja suficiente.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc7850fc" class="outline-2">
-<h2 id="orgc7850fc"><span class="section-number-2">4.</span> Por que o INEP não publica latitude/longitude por escola</h2>
+<div id="outline-container-org6b2927c" class="outline-2">
+<h2 id="org6b2927c"><span class="section-number-2">4.</span> Por que o INEP não publica latitude/longitude por escola</h2>
 <div class="outline-text-2" id="text-4">
+<p>
+<b>Correção (25/10/2026):</b> o INEP não publica a coordenada nos
+<b>microdados</b>, mas publica no Catálogo de Escolas (ver seção do INEP acima).
+O texto abaixo vale para os microdados.
+</p>
+
 <p>
 O Censo Escolar passou a coletar a localização geográfica das escolas a
 partir de 2018, através de um aplicativo que permite posicionar a escola no
@@ -343,12 +369,12 @@ lacuna - que é o que o CNEFE faz.
 </p>
 </div>
 </div>
-<div id="outline-container-org0153921" class="outline-2">
-<h2 id="org0153921"><span class="section-number-2">5.</span> CNEFE - Cadastro Nacional de Endereços para Fins Estatísticos (IBGE)</h2>
+<div id="outline-container-org87ca325" class="outline-2">
+<h2 id="org87ca325"><span class="section-number-2">5.</span> CNEFE - Cadastro Nacional de Endereços para Fins Estatísticos (IBGE)</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-org07237b1" class="outline-3">
-<h3 id="org07237b1"><span class="section-number-3">5.1.</span> O que é</h3>
+<div id="outline-container-orgc29986b" class="outline-3">
+<h3 id="orgc29986b"><span class="section-number-3">5.1.</span> O que é</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 O CNEFE é o cadastro de endereços que o IBGE constrói durante o Censo
@@ -360,8 +386,8 @@ cada endereço do cadastro (divulgação de fevereiro de 2024).
 </p>
 </div>
 </div>
-<div id="outline-container-org78cb0a2" class="outline-3">
-<h3 id="org78cb0a2"><span class="section-number-3">5.2.</span> Estrutura dos dados (confirmado nesta sessão, baixando uma amostra real)</h3>
+<div id="outline-container-orga37a87c" class="outline-3">
+<h3 id="orga37a87c"><span class="section-number-3">5.2.</span> Estrutura dos dados (confirmado nesta sessão, baixando uma amostra real)</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 Testamos baixando o pacote de um município pequeno (São Pedro do
@@ -464,8 +490,8 @@ registrada no Censo 2022.
 </p>
 </div>
 </div>
-<div id="outline-container-org599289b" class="outline-3">
-<h3 id="org599289b"><span class="section-number-3">5.3.</span> Limitações conhecidas</h3>
+<div id="outline-container-orgd7b7944" class="outline-3">
+<h3 id="orgd7b7944"><span class="section-number-3">5.3.</span> Limitações conhecidas</h3>
 <div class="outline-text-3" id="text-5-3">
 <ul class="org-ul">
 <li><b>Sem chave direta para o Censo Escolar do INEP</b>: <code>DSC_ESTABELECIMENTO</code> é
@@ -493,9 +519,15 @@ confirmados na fonte oficial.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-org8cdce2f" class="outline-2">
-<h2 id="org8cdce2f"><span class="section-number-2">6.</span> Decisão desta sessão (revista)</h2>
+<div id="outline-container-orgf2623c0" class="outline-2">
+<h2 id="orgf2623c0"><span class="section-number-2">6.</span> Decisão desta sessão (revista)</h2>
 <div class="outline-text-2" id="text-6">
+<p>
+<b>Atualização (26/10/2026):</b> decisão revista de novo - a coordenada
+principal agora é a do Catálogo de Escolas do INEP, e o CNEFE é reserva e
+conferência. Ver <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>.
+</p>
+
 <p>
 Mudamos a estratégia: em vez de agregar escolas por município (limitação
 que existia por falta de coordenadas), vamos montar uma base com
@@ -530,9 +562,20 @@ inteiro (~27 UFs, vários GB).
 </p>
 </div>
 </div>
-<div id="outline-container-org012c5f1" class="outline-2">
-<h2 id="org012c5f1"><span class="section-number-2">7.</span> Estratégia do ETL de cruzamento (INEP x CNEFE)</h2>
+<div id="outline-container-org0afb8e7" class="outline-2">
+<h2 id="org0afb8e7"><span class="section-number-2">7.</span> Estratégia do ETL de cruzamento (INEP x CNEFE)</h2>
 <div class="outline-text-2" id="text-7">
+<p>
+<b>Atualização:</b> as camadas por confiança descritas aqui (<code>alta</code>, <code>media</code>,
+<code>baixa</code>, <code>ambiguo</code>) foram substituídas pelos estágios <code>cep_numero</code>,
+<code>nome_exato</code> e <code>nome_ajustado</code> (25/10/2026), e o casamento com o CNEFE
+passou a ser a reserva da coordenada do INEP (26/10/2026). As regras atuais
+estão em <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a> e na docstring de
+<code>scripts/commands/escolas_dados__cruzar_inep_cnefe.py</code>. O texto abaixo
+registra o raciocínio original, que continua valendo (lista mestra, nome
+sozinho não basta, endereço é chave forte).
+</p>
+
 <p>
 Esta seção explica, antes de escrever o código, como o ETL vai decidir
 qual coordenada do CNEFE pertence a qual escola do Censo Escolar - e, mais
@@ -544,8 +587,8 @@ ter casos incertos, e a regra abaixo existe para tratá-los de forma
 transparente em vez de escondê-los.
 </p>
 </div>
-<div id="outline-container-orgaa5ffe0" class="outline-3">
-<h3 id="orgaa5ffe0"><span class="section-number-3">7.1.</span> Quem é a lista mestra</h3>
+<div id="outline-container-orgac0802e" class="outline-3">
+<h3 id="orgac0802e"><span class="section-number-3">7.1.</span> Quem é a lista mestra</h3>
 <div class="outline-text-3" id="text-7-1">
 <p>
 O <b>Censo Escolar do INEP é a lista mestra de escolas</b>. O <code>escolas_do_censo_2024_georeferenciadas_com_cnefe_2022.csv</code>
@@ -559,8 +602,8 @@ para enriquecer essa lista; ele nunca adiciona escola nova ao resultado.
 </p>
 </div>
 </div>
-<div id="outline-container-orgc0d84de" class="outline-3">
-<h3 id="orgc0d84de"><span class="section-number-3">7.2.</span> Nome de escola sozinho não é chave suficiente</h3>
+<div id="outline-container-orged2704d" class="outline-3">
+<h3 id="orged2704d"><span class="section-number-3">7.2.</span> Nome de escola sozinho não é chave suficiente</h3>
 <div class="outline-text-3" id="text-7-2">
 <p>
 A primeira versão desta estratégia (registrada só para histórico) usava
@@ -575,8 +618,8 @@ em vez do nome completo da escola).
 </p>
 </div>
 </div>
-<div id="outline-container-org2553edf" class="outline-3">
-<h3 id="org2553edf"><span class="section-number-3">7.3.</span> Endereço (CEP + número) é uma chave bem mais forte - testado com dados reais</h3>
+<div id="outline-container-org2d7a9a3" class="outline-3">
+<h3 id="org2d7a9a3"><span class="section-number-3">7.3.</span> Endereço (CEP + número) é uma chave bem mais forte - testado com dados reais</h3>
 <div class="outline-text-3" id="text-7-3">
 <p>
 Só o Censo Escolar 2024 tem endereço completo (<code>CO_CEP</code>, <code>DS_ENDERECO</code>,
@@ -639,8 +682,8 @@ tipo de match correto seria descartado.
 </p>
 </div>
 </div>
-<div id="outline-container-org27a162f" class="outline-3">
-<h3 id="org27a162f"><span class="section-number-3">7.4.</span> Como o casamento é feito (estratégia em camadas por confiança)</h3>
+<div id="outline-container-orgb052fb1" class="outline-3">
+<h3 id="orgb052fb1"><span class="section-number-3">7.4.</span> Como o casamento é feito (estratégia em camadas por confiança)</h3>
 <div class="outline-text-3" id="text-7-4">
 <p>
 Em vez de nome como critério principal, o endereço vira o sinal
@@ -678,8 +721,8 @@ for usar o CSV decidir se aceita ou não a confiança baixa.
 </p>
 </div>
 </div>
-<div id="outline-container-org4198d14" class="outline-3">
-<h3 id="org4198d14"><span class="section-number-3">7.5.</span> O que acontece com quem não bate dos dois lados</h3>
+<div id="outline-container-org5a7ba40" class="outline-3">
+<h3 id="org5a7ba40"><span class="section-number-3">7.5.</span> O que acontece com quem não bate dos dois lados</h3>
 <div class="outline-text-3" id="text-7-5">
 <ul class="org-ul">
 <li><b>Escola do INEP sem candidato bom o bastante no CNEFE</b> (não bate CEP nem
@@ -706,8 +749,8 @@ isso, nunca ao CNEFE.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgce8a989" class="outline-3">
-<h3 id="orgce8a989"><span class="section-number-3">7.6.</span> Transparência do resultado</h3>
+<div id="outline-container-orgccaa966" class="outline-3">
+<h3 id="orgccaa966"><span class="section-number-3">7.6.</span> Transparência do resultado</h3>
 <div class="outline-text-3" id="text-7-6">
 <p>
 Ao final do ETL, imprimir um resumo com: total de escolas do Censo Escolar,
@@ -719,8 +762,8 @@ nele, ou se a v1 por município continua sendo necessária como reforço.
 </div>
 </div>
 </div>
-<div id="outline-container-orgd9aaa42" class="outline-2">
-<h2 id="orgd9aaa42"><span class="section-number-2">8.</span> Próximos passos / pendências</h2>
+<div id="outline-container-orga0acdeb" class="outline-2">
+<h2 id="orga0acdeb"><span class="section-number-2">8.</span> Próximos passos / pendências</h2>
 <div class="outline-text-2" id="text-8">
 <ul class="org-ul">
 <li class="on"><code>[X]</code> Escrever o script de download do CNEFE em <code>scripts/commands/</code>,
@@ -824,8 +867,8 @@ ver pendências.</li>
 </ol></li>
 </ul>
 </div>
-<div id="outline-container-org884c0b4" class="outline-3">
-<h3 id="org884c0b4"><span class="section-number-3">8.1.</span> Segunda rodada (fim desta sessão) - correções implementadas, resultado pendente de conferência</h3>
+<div id="outline-container-orga8253a9" class="outline-3">
+<h3 id="orga8253a9"><span class="section-number-3">8.1.</span> Segunda rodada (fim desta sessão) - correções implementadas, resultado pendente de conferência</h3>
 <div class="outline-text-3" id="text-8-1">
 <p>
 <b>Isto é o ponto exato para retomar na próxima sessão.</b> Depois do resultado
@@ -908,10 +951,13 @@ por município como opção adicional) - decisão explicitamente adiada.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-orgbfcc3c9" class="outline-2">
-<h2 id="orgbfcc3c9"><span class="section-number-2">9.</span> Execucao do Script</h2>
+<div id="outline-container-org7392075" class="outline-2">
+<h2 id="org7392075"><span class="section-number-2">9.</span> Execucao do Script</h2>
 <div class="outline-text-2" id="text-9">
 <p>
+<b>Histórico:</b> saída da versão antiga do ETL (camadas <code>alta=/=media=/=baixa</code>,
+só SP). A saída atual está em
+<a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>.
 (venv) wgn@fedora:~/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts$ python3 scripts/commands/escolas<sub>dados</sub>_<sub>cruzar</sub><sub>inep</sub><sub>cnefe.py</sub> 
 Censo Escolar: /home/wgn/mnt/ext4/Projects-Srcs/Projects-Srcs-FzlSoft/georef-artifacts/data/inep<sub>censo</sub><sub>escolar</sub>/zipfiles/microdados<sub>censo</sub><sub>escolar</sub><sub>2024</sub>/microdados<sub>censo</sub><sub>escolar</sub><sub>2024</sub><sub>defeso</sub>/dados/microdados<sub>ed</sub><sub>basica</sub><sub>2024.csv</sub>
 [sp] 33863 escolas no Censo Escolar 2024
@@ -937,8 +983,8 @@ Resumo geral (1 UF(s), 33863 escolas): /home/wgn/mnt/ext4/Projects-Srcs/Projects
 </p>
 </div>
 </div>
-<div id="outline-container-org27c19a3" class="outline-2">
-<h2 id="org27c19a3"><span class="section-number-2">10.</span> Referências</h2>
+<div id="outline-container-org5aaaa85" class="outline-2">
+<h2 id="org5aaaa85"><span class="section-number-2">10.</span> Referências</h2>
 <div class="outline-text-2" id="text-10">
 <ul class="org-ul">
 <li>CNEFE, página oficial do IBGE:

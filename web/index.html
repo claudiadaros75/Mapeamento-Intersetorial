@@ -360,13 +360,35 @@
         </a>
       </div>
 
+      <!-- Card: Mapa de Escolas do Censo 2025, Brasil inteiro (Ativo) -->
+      <div class="map-card featured">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora (27 UFs)</span>
+          <h3>Mapa de Escolas Georreferenciadas (Censo Escolar 2025 · Brasil)</h3>
+          <p>
+            As escolas do Censo Escolar 2025 (INEP) de todo o Brasil, ligadas ao Catálogo de Escolas do INEP pelo código da escola e casadas com o CNEFE 2022 (IBGE) pelo endereço do Catálogo ou pelo nome.
+            Cada UF é carregada só quando marcada. Mesmas cores, filtros e ficha da escola do mapa de 2024.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">Supercluster</span>
+            <span class="tech-tag">Canvas</span>
+            <span class="tech-tag">INEP</span>
+            <span class="tech-tag">CNEFE</span>
+          </div>
+        </div>
+        <a href="escolas_mapa_2025.html" class="btn-open-map">
+          Explorar Mapa de Escolas 2025 →
+        </a>
+      </div>
+
       <!-- Card: Mapa de Escolas Georreferenciadas (Ativo) -->
       <div class="map-card featured">
         <div>
-          <span class="card-badge badge-active">● Disponível Agora (piloto SP)</span>
+          <span class="card-badge badge-active">● Disponível Agora (SP, AM e PA)</span>
           <h3>Mapa de Escolas Georreferenciadas (Censo Escolar 2024)</h3>
           <p>
-            Escolas do Censo Escolar 2024 (INEP) com coordenadas do CNEFE 2022 (IBGE), agrupadas em clusters que se dividem conforme o zoom.
+            Escolas do Censo Escolar 2024 (INEP) com coordenadas do Catálogo de Escolas do INEP, conferidas com o CNEFE 2022 (IBGE), que também cobre as escolas sem ponto no INEP. Agrupadas em clusters que se dividem conforme o zoom.
             Cores por rede de ensino ou por confiança da coordenada, filtros por rede, localização e situação, e ficha da escola com links para OpenStreetMap e Google Maps.
           </p>
           <div class="tech-tags">
@@ -382,21 +404,41 @@
         </a>
       </div>
 
-      <!-- Card: Auditoria do Georreferenciamento das Escolas (Ativo) -->
+      <!-- Card: Auditoria do Georreferenciamento, Censo 2025, Brasil inteiro (Ativo) -->
       <div class="map-card">
         <div>
-          <span class="card-badge badge-active">● Disponível Agora (SP, AM e PA)</span>
-          <h3>Auditoria do Georreferenciamento das Escolas</h3>
+          <span class="card-badge badge-active">● Disponível Agora (27 UFs)</span>
+          <h3>Auditoria do Georreferenciamento das Escolas (Censo Escolar 2025 · Brasil)</h3>
           <p>
-            Mostra de onde veio a coordenada de cada escola: nível 1 (CEP + número no CNEFE), nível 2a/2b (nome exato/ajustado + município no CNEFE)
-            ou Catálogo de Escolas do INEP. Destaca os pontos fora do município declarado e a distância entre o ponto do CNEFE e o do INEP.
+            De onde veio a coordenada de cada escola do Censo Escolar 2025 em todo o Brasil: Catálogo de Escolas do INEP (confirmado, próximo ou divergente do CNEFE)
+            ou o casamento com o CNEFE pelo endereço do Catálogo (níveis 1 e 2) ou pelo nome (níveis 3 e 4). Destaca os pontos fora do município declarado e liga o ponto do INEP ao do CNEFE.
           </p>
           <div class="tech-tags">
             <span class="tech-tag">Leaflet.js</span>
             <span class="tech-tag">Canvas</span>
             <span class="tech-tag">INEP</span>
             <span class="tech-tag">CNEFE</span>
-            <span class="tech-tag">geobr</span>
+          </div>
+        </div>
+        <a href="escolas_auditoria_2025.html" class="btn-open-map">
+          Explorar Auditoria 2025 →
+        </a>
+      </div>
+
+      <!-- Card: Auditoria do Georreferenciamento das Escolas (Ativo) -->
+      <div class="map-card">
+        <div>
+          <span class="card-badge badge-active">● Disponível Agora (SP, AM e PA)</span>
+          <h3>Auditoria do Georreferenciamento das Escolas</h3>
+          <p>
+            Mostra de onde veio a coordenada de cada escola: Catálogo de Escolas do INEP (confirmado, próximo ou divergente do CNEFE)
+            ou o casamento com o CNEFE (níveis 1 e 2 por endereço; 3 e 4 por nome, para quem não tem ponto no INEP). Destaca os pontos fora do município declarado e a distância entre o ponto do INEP e o do CNEFE.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Leaflet.js</span>
+            <span class="tech-tag">Canvas</span>
+            <span class="tech-tag">INEP</span>
+            <span class="tech-tag">CNEFE</span>
           </div>
         </div>
         <a href="escolas_auditoria.html" class="btn-open-map">
@@ -495,6 +537,10 @@
       <a href="docs/12-censo-2025-georreferenciado.html" class="doc-item">
         <strong>12. Censo 2025 Georreferenciado ↗</strong>
         <span>Como localizamos as escolas de 2025 em cascata, até onde confiar e quais ficaram sem localização.</span>
+      </a>
+      <a href="docs/paines-publicos.html" class="doc-item">
+        <strong>Inventário de Portais de Dados Abertos da Educação ↗</strong>
+        <span>Principais portais oficiais e painéis analíticos da educação brasileira, como INEP, Censo Escolar, MEC e FNDE.</span>
       </a>
     </div>
 

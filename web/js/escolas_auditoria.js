@@ -4,13 +4,14 @@
  * ============================================================================
  *
  * Mapa separado do mapa do usuário final (escolas_mapa.js): mostra de onde
- * veio a coordenada de cada escola.
+ * veio a coordenada de cada escola (STATUS_GEOLOCALIZACAO do ETL).
  *
- *   cep_numero     nível 1  - CNEFE, mesmo CEP + número
- *   nome_exato     nível 2a - CNEFE, mesmo nome + município
- *   nome_ajustado  nível 2b - CNEFE, mesmo núcleo do nome + município
- *   inep           sem correspondência no CNEFE; ponto do Catálogo de
- *                  Escolas do INEP (cadastro de 2023, via geobr/Ipea)
+ *   endereco_exato CNEFE, nível 1: mesmo CEP + número + rua
+ *   cep_numero     CNEFE, nível 2: mesmo CEP + número, rua diferente
+ *   inep_*         ponto do Catálogo de Escolas do INEP (exportação do painel
+ *                  do INEP Data), conforme a distância até o ponto do CNEFE
+ *   nome_exato     CNEFE, nível 3: mesmo nome + município (escola sem ponto no INEP)
+ *   nome_ajustado  CNEFE, nível 4: mesmo núcleo do nome + município (idem)
  *
  * Os dados vêm de web/data/auditoria/ (gerados por
  * scripts/commands/escolas_mapa__gerar_dados_auditoria.py). Os pontos são
@@ -38,15 +39,34 @@ document.getElementById("basemap-select").addEventListener("change", (e) => {
 // ============================================================================
 // Origens e cores
 // ============================================================================
+// Mesmas cores do mapa do usuário final (CONFIANCA_GEO em escolas_mapa.js)
 const ORIGENS = {
-  cep_numero: { nome: "Nível 1 · CEP + número (CNEFE)", cor: "#15803d" },
-  nome_exato: { nome: "Nível 2a · nome exato + município (CNEFE)", cor: "#2563eb" },
-  nome_ajustado: { nome: "Nível 2b · nome ajustado + município (CNEFE)", cor: "#d4a106" },
-  inep: { nome: "INEP · sem correspondência no CNEFE", cor: "#9333ea" },
+  endereco_exato: { nome: "CNEFE · nível 1, CEP + número + rua", cor: "#1e3a8a" },
+  cep_numero: { nome: "CNEFE · nível 2, CEP + número", cor: "#2563eb" },
+  inep_confirmado: { nome: "INEP · confirmado pelo CNEFE (até 300 m)", cor: "#15803d" },
+  inep_proximo: { nome: "INEP · CNEFE a 300 m-1 km", cor: "#65a30d" },
+  inep_sem_cnefe: { nome: "INEP · sem ponto no CNEFE", cor: "#9333ea" },
+  inep_divergente: { nome: "INEP · CNEFE a mais de 1 km", cor: "#ea580c" },
+  nome_exato: { nome: "CNEFE · nível 3, nome exato + município", cor: "#0891b2" },
+  nome_ajustado: { nome: "CNEFE · nível 4, nome ajustado + município", cor: "#d4a106" },
+};
+const NOME_FONTE = { inep: "INEP", cnefe: "CNEFE" };
+const STATUS_CNEFE = {
+  endereco_exato: "nível 1 (CEP + número + rua)",
+  cep_numero: "nível 2 (CEP + número)",
+  nome_exato: "nível 3 (nome exato)",
+  nome_ajustado: "nível 4 (nome ajustado)",
+  sem_correspondencia: "sem correspondência",
 };
 const COR_FORA = "#dc2626";
 
-const INDICE_URL = "data/auditoria/indice.json";
+// Cada pagina diz qual conjunto carregar em window.AUDITORIA_CONFIG, antes de
+// incluir este script (web/escolas_auditoria_2025.html); sem ele, vale 2024.
+const AUDITORIA_CONFIG = Object.assign(
+  { indiceUrl: "data/auditoria/indice.json", rotuloEndereco: "Endereço (INEP)" },
+  window.AUDITORIA_CONFIG || {}
+);
+const INDICE_URL = AUDITORIA_CONFIG.indiceUrl;
 const MUNICIPIOS_URL = "data/BR_municipios_2024_minima.geojson";
 
 const loading = document.getElementById("loading-indicator");
@@ -147,7 +167,7 @@ function lerFiltros() {
 function passaNoFiltro(escola, filtros) {
   if (!origensAtivas.has(escola.ORIGEM)) return false;
   if (filtros.soFora && !(escola.FORA_MUNICIPIO_KM > 0)) return false;
-  if (filtros.distanciaMin != null && !(escola.DIST_CNEFE_INEP_KM > filtros.distanciaMin)) return false;
+  if (filtros.distanciaMin != null && !(escola.DIST_INEP_CNEFE_KM > filtros.distanciaMin)) return false;
   return true;
 }
 
@@ -220,14 +240,14 @@ function renderPontos(escolas) {
 
 function renderResumo(escolas) {
   const fora = escolas.filter((e) => e.FORA_MUNICIPIO_KM > 0).length;
-  const comAmbos = escolas.filter((e) => e.DIST_CNEFE_INEP_KM != null);
-  const acima1 = comAmbos.filter((e) => e.DIST_CNEFE_INEP_KM > 1).length;
+  const comAmbos = escolas.filter((e) => e.DIST_INEP_CNEFE_KM != null);
+  const acima1 = comAmbos.filter((e) => e.DIST_INEP_CNEFE_KM > 1).length;
   document.getElementById("auditoria-resumo").innerHTML = `
     <div class="math-row"><span class="math-label">Escolas no mapa (filtro atual):</span>
       <span class="math-value">${escolas.length.toLocaleString("pt-BR")}</span></div>
     <div class="math-row"><span class="math-label">Fora do município declarado:</span>
       <span class="math-value">${fora.toLocaleString("pt-BR")}</span></div>
-    <div class="math-row"><span class="math-label">Com ponto do CNEFE e do INEP:</span>
+    <div class="math-row"><span class="math-label">Com ponto do INEP e do CNEFE:</span>
       <span class="math-value">${comAmbos.length.toLocaleString("pt-BR")}</span></div>
     <div class="math-row"><span class="math-label">… a mais de 1 km um do outro:</span>
       <span class="math-value">${acima1.toLocaleString("pt-BR")}</span></div>`;
@@ -236,7 +256,7 @@ function renderResumo(escolas) {
 const LIMITE_LISTA = 300;
 
 function gravidade(escola) {
-  return Math.max(escola.FORA_MUNICIPIO_KM || 0, escola.DIST_CNEFE_INEP_KM || 0);
+  return Math.max(escola.FORA_MUNICIPIO_KM || 0, escola.DIST_INEP_CNEFE_KM || 0);
 }
 
 function renderLista(escolas) {
@@ -251,7 +271,7 @@ function renderLista(escolas) {
     const li = document.createElement("li");
     const partes = [];
     if (escola.FORA_MUNICIPIO_KM > 0) partes.push(`<span class="alerta">fora do município: ${formatarKm(escola.FORA_MUNICIPIO_KM)}</span>`);
-    if (escola.DIST_CNEFE_INEP_KM != null) partes.push(`CNEFE × INEP: ${formatarKm(escola.DIST_CNEFE_INEP_KM)}`);
+    if (escola.DIST_INEP_CNEFE_KM != null) partes.push(`INEP × CNEFE: ${formatarKm(escola.DIST_INEP_CNEFE_KM)}`);
     li.innerHTML = `<span class="legend-color" style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${ORIGENS[escola.ORIGEM].cor}"></span>
       ${escaparHtml(escola.NO_ENTIDADE)}
       <span class="meta">${escaparHtml(escola.NO_MUNICIPIO)} · ${partes.join(" · ")}</span>`;
@@ -296,12 +316,13 @@ function htmlEscola(escola) {
           ? `<span style="color:${COR_FORA};font-weight:600">${escaparHtml(escola.MUNICIPIO_DO_PONTO || "fora de todos (mar/rio?)")} · a ${formatarKm(escola.FORA_MUNICIPIO_KM)} do declarado</span>`
           : escaparHtml(escola.MUNICIPIO_DO_PONTO)
       )}
-      ${linhaTabela("Endereço (INEP)", escaparHtml(escola.INEP_ENDERECO))}
+      ${linhaTabela(AUDITORIA_CONFIG.rotuloEndereco, escaparHtml(escola.INEP_ENDERECO))}
+      ${linhaTabela("Casamento com o CNEFE", escaparHtml(STATUS_CNEFE[escola.STATUS_CNEFE] || escola.STATUS_CNEFE))}
       ${linhaTabela("Estabelecimento (CNEFE)", escaparHtml(escola.CNEFE_DSC_ESTABELECIMENTO))}
       ${linhaTabela("Endereço (CNEFE)", escaparHtml(escola.CNEFE_ENDERECO))}
       ${linhaTabela("Nível coord. CNEFE", escola.CNEFE_NV_GEO_COORD)}
       ${linhaTabela("Similaridade do nome", escaparHtml(escola.SIMILARIDADE_NOME))}
-      ${linhaTabela("Distância CNEFE × INEP", escola.DIST_CNEFE_INEP_KM != null ? formatarKm(escola.DIST_CNEFE_INEP_KM) : "")}
+      ${linhaTabela("Distância INEP × CNEFE", escola.DIST_INEP_CNEFE_KM != null ? formatarKm(escola.DIST_INEP_CNEFE_KM) : "")}
       ${linhaTabela("Motivo", escaparHtml(escola.MOTIVO))}
       ${linhaTabela("Alertas", escaparHtml(escola.ALERTAS))}
       ${linhaTabela("Coordenada", `${escola.LATITUDE}, ${escola.LONGITUDE}`)}
@@ -319,13 +340,14 @@ async function selecionarEscola(escola, centralizar = false) {
   const popup = L.popup({ maxWidth: 380, autoPan: false }).setLatLng(ponto).setContent(htmlEscola(escola));
   abrirPopup(popup);
 
-  if (escola.INEP_LATITUDE != null) {
-    const pontoInep = [escola.INEP_LATITUDE, escola.INEP_LONGITUDE];
-    L.polyline([ponto, pontoInep], { color: ORIGENS.inep.cor, weight: 2, dashArray: "6 6" }).addTo(selecaoLayer);
-    L.circleMarker(pontoInep, { radius: 6, color: "#ffffff", weight: 1.5, fillColor: ORIGENS.inep.cor, fillOpacity: 1 })
-      .bindTooltip(`Ponto do INEP (${formatarKm(escola.DIST_CNEFE_INEP_KM)} do CNEFE)`)
+  if (escola.OUTRO_LATITUDE != null) {
+    const outroPonto = [escola.OUTRO_LATITUDE, escola.OUTRO_LONGITUDE];
+    const outro = NOME_FONTE[escola.OUTRO_FONTE];
+    L.polyline([ponto, outroPonto], { color: "#475569", weight: 2, dashArray: "6 6" }).addTo(selecaoLayer);
+    L.circleMarker(outroPonto, { radius: 6, color: "#0f172a", weight: 1.5, fillColor: "#ffffff", fillOpacity: 1 })
+      .bindTooltip(`Ponto do ${outro}, não usado (${formatarKm(escola.DIST_INEP_CNEFE_KM)} do ponto usado)`)
       .addTo(selecaoLayer);
-    limites.extend(pontoInep);
+    limites.extend(outroPonto);
   }
 
   const municipios = await carregarMunicipios();
@@ -338,7 +360,7 @@ async function selecionarEscola(escola, centralizar = false) {
     }).addTo(selecaoLayer);
     if (escola.FORA_MUNICIPIO_KM > 0) limites.extend(contorno.getBounds());
   }
-  if (centralizar || escola.FORA_MUNICIPIO_KM > 0 || escola.INEP_LATITUDE != null) {
+  if (centralizar || escola.FORA_MUNICIPIO_KM > 0 || escola.OUTRO_LATITUDE != null) {
     // Depois de enquadrar, reabre o popup deixando o Leaflet deslocar o mapa
     // para ele caber inteiro na tela.
     map.once("moveend", () => {

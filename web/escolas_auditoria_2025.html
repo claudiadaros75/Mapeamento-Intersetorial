@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoria do Georreferenciamento das Escolas (Censo Escolar 2025, Brasil)</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/escolas_mapa.css">
+  <link rel="stylesheet" href="css/escolas_auditoria.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-title">
+      <a href="index.html" class="btn-home-link" title="Voltar à Página Inicial de Mapas">🏠 Início</a>
+      <h1>🔎 Auditoria do Georreferenciamento das Escolas (Censo Escolar 2025 · Brasil)</h1>
+      <span class="badge">De onde veio cada coordenada</span>
+    </div>
+    <div class="header-controls">
+      <div class="control-group">
+        <label for="basemap-select">🗺️ Mapa Base:</label>
+        <select id="basemap-select">
+          <option value="osm" selected>OpenStreetMap</option>
+          <option value="esri-satellite">Esri World Imagery (Satélite)</option>
+        </select>
+      </div>
+      <a href="escolas_mapa.html" class="btn-home-link" title="Mapa de escolas para o usuário final">🏫 Mapa de escolas</a>
+      <span id="loading-indicator" class="loading hidden">Carregando...</span>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <aside class="sidebar">
+
+      <details class="accordion-item" open>
+        <summary class="accordion-header">🔎 Origem da coordenada</summary>
+        <div class="accordion-body">
+          <p class="instruction">
+            Cada escola do Censo Escolar 2025 aparece no ponto que recebeu e na cor
+            da forma como esse ponto foi obtido. Clique numa escola para ver os
+            detalhes, o município declarado e, quando houver, o ponto da outra fonte.
+          </p>
+
+          <h3>UFs</h3>
+          <div id="auditoria-ufs" class="escolas-filtro-grupo">
+            <div class="empty-state">Carregando índice...</div>
+          </div>
+
+          <h3 class="mt-2">Origem</h3>
+          <div id="auditoria-origens"></div>
+
+          <h3 class="mt-2">Casos a conferir</h3>
+          <div class="escolas-filtro-grupo auditoria-filtros">
+            <label class="checkbox-label" title="O ponto cai fora do polígono do município declarado no Censo Escolar (malha municipal do IBGE em resolução máxima)">
+              <input type="checkbox" id="filtro-fora"> Só pontos fora do município declarado
+            </label>
+            <label class="checkbox-label" title="Escolas com ponto do INEP e do CNEFE a mais de N km um do outro">
+              <input type="checkbox" id="filtro-distancia"> Só INEP × CNEFE a mais de
+              <input type="number" id="filtro-distancia-km" value="1" min="0" step="0.5" class="auditoria-km"> km
+            </label>
+          </div>
+
+          <div id="auditoria-resumo" class="tile-math-box mt-2"></div>
+        </div>
+      </details>
+
+      <details class="accordion-item" open>
+        <summary class="accordion-header">📋 Lista dos casos (maior distância primeiro)</summary>
+        <div class="accordion-body">
+          <p class="instruction">
+            Ordenada pela maior distância: até o município declarado ou entre o
+            ponto do INEP e o do CNEFE. Clique numa linha para ir até a escola.
+          </p>
+          <ol id="auditoria-lista" class="auditoria-lista"></ol>
+        </div>
+      </details>
+
+      <details class="accordion-item">
+        <summary class="accordion-header">💡 Como ler este mapa</summary>
+        <div class="accordion-body">
+          <ul class="steps-list">
+            <li><strong>Endereço primeiro:</strong> quando o casamento com o CNEFE é por endereço, a coordenada é a do CNEFE: nível 1 (CEP + número + rua) ou nível 2 (CEP + número).</li>
+            <li><strong>Depois o INEP:</strong> nos demais casos, a coordenada vem do Catálogo de Escolas do INEP (exportação do painel do INEP Data), ligado pelo código da escola. A cor diz se o CNEFE/IBGE confirma o ponto (até 300 m), fica perto (300 m a 1 km), diverge (mais de 1 km) ou não tem ponto para comparar.</li>
+            <li><strong>CNEFE como reserva:</strong> para escolas sem coordenada no INEP (ou com um ponto do INEP repetido por 5 ou mais escolas), o ponto vem do casamento com o CNEFE por nome: nível 3 (nome exato no município) ou nível 4 (nome ajustado no município).</li>
+            <li><strong>Contorno vermelho:</strong> o ponto cai fora do município declarado no Censo Escolar.</li>
+            <li><strong>Linha tracejada:</strong> ao clicar numa escola com as duas fontes, liga o ponto usado ao da outra fonte (círculo branco).</li>
+          </ul>
+          <p class="instruction">
+            Detalhes em <code>docs/08-mapeamento-intersetorial-nacional-diagnostico-norte.org</code>
+            e, para 2025, em <code>docs/features/casamento-cnefe-censo-2025.md</code>. Em 2025 o
+            endereço vem do Catálogo de Escolas, porque os microdados do Censo não o trazem mais.
+          </p>
+        </div>
+      </details>
+    </aside>
+
+    <main id="map" class="map-container"></main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <!-- Qual conjunto carregar (o mesmo JS serve à auditoria de 2024) -->
+  <script>
+    window.AUDITORIA_CONFIG = {
+      indiceUrl: "data/auditoria_2025/indice.json",
+      rotuloEndereco: "Endereço (Catálogo de Escolas)"
+    };
+  </script>
+  <script src="js/escolas_auditoria.js"></script>
+</body>
+</html>

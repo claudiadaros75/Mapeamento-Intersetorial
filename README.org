@@ -1,4 +1,5 @@
-#+TITLE: Utilização e Reuso de dados abertos
+
+#+TITLE: Mapeamento Intersetorial com Uso e Reuso de dados abertos
 #+AUTHOR: Projeto de aprendizagem
 #+EMAIL: 
 #+LANGUAGE: pt-br
@@ -7,9 +8,7 @@
 
 * Sobre o projeto
 
-Este projeto é uma oportunidade de ação social: um exercício cívico que
-cumpre os objetivos da política de dados abertos, que são justamente a
-*utilização* e o *reuso* dos dados públicos disponibilizados por fontes
+Este projeto é uma oportunidade de ação social, um exercício cívico alinhado com os objetivos da política de dados abertos, que preconizam *utilização* e o *reuso* dos dados públicos e abertos disponibilizados por fontes
 oficiais, como o IBGE e o Censo Escolar do INEP.
 
 Inicialmente, o projeto estudou o georreferenciamento e a análise
@@ -19,13 +18,34 @@ conceitos fundamentais de cartografia, sistemas de coordenadas, projeções
 e manipulação de dados geoespaciais, documentando todo o aprendizado em
 arquivos Org (formato *org-mode* do Emacs).
 
-A partir de agora, o projeto passa a apresentar alguns painéis abertos já
-existentes e os seus respectivos microdados (veja o inventário em
-=docs/paines-publicos.org=), trabalhando as duas dimensões dos dados
-abertos:
+Neste link: [[./docs/01-dados-ibge-malhas-municipais.org][Entender os dados do IBGE]] expõe o que é a Malha Municipal Digital, onde
+   baixar, formato e características técnicas.
+   
+Esta etapa cumpre um importante objetivo que é apresentação dos dados em mapas cujos polígonos são oficiais, provenientes dos conjuntos de dados oficiais do IBGE.
+
+Para acesso e manipulação dos dados [[./docs/02-ambiente-python.org][prepararou-se o ambiente Python]]
+
+Com o ambiente python configurado:
+
+Baixamos a MMD 2024 e inspecionamos o conteúdo dos arquivos baixados
+Ler a malha com geopandas e fazer as primeiras visualizações. Ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]].
+Estudos e utilização sobre a biblioteca leaflet:
+[[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e renderização de GeoJSON no navegador.
+
+De posse dos polígonos oficiais nos mapas a próxima etapa foi plotar as escolas do censo de 2025 no mapa.
+
+7. [[./docs/05-plano-marcadores-escolas-inep.org][Marcadores de escolas do Censo Escolar (INEP) no mapa]] - plano vivo
+   atualizado entre sessões, para adicionar uma camada de escolas
+   filtrável por checkbox ao explorador de malhas.
+
+   Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
+
+* Dados Abertos
+
 
 - *Utilização*: consultar e interpretar os painéis abertos, usando os
   dados da forma como já são publicados.
+
 - *Reuso*: manipular os microdados respectivos de cada painel para
   produzir novas análises, cruzamentos e visualizações, como os mapas
   georreferenciados deste projeto.
@@ -34,6 +54,7 @@ Após uma breve passagem por alguns dos painéis públicos citados, o projeto en
 
 
 
+* Ciência Aberta
 * Painéis de dados abertos públicos: delimitação do que será utilizado e reusado
 
 Existem muitos dados abertos disponíveis no Brasil, publicados por
@@ -66,6 +87,8 @@ dados:
 
 1. *Malhas territoriais do IBGE* — a base geográfica (municípios, UFs e
    regiões) sobre a qual os demais dados são georreferenciados.
+   Os conjuntos de dados das malhas territoriais do IBGE podem ser acessados [[https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais.html][aqui]], as publicações oficiais podem ser acessadas [[https://www.ibge.gov.br/geociencias/organizacao-do-territorio/malhas-territoriais/15774-malhas.html?=&t=publicacoes][aqui]].
+   As publicações oficiais
 
 2. Mapear as escolas    
 2. *Censo Escolar do INEP* — dados de escolas, matrículas e docentes da
@@ -287,27 +310,131 @@ georef-artifacts/
 `-- .venv/                  ; ambiente virtual Python (não versionado)
 #+end_src
 
-* Roteiro de estudo
+* Como rodar o pipeline das escolas (passo a passo manual)
 
-O roteiro evolui conforme o projeto avança. Os primeiros passos são:
+Todos os comandos rodam a partir da raiz do projeto, com o ambiente
+Python do projeto (=.venv/=, ver [[./docs/02-ambiente-python.org][02-ambiente-python]]). Os dados baixados e
+os CSVs grandes ficam em =data/= e não vão para o git.
 
-1. [[./docs/01-dados-ibge-malhas-municipais.org][Entender os dados do IBGE]] - o que é a Malha Municipal Digital, onde
-   baixar, formato e características técnicas.
-2. [[./docs/02-ambiente-python.org][Preparar o ambiente Python]] - instalar e verificar geopandas.
-3. Baixar a MMD 2024 e inspecionar o conteúdo dos arquivos.
-4. Ler a malha com geopandas e fazer as primeiras visualizações
-   (ver [[./docs/03-primeira-exploracao.org][primeira-exploracao]]).
-5. [[./docs/04-leaflet-explicado.org][Construir mapas web com Leaflet]] - entender TileLayers, URLs de tiles e
-   renderização de GeoJSON no navegador.
-6. Exportar a documentação Org para HTML estático em =web/docs/=:
+** 1. Baixar as bases oficiais
+
+#+begin_src sh
+  # Censo Escolar (INEP): 2025 para o pipeline novo; 2024 extraído para o ETL de 2024
+  .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2025
+  .venv/bin/python scripts/commands/inep_censo_escolar__baixar_dados.py 2024 --extrair
+
+  # CNEFE 2022 (IBGE), as 27 UFs (~3,9 GB). Não precisa extrair: o ETL lê
+  # o CSV direto do ZIP (extraído, o Brasil ocupa de 10 a 15 GB)
+  .venv/bin/python scripts/commands/ibge_cnefe__baixar_dados.py
+#+end_src
+
+** 2. Exportar o Catálogo de Escolas do INEP Data (manual, no navegador)
+
+O Catálogo de Escolas só exporta pelo painel do INEP Data
+(https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/inep-data/catalogo-de-escolas),
+e corta cada exportação em 100.000 linhas. Por isso o Brasil é exportado
+por grande região (Norte e Nordeste, Centro-Oeste, Sudeste, Sul) e cada
+arquivo é salvo em =data/cadastroescolar_inep/=.
+
+*Atenção*: a pasta deve ter *só* as exportações do painel. Qualquer outro
+CSV nela (por exemplo, uma cópia da base já juntada) faz o passo 3 parar,
+porque cada escola apareceria duas vezes.
+
+** 3. Juntar as exportações em uma base só
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py
+#+end_src
+
+Gera =data/inep_catalogo_escolas.csv= (210.320 escolas; endereço em um
+campo só e o ponto do INEP em =Latitude=/=Longitude=).
+
+** 4. Juntar o Censo Escolar 2025 ao Catálogo pelo código da escola
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/inep_censo_escolar__juntar_cadastro_escolar.py
+#+end_src
+
+Liga =CO_ENTIDADE= (Censo) a =Código INEP= (Catálogo) e gera:
+
+| Arquivo                                                                               | Conteúdo                                                                |
+|---------------------------------------------------------------------------------------+-------------------------------------------------------------------------|
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep.csv=                         | todas as escolas, com =JUNCAO_CENSO_CADASTRO= dizendo em qual base estão |
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep__nocadastro_forado_censo.csv= | só as escolas que estão no Catálogo e não no Censo                      |
+| =data/inep_censo_escolar_2025_+_cadastro_escolar_do_inep__nocenso_forado_cadastroescolar.csv= | só as escolas que estão no Censo e não no Catálogo                |
+
+As escolas só do Censo são todas extintas: o Catálogo não lista escolas
+extintas.
+
+** 5. Casar as escolas com o CNEFE (coordenadas)
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py          # UFs com CNEFE baixado (Brasil)
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_censo_2025_cnefe.py am pa    # só algumas UFs
+#+end_src
+
+Separa o endereço do Catálogo (logradouro, número, CEP...), aplica o mesmo
+casamento em níveis do ETL de 2024 (1 e 2 por endereço, 3 e 4 por nome) e
+escolhe a coordenada final. Gera =data/inep_+cnef.csv=, com todas as
+colunas da entrada e mais:
+
+| Campo                                                          | O que diz                                                            |
+|----------------------------------------------------------------+----------------------------------------------------------------------|
+| =JUNCAO_CENSO_CADASTRO=                                        | =censo_e_cadastro=, =so_censo= ou =so_cadastro=                      |
+| =ENDERECO_SEPARACAO=                                           | se o endereço tem CEP e número (=cep_e_numero=, =sem_numero=...)     |
+| =NIVEL_CASAMENTO=, =STATUS_CNEFE=, =MOTIVO_GEOLOCALIZACAO=     | como (ou por que não) a escola casou com o CNEFE                     |
+| =ALERTAS_GEOLOCALIZACAO=                                       | o que merece conferência (CEP genérico, ponto compartilhado...)      |
+| =LATITUDE=, =LONGITUDE=, =FONTE_COORDENADA=, =STATUS_GEOLOCALIZACAO= | a coordenada final e de onde veio (INEP ou CNEFE)               |
+| =N_CANDIDATOS=, =SIMILARIDADE_NOME=, nomes normalizados        | o "porquê" do casamento                                              |
+| =CNEFE_JUNTADO= e as colunas =CNEFE_*=                         | a linha original do CNEFE inteira, quando a escola casou com ela     |
+| =HISTORICO_PROCESSAMENTO=                                      | as etapas que o registro percorreu, em ordem                         |
+
+** 6. Gerar os dados do mapa de 2025 (Brasil)
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py --ano 2025
+#+end_src
+
+Lê =data/inep_+cnef.csv= e as matrículas da =Tabela_Matricula_2025= (no ZIP
+do Censo) e grava =web/data/escolas_2025/= (um JSON por UF, ~34 MB no
+total), que a página =web/escolas_mapa_2025.html= carrega. Sem =--ano=, o
+script gera o mapa de 2024 (=web/data/escolas/=).
+
+** 7. Gerar os dados do mapa de auditoria de 2025 (Brasil)
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py --ano 2025
+#+end_src
+
+Lê de =data/inep_+cnef.csv= só as colunas da auditoria, confere cada ponto
+contra a malha municipal do IBGE (fora do município declarado?) e grava
+=web/data/auditoria_2025/= (~51 MB), que a página
+=web/escolas_auditoria_2025.html= carrega. Sem =--ano=, gera a auditoria de
+2024 (=web/data/auditoria/=).
+
+Escolas extintas, paralisadas ou em atividade: coluna
+=TP_SITUACAO_FUNCIONAMENTO= do Censo (1 em atividade, 2 paralisada, 3
+extinta).
+
+** ETL do Censo 2024 e mapas web
+
+O Censo 2024 ainda tem o endereço separado nos microdados e alimenta os
+mapas publicados:
+
+#+begin_src sh
+  .venv/bin/python scripts/commands/escolas_dados__cruzar_inep_cnefe.py am pa sp
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_web.py
+  .venv/bin/python scripts/commands/escolas_mapa__gerar_dados_auditoria.py
+#+end_src
+
+Detalhes, decisões e números de cada etapa ficam em =docs/= e em
+=docs/features/=.
+
+* comandos do orgmode
+Exportar a documentação Org para HTML estático em =web/docs/=:
    #+begin_src sh
    ./scripts/commands/exportar_docs_org_para_html.sh
    #+end_src
-7. [[./docs/05-plano-marcadores-escolas-inep.org][Marcadores de escolas do Censo Escolar (INEP) no mapa]] - plano vivo,
-   atualizado entre sessões, para adicionar uma camada de escolas
-   filtrável por checkbox ao explorador de malhas.
-
-Cada novo tema estudado ganha seu próprio arquivo em =docs/=.
 
 * Referências
 
@@ -336,3 +463,33 @@ completo está no arquivo [[./LICENSE][LICENSE]].
 
 Os dados brutos baixados das fontes oficiais (IBGE, INEP, IPEA) seguem
 as condições de uso definidas por cada órgão.
+* rascunho
+** Temos escolas sem ponto?
+   Estudar sobre elas (Oportunidade de melhorias no processo de aquisição dos dados abertos)
+** Dados Do INEP
+***  INEP também inclui escolas paralisadas ou extintas
+     (639 no AM, 1.257 no PA e 3.117 em SP)
+*** Existem escolar no mesmo endereço (CEP e Número)? Quantas? Quais?     
+** Dados Do CNEP
+*** Ponto de ensino no CNEFE
+    não aparece como escola no INEP
+    
+  ┌─────┬───────────────────────────┬──────────────────────────┬──────────────┐
+  │     │ Pontos de ensino no CNEFE │ Usados por alguma escola │ Nunca usados │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ AM  │ 7.052                     │ 3.030                    │ 4.020        │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ PA  │ 14.150                    │ 5.986                    │ 8.160        │
+  ├─────┼───────────────────────────┼──────────────────────────┼──────────────┤
+  │ SP  │ 40.746                    │ 23.021                   │ 17.629       │
+  └─────┴───────────────────────────┴──────────────────────────┴──────────────┘
+*** O CNEFE inclui faculdades, autoescolas, cursos livres e até pontos registrados como "ESCOLA DESATIVADA"
+*** Existem escolar no mesmo endereço (CEP e Número)? Quantas? Quais?
+
+
+
+https://www.ibge.gov.br/apps/basescartograficas/#/produtos
+https://www.ibge.gov.br/apps/regioes_geograficas/#/home
+https://www.ibge.gov.br/apps/areas_urbanizadas/#/home
+
+

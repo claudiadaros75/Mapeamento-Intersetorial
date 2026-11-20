@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 21:58 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Plano - Marcadores de Escolas do Censo Escolar (INEP) no Mapa</title>
@@ -30,40 +30,41 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org047d10b">1. Objetivo</a></li>
-<li><a href="#org6f9546f">2. Como usar este documento</a></li>
-<li><a href="#org249adf6">3. Estado atual (resumo rápido)</a></li>
-<li><a href="#org65c50f8">4. Decisões tomadas</a>
+<li><a href="#org84c544d">1. Objetivo</a></li>
+<li><a href="#org53d24b7">2. Como usar este documento</a></li>
+<li><a href="#org54c6e79">3. Estado atual (resumo rápido)</a></li>
+<li><a href="#org8f7676f">4. Decisões tomadas</a>
 <ul>
-<li><a href="#orgc1e5c4f">4.1. Ano de referência do Censo Escolar: 2024</a></li>
-<li><a href="#org963c108">4.2. SUPERSEDIDA - Estratégia de geolocalização (v1): agregação por município</a></li>
-<li><a href="#org4ee512a">4.3. Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)</a></li>
+<li><a href="#org89b0025">4.1. Ano de referência do Censo Escolar: 2024</a></li>
+<li><a href="#org41fe729">4.2. SUPERSEDIDA - Estratégia de geolocalização (v1): agregação por município</a></li>
+<li><a href="#org2d0a385">4.3. Estratégia de geolocalização: ponto do INEP, conferido com o CNEFE (26/10/2026)</a></li>
+<li><a href="#org7341c74">4.4. SUPERSEDIDA (26/10/2026) - Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)</a></li>
 </ul>
 </li>
-<li><a href="#org5a0e20f">5. Roteiro geral (fases)</a>
+<li><a href="#orgbfff962">5. Roteiro geral (fases)</a>
 <ul>
-<li><a href="#org88986bb">5.1. <span class="todo EM_ANDAMENTO">EM-ANDAMENTO</span> Fase 1 - Obtenção de Dados (Aquisição)</a></li>
-<li><a href="#orgf85d2db">5.2. <span class="todo A_FAZER">A-FAZER</span> Fase 2 - Preparação e Modelagem dos Dados</a></li>
-<li><a href="#orgad92fe4">5.3. <span class="todo A_FAZER">A-FAZER</span> Fase 3 - Definição das Variáveis de Filtro</a></li>
-<li><a href="#org7c0823d">5.4. <span class="todo A_FAZER">A-FAZER</span> Fase 4 - Preparação dos Dados para Visualização Web</a></li>
-<li><a href="#orgcf3f7fd">5.5. <span class="todo A_FAZER">A-FAZER</span> Fase 5 - UI de Filtros (checkboxes) na Barra Lateral</a></li>
-<li><a href="#org07f8830">5.6. <span class="todo A_FAZER">A-FAZER</span> Fase 6 - Renderização dos Marcadores no Mapa</a></li>
-<li><a href="#org2547655">5.7. <span class="todo A_FAZER">A-FAZER</span> Fase 7 - Performance e Evolução (v2)</a></li>
+<li><a href="#orgf1ad887">5.1. <span class="todo EM_ANDAMENTO">EM-ANDAMENTO</span> Fase 1 - Obtenção de Dados (Aquisição)</a></li>
+<li><a href="#orga71cc62">5.2. <span class="todo A_FAZER">A-FAZER</span> Fase 2 - Preparação e Modelagem dos Dados</a></li>
+<li><a href="#org47c6abd">5.3. <span class="todo A_FAZER">A-FAZER</span> Fase 3 - Definição das Variáveis de Filtro</a></li>
+<li><a href="#org6450e7e">5.4. <span class="todo A_FAZER">A-FAZER</span> Fase 4 - Preparação dos Dados para Visualização Web</a></li>
+<li><a href="#orga479b17">5.5. <span class="todo A_FAZER">A-FAZER</span> Fase 5 - UI de Filtros (checkboxes) na Barra Lateral</a></li>
+<li><a href="#org95e918b">5.6. <span class="todo A_FAZER">A-FAZER</span> Fase 6 - Renderização dos Marcadores no Mapa</a></li>
+<li><a href="#org8f6e928">5.7. <span class="todo A_FAZER">A-FAZER</span> Fase 7 - Performance e Evolução (v2)</a></li>
 </ul>
 </li>
-<li><a href="#orgc4832f4">6. Fase 1 (detalhada) - Obtenção de Dados</a>
+<li><a href="#org7d71012">6. Fase 1 (detalhada) - Obtenção de Dados</a>
 <ul>
-<li><a href="#org217f894">6.1. Achados confirmados nesta sessão</a></li>
-<li><a href="#org8f7630d">6.2. Nota técnica: TLS de download.inep.gov.br</a></li>
-<li><a href="#org3d462aa">6.3. Tarefas</a></li>
+<li><a href="#org8874452">6.1. Achados confirmados nesta sessão</a></li>
+<li><a href="#org61be066">6.2. Nota técnica: TLS de download.inep.gov.br</a></li>
+<li><a href="#org6e0a076">6.3. Tarefas</a></li>
 </ul>
 </li>
-<li><a href="#org720608b">7. Referências</a></li>
+<li><a href="#org391993c">7. Referências</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-org047d10b" class="outline-2">
-<h2 id="org047d10b"><span class="section-number-2">1.</span> Objetivo</h2>
+<div id="outline-container-org84c544d" class="outline-2">
+<h2 id="org84c544d"><span class="section-number-2">1.</span> Objetivo</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Adicionar ao explorador de malhas (<code>web/ibge_malhas.html</code>) uma camada de
@@ -78,8 +79,8 @@ Fonte oficial dos dados:
 </p>
 </div>
 </div>
-<div id="outline-container-org6f9546f" class="outline-2">
-<h2 id="org6f9546f"><span class="section-number-2">2.</span> Como usar este documento</h2>
+<div id="outline-container-org53d24b7" class="outline-2">
+<h2 id="org53d24b7"><span class="section-number-2">2.</span> Como usar este documento</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Este é um documento <b>vivo</b>, mantido entre sessões de trabalho:
@@ -97,11 +98,36 @@ das fases e, se necessário, acrescentamos novas tarefas descobertas.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org249adf6" class="outline-2">
-<h2 id="org249adf6"><span class="section-number-2">3.</span> Estado atual (resumo rápido)</h2>
+<div id="outline-container-org54c6e79" class="outline-2">
+<h2 id="org54c6e79"><span class="section-number-2">3.</span> Estado atual (resumo rápido)</h2>
 <div class="outline-text-2" id="text-3">
 <ul class="org-ul">
 <li><b>Atualização (08/11/2026):</b> o pareamento nacional com o Catálogo de Escolas e o CNEFE está concluído e publicado. Ver o <a href="10-mapa-nacional-censo-cnefe.html">doc 10</a> e o <a href="11-censo-escolar-x-cnefe.html">doc 11</a>. Os itens abaixo registram o estado do plano antes desse trabalho.</li>
+</ul>
+<p>
+<b>Atualização (26/10/2026) - estado atual:</b>
+</p>
+
+<ul class="org-ul">
+<li>UFs processadas: SP, AM e PA (branch <code>mapeamento-intersetorial-nacional</code>,
+já mesclada na <code>main</code>).</li>
+<li>Coordenada de cada escola: primeiro a do <b>Catálogo de Escolas do INEP</b>
+(exportação do painel do INEP Data desde 19/11/2026; antes, cadastro de
+2023 via geobr/Ipea; ligado pelo código da escola),
+conferida com o CNEFE; o CNEFE só para quem não tem ponto no INEP.
+Escolas com ponto: AM 73,0%, PA 84,1%, SP 91,7%.</li>
+<li>Dois mapas publicados no GitHub Pages: <code>web/escolas_mapa.html</code> (usuário
+final) e <code>web/escolas_auditoria.html</code> (origem de cada coordenada).</li>
+<li>Análise, regras e números em <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>. Os itens abaixo são o histórico do
+piloto SP (as camadas <code>alta=/=media=/=baixa</code> e os 81,1% citados foram
+substituídos).</li>
+</ul>
+
+<p>
+<b>Histórico (até 2026-09-18):</b>
+</p>
+
+<ul class="org-ul">
 <li>Fase em andamento: <b>Fase 1 - Obtenção de Dados</b> (Censo Escolar e CNEFE).</li>
 <li>Já decidido: ano de referência <code>2024</code> para os microdados do Censo
 Escolar; geolocalização passa a ser <b>ponto exato por escola via CNEFE</b>
@@ -153,12 +179,12 @@ desempenho, e então baixar o CNEFE das outras 26 UFs.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org65c50f8" class="outline-2">
-<h2 id="org65c50f8"><span class="section-number-2">4.</span> Decisões tomadas</h2>
+<div id="outline-container-org8f7676f" class="outline-2">
+<h2 id="org8f7676f"><span class="section-number-2">4.</span> Decisões tomadas</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-orgc1e5c4f" class="outline-3">
-<h3 id="orgc1e5c4f"><span class="section-number-3">4.1.</span> Ano de referência do Censo Escolar: 2024</h3>
+<div id="outline-container-org89b0025" class="outline-3">
+<h3 id="org89b0025"><span class="section-number-3">4.1.</span> Ano de referência do Censo Escolar: 2024</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 O pacote de 2024 (<code>microdados_censo_escolar_2024.zip</code>, ~32 MB) traz uma
@@ -170,8 +196,8 @@ para 2025 (ou anos futuros) depois que o pipeline estiver funcionando.
 </p>
 </div>
 </div>
-<div id="outline-container-org963c108" class="outline-3">
-<h3 id="org963c108"><span class="section-number-3">4.2.</span> SUPERSEDIDA - Estratégia de geolocalização (v1): agregação por município</h3>
+<div id="outline-container-org41fe729" class="outline-3">
+<h3 id="org41fe729"><span class="section-number-3">4.2.</span> SUPERSEDIDA - Estratégia de geolocalização (v1): agregação por município</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 <b>Substituída pela decisão seguinte.</b> Registrada aqui só como histórico:
@@ -185,9 +211,23 @@ com a descoberta do CNEFE (ver decisão abaixo).
 </p>
 </div>
 </div>
-<div id="outline-container-org4ee512a" class="outline-3">
-<h3 id="org4ee512a"><span class="section-number-3">4.3.</span> Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)</h3>
+<div id="outline-container-org2d0a385" class="outline-3">
+<h3 id="org2d0a385"><span class="section-number-3">4.3.</span> Estratégia de geolocalização: ponto do INEP, conferido com o CNEFE (26/10/2026)</h3>
 <div class="outline-text-3" id="text-4-3">
+<p>
+A coordenada principal passou a ser a do Catálogo de Escolas do INEP, que
+o geobr (Ipea) redistribui com o código da escola (<code>code_school</code> =
+<code>CO_ENTIDADE</code>). Desde 19/11/2026 o ponto vem da exportação do painel do
+INEP Data, e o geobr saiu do projeto. O casamento com o CNEFE, descrito na decisão seguinte,
+virou reserva (escolas sem ponto no INEP) e conferência (distância entre
+os dois pontos). Motivo, medições e regras em <a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>, seção "Qual
+coordenada usar: INEP primeiro, CNEFE como reserva".
+</p>
+</div>
+</div>
+<div id="outline-container-org7341c74" class="outline-3">
+<h3 id="org7341c74"><span class="section-number-3">4.4.</span> SUPERSEDIDA (26/10/2026) - Estratégia de geolocalização: ponto exato por escola via CNEFE (IBGE)</h3>
+<div class="outline-text-3" id="text-4-4">
 <p>
 Encontramos e verificamos uma fonte com latitude/longitude real por
 endereço, incluindo estabelecimentos de ensino: o <b>CNEFE</b> do IBGE (Censo
@@ -224,20 +264,20 @@ ETL ainda a escrever (ver pendências em
 </div>
 </div>
 </div>
-<div id="outline-container-org5a0e20f" class="outline-2">
-<h2 id="org5a0e20f"><span class="section-number-2">5.</span> Roteiro geral (fases)</h2>
+<div id="outline-container-orgbfff962" class="outline-2">
+<h2 id="orgbfff962"><span class="section-number-2">5.</span> Roteiro geral (fases)</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-org88986bb" class="outline-3">
-<h3 id="org88986bb"><span class="section-number-3">5.1.</span> <span class="todo EM_ANDAMENTO">EM-ANDAMENTO</span> Fase 1 - Obtenção de Dados (Aquisição)</h3>
+<div id="outline-container-orgf1ad887" class="outline-3">
+<h3 id="orgf1ad887"><span class="section-number-3">5.1.</span> <span class="todo EM_ANDAMENTO">EM-ANDAMENTO</span> Fase 1 - Obtenção de Dados (Aquisição)</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 Ver seção detalhada "Fase 1 (detalhada)" abaixo.
 </p>
 </div>
 </div>
-<div id="outline-container-orgf85d2db" class="outline-3">
-<h3 id="orgf85d2db"><span class="section-number-3">5.2.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 2 - Preparação e Modelagem dos Dados</h3>
+<div id="outline-container-orga71cc62" class="outline-3">
+<h3 id="orga71cc62"><span class="section-number-3">5.2.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 2 - Preparação e Modelagem dos Dados</h3>
 <div class="outline-text-3" id="text-5-2">
 <ul class="org-ul">
 <li>Escolher biblioteca de leitura (pandas, já presente no <code>requirements.txt</code>
@@ -253,8 +293,8 @@ antes de virar o artefato final para a web).</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgad92fe4" class="outline-3">
-<h3 id="orgad92fe4"><span class="section-number-3">5.3.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 3 - Definição das Variáveis de Filtro</h3>
+<div id="outline-container-org47c6abd" class="outline-3">
+<h3 id="org47c6abd"><span class="section-number-3">5.3.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 3 - Definição das Variáveis de Filtro</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 Candidatas iniciais a partir do cabeçalho do CSV de 2024 (confirmar após
@@ -275,8 +315,8 @@ se mostramos apenas escolas em atividade.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org7c0823d" class="outline-3">
-<h3 id="org7c0823d"><span class="section-number-3">5.4.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 4 - Preparação dos Dados para Visualização Web</h3>
+<div id="outline-container-org6450e7e" class="outline-3">
+<h3 id="org6450e7e"><span class="section-number-3">5.4.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 4 - Preparação dos Dados para Visualização Web</h3>
 <div class="outline-text-3" id="text-5-4">
 <ul class="org-ul">
 <li>Formato de saída final: provavelmente um JSON/GeoJSON por município com
@@ -289,8 +329,8 @@ por UF.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgcf3f7fd" class="outline-3">
-<h3 id="orgcf3f7fd"><span class="section-number-3">5.5.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 5 - UI de Filtros (checkboxes) na Barra Lateral</h3>
+<div id="outline-container-orga479b17" class="outline-3">
+<h3 id="orga479b17"><span class="section-number-3">5.5.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 5 - UI de Filtros (checkboxes) na Barra Lateral</h3>
 <div class="outline-text-3" id="text-5-5">
 <ul class="org-ul">
 <li>Novo item de acordeão "🏫 Escolas (Censo INEP)", seguindo o padrão visual
@@ -303,8 +343,8 @@ estiverem prontos).</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org07f8830" class="outline-3">
-<h3 id="org07f8830"><span class="section-number-3">5.6.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 6 - Renderização dos Marcadores no Mapa</h3>
+<div id="outline-container-org95e918b" class="outline-3">
+<h3 id="org95e918b"><span class="section-number-3">5.6.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 6 - Renderização dos Marcadores no Mapa</h3>
 <div class="outline-text-3" id="text-5-6">
 <ul class="org-ul">
 <li>Nova camada Leaflet (círculos proporcionais por município), adicionada
@@ -316,8 +356,8 @@ para não confundir com as camadas de malha.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-org2547655" class="outline-3">
-<h3 id="org2547655"><span class="section-number-3">5.7.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 7 - Performance e Evolução (v2)</h3>
+<div id="outline-container-org8f6e928" class="outline-3">
+<h3 id="org8f6e928"><span class="section-number-3">5.7.</span> <span class="todo A_FAZER">A-FAZER</span> Fase 7 - Performance e Evolução (v2)</h3>
 <div class="outline-text-3" id="text-5-7">
 <ul class="org-ul">
 <li>Reavaliar a geolocalização exata por escola (ponto no mapa em vez de
@@ -346,12 +386,12 @@ escolas ativas).</li>
 </div>
 </div>
 </div>
-<div id="outline-container-orgc4832f4" class="outline-2">
-<h2 id="orgc4832f4"><span class="section-number-2">6.</span> Fase 1 (detalhada) - Obtenção de Dados</h2>
+<div id="outline-container-org7d71012" class="outline-2">
+<h2 id="org7d71012"><span class="section-number-2">6.</span> Fase 1 (detalhada) - Obtenção de Dados</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-org217f894" class="outline-3">
-<h3 id="org217f894"><span class="section-number-3">6.1.</span> Achados confirmados nesta sessão</h3>
+<div id="outline-container-org8874452" class="outline-3">
+<h3 id="org8874452"><span class="section-number-3">6.1.</span> Achados confirmados nesta sessão</h3>
 <div class="outline-text-3" id="text-6-1">
 <p>
 Estrutura de download: todos os anos seguem o padrão
@@ -430,8 +470,8 @@ endereço aparece mais - confirma a remoção mencionada acima.
 </p>
 </div>
 </div>
-<div id="outline-container-org8f7630d" class="outline-3">
-<h3 id="org8f7630d"><span class="section-number-3">6.2.</span> Nota técnica: TLS de download.inep.gov.br</h3>
+<div id="outline-container-org61be066" class="outline-3">
+<h3 id="org61be066"><span class="section-number-3">6.2.</span> Nota técnica: TLS de download.inep.gov.br</h3>
 <div class="outline-text-3" id="text-6-2">
 <p>
 <code>download.inep.gov.br</code> não envia a CA intermediária no handshake (confirmado
@@ -455,8 +495,8 @@ dos Dados (basedosdados.org), ainda não testado.
 </p>
 </div>
 </div>
-<div id="outline-container-org3d462aa" class="outline-3">
-<h3 id="org3d462aa"><span class="section-number-3">6.3.</span> Tarefas</h3>
+<div id="outline-container-org6e0a076" class="outline-3">
+<h3 id="org6e0a076"><span class="section-number-3">6.3.</span> Tarefas</h3>
 <div class="outline-text-3" id="text-6-3">
 <ul class="org-ul">
 <li class="on"><code>[X]</code> Confirmar a página oficial de download (link enviado pelo usuário).</li>
@@ -494,8 +534,8 @@ projeto quando o script de download existir.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-org720608b" class="outline-2">
-<h2 id="org720608b"><span class="section-number-2">7.</span> Referências</h2>
+<div id="outline-container-org391993c" class="outline-2">
+<h2 id="org391993c"><span class="section-number-2">7.</span> Referências</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li>Página oficial de microdados do Censo Escolar:

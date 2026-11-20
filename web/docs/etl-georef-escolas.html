@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<!-- 2026-11-08 dom 21:58 -->
+<!-- 2026-11-20 sex 00:36 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Relatório - ETL de Geolocalização de Escolas, Piloto SP</title>
@@ -30,29 +30,38 @@
 <h2>Sumário</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga8562f8">1. Objetivo deste relatório</a></li>
-<li><a href="#orga3f2739">2. Contexto: de onde partimos</a></li>
-<li><a href="#orgb6bb8e3">3. O que foi construído</a>
+<li><a href="#org571ec66">1. Objetivo deste relatório</a></li>
+<li><a href="#orgcb0e70f">2. Contexto: de onde partimos</a></li>
+<li><a href="#org40d6e49">3. O que foi construído</a>
 <ul>
-<li><a href="#orgba7109f">3.1. Três scripts, cada um com uma responsabilidade</a></li>
-<li><a href="#org8c13cda">3.2. A estratégia de casamento (documentada em detalhe em 06-georeferenciamento-escolas.org)</a></li>
+<li><a href="#org2706e94">3.1. Três scripts, cada um com uma responsabilidade</a></li>
+<li><a href="#orgb89a1e5">3.2. A estratégia de casamento (documentada em detalhe em 06-georeferenciamento-escolas.org)</a></li>
 </ul>
 </li>
-<li><a href="#org92fb4f2">4. Resultado real do piloto (SP, Censo Escolar 2024)</a></li>
-<li><a href="#org8fd65b2">5. Dois problemas encontrados (não estavam previstos)</a>
+<li><a href="#orgd4ebdfd">4. Resultado real do piloto (SP, Censo Escolar 2024)</a></li>
+<li><a href="#orgc61c2ab">5. Dois problemas encontrados (não estavam previstos)</a>
 <ul>
-<li><a href="#org6b3ef68">5.1. Ambiguidade mais alta que o esperado (18,5%, não ~3%)</a></li>
-<li><a href="#org47285a5">5.2. Desempenho inviável para o Brasil inteiro nos moldes atuais</a></li>
+<li><a href="#orgcf18eaa">5.1. Ambiguidade mais alta que o esperado (18,5%, não ~3%)</a></li>
+<li><a href="#org411baeb">5.2. Desempenho inviável para o Brasil inteiro nos moldes atuais</a></li>
 </ul>
 </li>
-<li><a href="#org6abacee">6. Próximos passos</a></li>
-<li><a href="#orgb7f99e0">7. Referências</a></li>
+<li><a href="#org3274dad">6. Próximos passos</a></li>
+<li><a href="#orgb71425f">7. Referências</a></li>
 </ul>
 </div>
 </nav>
-<div id="outline-container-orga8562f8" class="outline-2">
-<h2 id="orga8562f8"><span class="section-number-2">1.</span> Objetivo deste relatório</h2>
+<div id="outline-container-org571ec66" class="outline-2">
+<h2 id="org571ec66"><span class="section-number-2">1.</span> Objetivo deste relatório</h2>
 <div class="outline-text-2" id="text-1">
+<p>
+<b>Nota (26/10/2026):</b> este relatório é o registro de encerramento do
+piloto SP e não é mais atualizado. Desde então: o casamento com o CNEFE foi
+refeito em estágios (<code>cep_numero</code>, <code>nome_exato</code>, <code>nome_ajustado</code>), AM e PA
+foram incluídos e a coordenada principal passou a ser a do Catálogo de
+Escolas do INEP, com o CNEFE como reserva e conferência. Estado atual em
+<a href="08-mapeamento-intersetorial-nacional-diagnostico-norte.html">08-mapeamento-intersetorial-nacional-diagnostico-norte.org</a>.
+</p>
+
 <p>
 Fechar o ciclo de trabalho desta sessão: sair de "não temos coordenada de
 escola nenhuma fonte oficial confirmada" até um piloto funcionando que
@@ -66,8 +75,8 @@ geolocalização).
 </p>
 </div>
 </div>
-<div id="outline-container-orga3f2739" class="outline-2">
-<h2 id="orga3f2739"><span class="section-number-2">2.</span> Contexto: de onde partimos</h2>
+<div id="outline-container-orgcb0e70f" class="outline-2">
+<h2 id="orgcb0e70f"><span class="section-number-2">2.</span> Contexto: de onde partimos</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 O recurso de marcadores de escolas do explorador de malhas
@@ -90,12 +99,12 @@ enriquecida com coordenada do CNEFE via ETL.
 </p>
 </div>
 </div>
-<div id="outline-container-orgb6bb8e3" class="outline-2">
-<h2 id="orgb6bb8e3"><span class="section-number-2">3.</span> O que foi construído</h2>
+<div id="outline-container-org40d6e49" class="outline-2">
+<h2 id="org40d6e49"><span class="section-number-2">3.</span> O que foi construído</h2>
 <div class="outline-text-2" id="text-3">
 </div>
-<div id="outline-container-orgba7109f" class="outline-3">
-<h3 id="orgba7109f"><span class="section-number-3">3.1.</span> Três scripts, cada um com uma responsabilidade</h3>
+<div id="outline-container-org2706e94" class="outline-3">
+<h3 id="org2706e94"><span class="section-number-3">3.1.</span> Três scripts, cada um com uma responsabilidade</h3>
 <div class="outline-text-3" id="text-3-1">
 <ul class="org-ul">
 <li><code>scripts/commands/inep_censo_escolar__baixar_dados.py</code> - baixa os
@@ -121,8 +130,8 @@ brutos; o ETL concentra toda a lógica de negócio deste recurso específico.
 </p>
 </div>
 </div>
-<div id="outline-container-org8c13cda" class="outline-3">
-<h3 id="org8c13cda"><span class="section-number-3">3.2.</span> A estratégia de casamento (documentada em detalhe em <a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a>)</h3>
+<div id="outline-container-orgb89a1e5" class="outline-3">
+<h3 id="orgb89a1e5"><span class="section-number-3">3.2.</span> A estratégia de casamento (documentada em detalhe em <a href="06-georeferenciamento-escolas.html">06-georeferenciamento-escolas.org</a>)</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
 O problema central: nenhuma escola tem um identificador em comum entre o
@@ -181,8 +190,8 @@ documentada em
 </div>
 </div>
 </div>
-<div id="outline-container-org92fb4f2" class="outline-2">
-<h2 id="org92fb4f2"><span class="section-number-2">4.</span> Resultado real do piloto (SP, Censo Escolar 2024)</h2>
+<div id="outline-container-orgd4ebdfd" class="outline-2">
+<h2 id="orgd4ebdfd"><span class="section-number-2">4.</span> Resultado real do piloto (SP, Censo Escolar 2024)</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 33.863 escolas (todas do Censo Escolar 2024 em SP, sem filtrar por
@@ -255,12 +264,12 @@ resolvidos caiu em "ambíguo", não em "não achou nada".
 </p>
 </div>
 </div>
-<div id="outline-container-org8fd65b2" class="outline-2">
-<h2 id="org8fd65b2"><span class="section-number-2">5.</span> Dois problemas encontrados (não estavam previstos)</h2>
+<div id="outline-container-orgc61c2ab" class="outline-2">
+<h2 id="orgc61c2ab"><span class="section-number-2">5.</span> Dois problemas encontrados (não estavam previstos)</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-org6b3ef68" class="outline-3">
-<h3 id="org6b3ef68"><span class="section-number-3">5.1.</span> Ambiguidade mais alta que o esperado (18,5%, não ~3%)</h3>
+<div id="outline-container-orgcf18eaa" class="outline-3">
+<h3 id="orgcf18eaa"><span class="section-number-3">5.1.</span> Ambiguidade mais alta que o esperado (18,5%, não ~3%)</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 A validação prévia só tinha medido colisão em endereço <b>exato</b> (~3% dos
@@ -282,8 +291,8 @@ tratá-lo como sinal forte equivalente a um CEP de rua real.
 </p>
 </div>
 </div>
-<div id="outline-container-org47285a5" class="outline-3">
-<h3 id="org47285a5"><span class="section-number-3">5.2.</span> Desempenho inviável para o Brasil inteiro nos moldes atuais</h3>
+<div id="outline-container-org411baeb" class="outline-3">
+<h3 id="org411baeb"><span class="section-number-3">5.2.</span> Desempenho inviável para o Brasil inteiro nos moldes atuais</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 Rodar o ETL só para SP levou <b>quase 28 minutos</b>, majoritariamente lendo e
@@ -296,8 +305,8 @@ antes de rodar o comparador de string (<code>difflib</code>) em listas grandes.
 </div>
 </div>
 </div>
-<div id="outline-container-org6abacee" class="outline-2">
-<h2 id="org6abacee"><span class="section-number-2">6.</span> Próximos passos</h2>
+<div id="outline-container-org3274dad" class="outline-2">
+<h2 id="org3274dad"><span class="section-number-2">6.</span> Próximos passos</h2>
 <div class="outline-text-2" id="text-6">
 <p>
 Registrados com mais detalhe em
@@ -319,8 +328,8 @@ adiada até sabermos a cobertura nacional real.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgb7f99e0" class="outline-2">
-<h2 id="orgb7f99e0"><span class="section-number-2">7.</span> Referências</h2>
+<div id="outline-container-orgb71425f" class="outline-2">
+<h2 id="orgb71425f"><span class="section-number-2">7.</span> Referências</h2>
 <div class="outline-text-2" id="text-7">
 <ul class="org-ul">
 <li><a href="05-plano-marcadores-escolas-inep.html">05-plano-marcadores-escolas-inep.org</a> - plano do recurso de marcadores de

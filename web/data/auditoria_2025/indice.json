@@ -1,0 +1,548 @@
+{
+  "ano_censo_escolar": "2025",
+  "fonte_ponto_inep": "Catalogo de Escolas do INEP (exportacao do painel do INEP Data)",
+  "ufs": {
+    "AC": {
+      "arquivo": "data/auditoria_2025/auditoria_AC_2025.json",
+      "tamanho_bytes": 289096,
+      "total_escolas": 1678,
+      "por_origem": {
+        "endereco_exato": 103,
+        "inep_sem_cnefe": 226,
+        "nome_ajustado": 359,
+        "inep_confirmado": 187,
+        "sem_correspondencia": 764,
+        "cep_numero": 9,
+        "inep_divergente": 17,
+        "inep_proximo": 12,
+        "nome_exato": 1
+      },
+      "fora_do_municipio": {
+        "inep_divergente": 1,
+        "inep_sem_cnefe": 2
+      }
+    },
+    "AL": {
+      "arquivo": "data/auditoria_2025/auditoria_AL_2025.json",
+      "tamanho_bytes": 875406,
+      "total_escolas": 3322,
+      "por_origem": {
+        "endereco_exato": 216,
+        "inep_sem_cnefe": 1301,
+        "inep_divergente": 47,
+        "sem_correspondencia": 621,
+        "nome_ajustado": 154,
+        "nome_exato": 92,
+        "inep_confirmado": 811,
+        "inep_proximo": 35,
+        "cep_numero": 45
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 23,
+        "inep_divergente": 1
+      }
+    },
+    "AM": {
+      "arquivo": "data/auditoria_2025/auditoria_AM_2025.json",
+      "tamanho_bytes": 1373723,
+      "total_escolas": 6104,
+      "por_origem": {
+        "sem_correspondencia": 1612,
+        "inep_divergente": 148,
+        "inep_confirmado": 1183,
+        "nome_ajustado": 337,
+        "inep_sem_cnefe": 2398,
+        "nome_exato": 139,
+        "endereco_exato": 203,
+        "inep_proximo": 36,
+        "cep_numero": 48
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 25,
+        "inep_divergente": 2,
+        "nome_ajustado": 1
+      }
+    },
+    "AP": {
+      "arquivo": "data/auditoria_2025/auditoria_AP_2025.json",
+      "tamanho_bytes": 244931,
+      "total_escolas": 944,
+      "por_origem": {
+        "inep_sem_cnefe": 383,
+        "endereco_exato": 110,
+        "inep_confirmado": 236,
+        "sem_correspondencia": 143,
+        "nome_ajustado": 27,
+        "inep_proximo": 6,
+        "inep_divergente": 15,
+        "cep_numero": 23,
+        "nome_exato": 1
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 5
+      }
+    },
+    "BA": {
+      "arquivo": "data/auditoria_2025/auditoria_BA_2025.json",
+      "tamanho_bytes": 4195507,
+      "total_escolas": 19604,
+      "por_origem": {
+        "sem_correspondencia": 6116,
+        "inep_confirmado": 3388,
+        "inep_sem_cnefe": 6122,
+        "inep_divergente": 310,
+        "nome_ajustado": 1002,
+        "nome_exato": 1197,
+        "endereco_exato": 960,
+        "cep_numero": 355,
+        "inep_proximo": 154
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 33,
+        "nome_ajustado": 2,
+        "inep_confirmado": 4,
+        "inep_proximo": 1,
+        "nome_exato": 1,
+        "cep_numero": 1
+      }
+    },
+    "CE": {
+      "arquivo": "data/auditoria_2025/auditoria_CE_2025.json",
+      "tamanho_bytes": 2189026,
+      "total_escolas": 10122,
+      "por_origem": {
+        "inep_sem_cnefe": 4128,
+        "inep_divergente": 119,
+        "endereco_exato": 1279,
+        "inep_confirmado": 1369,
+        "sem_correspondencia": 2666,
+        "nome_ajustado": 285,
+        "cep_numero": 154,
+        "inep_proximo": 59,
+        "nome_exato": 63
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 16,
+        "inep_divergente": 1
+      }
+    },
+    "DF": {
+      "arquivo": "data/auditoria_2025/auditoria_DF_2025.json",
+      "tamanho_bytes": 331658,
+      "total_escolas": 1471,
+      "por_origem": {
+        "inep_sem_cnefe": 1071,
+        "nome_ajustado": 11,
+        "inep_confirmado": 93,
+        "sem_correspondencia": 275,
+        "inep_divergente": 10,
+        "cep_numero": 5,
+        "nome_exato": 6
+      },
+      "fora_do_municipio": {}
+    },
+    "ES": {
+      "arquivo": "data/auditoria_2025/auditoria_ES_2025.json",
+      "tamanho_bytes": 960703,
+      "total_escolas": 3847,
+      "por_origem": {
+        "sem_correspondencia": 649,
+        "inep_sem_cnefe": 1862,
+        "inep_confirmado": 898,
+        "endereco_exato": 334,
+        "inep_proximo": 22,
+        "inep_divergente": 28,
+        "nome_exato": 17,
+        "cep_numero": 18,
+        "nome_ajustado": 19
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 4
+      }
+    },
+    "GO": {
+      "arquivo": "data/auditoria_2025/auditoria_GO_2025.json",
+      "tamanho_bytes": 1404128,
+      "total_escolas": 5007,
+      "por_origem": {
+        "inep_sem_cnefe": 2596,
+        "inep_confirmado": 1188,
+        "endereco_exato": 348,
+        "sem_correspondencia": 546,
+        "inep_proximo": 44,
+        "nome_ajustado": 63,
+        "nome_exato": 107,
+        "inep_divergente": 47,
+        "cep_numero": 68
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 2
+      }
+    },
+    "MA": {
+      "arquivo": "data/auditoria_2025/auditoria_MA_2025.json",
+      "tamanho_bytes": 3338455,
+      "total_escolas": 13226,
+      "por_origem": {
+        "inep_sem_cnefe": 6952,
+        "inep_confirmado": 3178,
+        "sem_correspondencia": 1924,
+        "inep_proximo": 85,
+        "inep_divergente": 280,
+        "endereco_exato": 409,
+        "nome_exato": 91,
+        "cep_numero": 100,
+        "nome_ajustado": 207
+      },
+      "fora_do_municipio": {
+        "inep_confirmado": 6,
+        "inep_sem_cnefe": 110,
+        "inep_divergente": 6
+      }
+    },
+    "MG": {
+      "arquivo": "data/auditoria_2025/auditoria_MG_2025.json",
+      "tamanho_bytes": 5357974,
+      "total_escolas": 24069,
+      "por_origem": {
+        "cep_numero": 492,
+        "endereco_exato": 5839,
+        "inep_sem_cnefe": 6255,
+        "sem_correspondencia": 7174,
+        "inep_confirmado": 3403,
+        "inep_proximo": 112,
+        "inep_divergente": 243,
+        "nome_ajustado": 456,
+        "nome_exato": 95
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 24,
+        "inep_divergente": 1,
+        "inep_confirmado": 2,
+        "endereco_exato": 1
+      }
+    },
+    "MS": {
+      "arquivo": "data/auditoria_2025/auditoria_MS_2025.json",
+      "tamanho_bytes": 570400,
+      "total_escolas": 1965,
+      "por_origem": {
+        "inep_sem_cnefe": 899,
+        "inep_confirmado": 444,
+        "endereco_exato": 413,
+        "cep_numero": 14,
+        "inep_proximo": 10,
+        "sem_correspondencia": 148,
+        "inep_divergente": 24,
+        "nome_ajustado": 7,
+        "nome_exato": 6
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 1
+      }
+    },
+    "MT": {
+      "arquivo": "data/auditoria_2025/auditoria_MT_2025.json",
+      "tamanho_bytes": 637475,
+      "total_escolas": 3241,
+      "por_origem": {
+        "inep_sem_cnefe": 910,
+        "sem_correspondencia": 1172,
+        "inep_confirmado": 426,
+        "nome_ajustado": 242,
+        "endereco_exato": 303,
+        "nome_exato": 68,
+        "cep_numero": 77,
+        "inep_divergente": 25,
+        "inep_proximo": 18
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 1
+      }
+    },
+    "PA": {
+      "arquivo": "data/auditoria_2025/auditoria_PA_2025.json",
+      "tamanho_bytes": 2929875,
+      "total_escolas": 11817,
+      "por_origem": {
+        "inep_confirmado": 2756,
+        "sem_correspondencia": 2047,
+        "nome_ajustado": 358,
+        "inep_sem_cnefe": 5711,
+        "cep_numero": 100,
+        "nome_exato": 49,
+        "endereco_exato": 484,
+        "inep_divergente": 233,
+        "inep_proximo": 79
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 63,
+        "inep_confirmado": 4,
+        "nome_ajustado": 2,
+        "inep_proximo": 1,
+        "nome_exato": 1,
+        "inep_divergente": 3
+      }
+    },
+    "PB": {
+      "arquivo": "data/auditoria_2025/auditoria_PB_2025.json",
+      "tamanho_bytes": 1393650,
+      "total_escolas": 5641,
+      "por_origem": {
+        "inep_sem_cnefe": 2417,
+        "inep_confirmado": 1280,
+        "endereco_exato": 452,
+        "sem_correspondencia": 1031,
+        "nome_ajustado": 134,
+        "inep_proximo": 49,
+        "inep_divergente": 70,
+        "nome_exato": 147,
+        "cep_numero": 61
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 39,
+        "inep_divergente": 1
+      }
+    },
+    "PE": {
+      "arquivo": "data/auditoria_2025/auditoria_PE_2025.json",
+      "tamanho_bytes": 2421548,
+      "total_escolas": 9957,
+      "por_origem": {
+        "inep_confirmado": 2063,
+        "inep_sem_cnefe": 3714,
+        "inep_divergente": 164,
+        "inep_proximo": 74,
+        "sem_correspondencia": 2103,
+        "endereco_exato": 1242,
+        "nome_ajustado": 154,
+        "nome_exato": 285,
+        "cep_numero": 158
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 59,
+        "nome_ajustado": 3,
+        "nome_exato": 4,
+        "inep_confirmado": 2,
+        "inep_proximo": 1,
+        "endereco_exato": 1
+      }
+    },
+    "PI": {
+      "arquivo": "data/auditoria_2025/auditoria_PI_2025.json",
+      "tamanho_bytes": 1256061,
+      "total_escolas": 5325,
+      "por_origem": {
+        "inep_confirmado": 1019,
+        "endereco_exato": 373,
+        "sem_correspondencia": 1220,
+        "inep_sem_cnefe": 2270,
+        "nome_ajustado": 166,
+        "nome_exato": 130,
+        "inep_divergente": 63,
+        "inep_proximo": 36,
+        "cep_numero": 48
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 14
+      }
+    },
+    "PR": {
+      "arquivo": "data/auditoria_2025/auditoria_PR_2025.json",
+      "tamanho_bytes": 2839049,
+      "total_escolas": 9975,
+      "por_origem": {
+        "inep_sem_cnefe": 5781,
+        "inep_confirmado": 797,
+        "endereco_exato": 2596,
+        "sem_correspondencia": 458,
+        "inep_proximo": 23,
+        "cep_numero": 265,
+        "inep_divergente": 24,
+        "nome_ajustado": 30,
+        "nome_exato": 1
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 8
+      }
+    },
+    "RJ": {
+      "arquivo": "data/auditoria_2025/auditoria_RJ_2025.json",
+      "tamanho_bytes": 3255558,
+      "total_escolas": 13035,
+      "por_origem": {
+        "inep_confirmado": 1265,
+        "endereco_exato": 3210,
+        "inep_sem_cnefe": 5107,
+        "sem_correspondencia": 2633,
+        "nome_ajustado": 171,
+        "nome_exato": 180,
+        "inep_divergente": 67,
+        "cep_numero": 364,
+        "inep_proximo": 38
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 19
+      }
+    },
+    "RN": {
+      "arquivo": "data/auditoria_2025/auditoria_RN_2025.json",
+      "tamanho_bytes": 1044232,
+      "total_escolas": 4708,
+      "por_origem": {
+        "inep_sem_cnefe": 1556,
+        "inep_confirmado": 854,
+        "endereco_exato": 622,
+        "sem_correspondencia": 1337,
+        "inep_divergente": 50,
+        "nome_exato": 96,
+        "nome_ajustado": 116,
+        "cep_numero": 54,
+        "inep_proximo": 23
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 22,
+        "inep_confirmado": 1
+      }
+    },
+    "RO": {
+      "arquivo": "data/auditoria_2025/auditoria_RO_2025.json",
+      "tamanho_bytes": 363579,
+      "total_escolas": 1393,
+      "por_origem": {
+        "inep_sem_cnefe": 555,
+        "endereco_exato": 231,
+        "inep_confirmado": 302,
+        "sem_correspondencia": 225,
+        "nome_exato": 4,
+        "nome_ajustado": 32,
+        "cep_numero": 24,
+        "inep_proximo": 2,
+        "inep_divergente": 18
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 3,
+        "inep_confirmado": 1
+      }
+    },
+    "RR": {
+      "arquivo": "data/auditoria_2025/auditoria_RR_2025.json",
+      "tamanho_bytes": 235610,
+      "total_escolas": 969,
+      "por_origem": {
+        "inep_sem_cnefe": 379,
+        "inep_confirmado": 197,
+        "sem_correspondencia": 222,
+        "inep_divergente": 9,
+        "nome_exato": 26,
+        "endereco_exato": 102,
+        "nome_ajustado": 26,
+        "cep_numero": 2,
+        "inep_proximo": 6
+      },
+      "fora_do_municipio": {}
+    },
+    "RS": {
+      "arquivo": "data/auditoria_2025/auditoria_RS_2025.json",
+      "tamanho_bytes": 2697947,
+      "total_escolas": 11046,
+      "por_origem": {
+        "sem_correspondencia": 2464,
+        "inep_sem_cnefe": 3280,
+        "inep_confirmado": 1404,
+        "endereco_exato": 2584,
+        "cep_numero": 798,
+        "nome_ajustado": 318,
+        "inep_divergente": 58,
+        "nome_exato": 97,
+        "inep_proximo": 43
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 1,
+        "nome_ajustado": 1
+      }
+    },
+    "SC": {
+      "arquivo": "data/auditoria_2025/auditoria_SC_2025.json",
+      "tamanho_bytes": 1976432,
+      "total_escolas": 7463,
+      "por_origem": {
+        "inep_confirmado": 1080,
+        "endereco_exato": 1750,
+        "inep_sem_cnefe": 3356,
+        "cep_numero": 161,
+        "sem_correspondencia": 920,
+        "nome_ajustado": 63,
+        "nome_exato": 54,
+        "inep_divergente": 53,
+        "inep_proximo": 26
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 4,
+        "inep_confirmado": 1
+      }
+    },
+    "SE": {
+      "arquivo": "data/auditoria_2025/auditoria_SE_2025.json",
+      "tamanho_bytes": 685681,
+      "total_escolas": 2430,
+      "por_origem": {
+        "inep_sem_cnefe": 992,
+        "sem_correspondencia": 289,
+        "inep_confirmado": 733,
+        "nome_ajustado": 16,
+        "nome_exato": 24,
+        "endereco_exato": 297,
+        "inep_proximo": 27,
+        "inep_divergente": 26,
+        "cep_numero": 26
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 6,
+        "inep_confirmado": 1,
+        "inep_divergente": 1
+      }
+    },
+    "SP": {
+      "arquivo": "data/auditoria_2025/auditoria_SP_2025.json",
+      "tamanho_bytes": 9687598,
+      "total_escolas": 33616,
+      "por_origem": {
+        "endereco_exato": 12510,
+        "inep_confirmado": 3616,
+        "inep_sem_cnefe": 12690,
+        "cep_numero": 1105,
+        "sem_correspondencia": 3269,
+        "inep_divergente": 97,
+        "nome_exato": 88,
+        "inep_proximo": 77,
+        "nome_ajustado": 164
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 29,
+        "cep_numero": 1,
+        "endereco_exato": 5,
+        "inep_confirmado": 1
+      }
+    },
+    "TO": {
+      "arquivo": "data/auditoria_2025/auditoria_TO_2025.json",
+      "tamanho_bytes": 536934,
+      "total_escolas": 2217,
+      "por_origem": {
+        "inep_confirmado": 523,
+        "sem_correspondencia": 506,
+        "inep_sem_cnefe": 997,
+        "endereco_exato": 101,
+        "inep_divergente": 21,
+        "nome_ajustado": 13,
+        "inep_proximo": 15,
+        "cep_numero": 29,
+        "nome_exato": 12
+      },
+      "fora_do_municipio": {
+        "inep_sem_cnefe": 6
+      }
+    }
+  }
+}

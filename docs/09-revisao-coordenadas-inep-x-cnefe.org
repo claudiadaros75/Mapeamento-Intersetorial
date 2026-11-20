@@ -100,6 +100,40 @@ existir. Nenhuma das duas situações é, por si só, um erro de uma das bases.
 O script lê o zip do Censo 2025 e =web/data/escolas/<UF>.json=, e grava
 =web/data/catalogo_censo_2025/=. Ele não grava nada se as contagens não fecharem.
 
+* Outra pergunta: a melhor coordenada de cada escola (19-20/11/2026)
+
+A "Decisão em vigor" acima vale para a *comparação* entre as bases. Em
+paralelo, a branch =mapeamento-intersetorial-nacional= respondeu a outra
+pergunta, a do objetivo final do projeto: qual é a melhor posição de cada
+escola do Censo 2025, para quem quer só ver as escolas no mapa. Os dois
+trabalhos convivem, como o mapa em cascata do [[file:12-censo-2025-georreferenciado.org][doc 12]].
+
+| Mapa                                   | Pergunta                                          |
+|----------------------------------------+---------------------------------------------------|
+| [[../escolas_mapa_2025.html][Escolas do Censo 2025 (Brasil)]]         | Onde fica cada escola? Uma coordenada por escola. |
+| [[../escolas_auditoria_2025.html][Auditoria do georreferenciamento 2025]] | De onde veio essa coordenada e ela confere?      |
+
+Para a melhor coordenada, valem as regras "coordenada por nível" de
+02/11/2026 (abaixo): CNEFE nos níveis 1 e 2 (endereço), INEP nos demais,
+CNEFE quando o INEP não tem ponto ou tem ponto repetido. O endereço de 2025
+vem da exportação do Catálogo, separado em logradouro, número e CEP. O
+caminho completo, com os números, está em:
+
+- [[file:features/juntar-censo-2025-cadastro-escolar.md][features/juntar-censo-2025-cadastro-escolar.md]] (Censo 2025 × Catálogo pelo código)
+- [[file:features/casamento-cnefe-censo-2025.md][features/casamento-cnefe-censo-2025.md]] (casamento com o CNEFE)
+- [[file:features/campos-rastreio-etl-2025.md][features/campos-rastreio-etl-2025.md]] (campos de rastreio)
+- [[file:features/cnefe-brasil-inteiro.md][features/cnefe-brasil-inteiro.md]] (27 UFs)
+- [[file:features/mapa-escolas-2025-brasil.md][features/mapa-escolas-2025-brasil.md]] e [[file:features/mapa-auditoria-2025-brasil.md][features/mapa-auditoria-2025-brasil.md]]
+
+Resultado (Brasil): 214.192 escolas, 171.658 (80,1%) com coordenada, 88,0%
+das em atividade.
+
+*Cópias do Catálogo:* este trabalho usa a exportação manual do painel do
+INEP Data juntada por =inep_cadastro_escolar__juntar_exportacoes.py=
+(=data/inep_catalogo_escolas.csv=, 210.320 escolas); a "Decisão em vigor"
+usa =catalogo-escolas-unificado.csv= (212.386). Os números das duas não se
+comparam diretamente.
+
 * Por que comparar as coordenadas do INEP e do CNEFE
 
 ** Não existe gabarito
@@ -230,7 +264,7 @@ auditar direto nos dados:
    Substitui a regra "INEP primeiro" de 26/10/2026 para os níveis 1 e 2, e
    testa a hipótese levantada para SP.
 3. *Bases primárias marcadas*: o Catálogo de Escolas do INEP (geobr, com a
-   coordenada do INEP) e os pontos de ensino do CNEFE. Os arquivos baixados
+   coordenada do INEP; desde 19/11/2026, a exportação do INEP Data) e os pontos de ensino do CNEFE. Os arquivos baixados
    não são alterados; o ETL grava cópias com as colunas novas.
 
 ** Tarefas
@@ -404,6 +438,11 @@ versão mais nova que possa ser baixada por script?
 
 ** geobr 2.x: um arquivo por ano, de 2007 a 2025
 
+*Atualização (19/11/2026):* não adotado. O geobr saiu do projeto (ver a
+entrada de 19/11 em "O que foi feito"); a exportação do INEP Data também
+traz o endereço por escola, que era o motivo para usar o geobr 2.x no
+Censo 2025.
+
 O geobr mudou de versão (pacote 2.1.0; release de dados =v2.0.0=,
 publicada em 15/09/2026). As escolas agora vêm em um arquivo parquet por
 ano, baixável direto:
@@ -483,7 +522,8 @@ conhecida, caso o endereço de 2025 volte a ser necessário./
   ponto, mas só com precisão =numero= (e talvez =numero_aproximado=):
   ~470 escolas em funcionamento nas três UFs. Não resolve o Norte rural.
 
-Tarefas propostas (a decidir):
+Tarefas propostas (a decidir; *descartadas em 19/11/2026*, com a remoção do
+geobr):
 
 | # | Tarefa                                                           | Justificativa |
 |---+------------------------------------------------------------------+---------------|
@@ -512,6 +552,59 @@ Lista anterior, de 02/11/2026, com números da cópia de 2023 do cadastro:
 4. Só depois, expandir para outras UFs.
 
 * O que foi feito
+
+** 20/11/2026: mapas de 2025 da branch =mapeamento-intersetorial-nacional= mesclados na main
+
+- Mesclados mantendo os dois trabalhos (ver "Outra pergunta: a melhor
+  coordenada de cada escola"). A "Decisão em vigor" acima não mudou.
+
+** 19/11/2026: geobr removido do projeto
+
+- Decisão: o ponto do INEP vem *só* da exportação do painel do INEP Data,
+  que é o que o público em geral tem à mão. O geobr apenas redistribuía o
+  mesmo cadastro, e a exportação também traz o endereço (coluna
+  =Endereço=, preenchida nas 210.320 escolas). Detalhes em
+  [[file:features/remover-geobr.md][features/remover-geobr.md]].
+- Saíram: a reserva do geobr 2023 no ETL, a coluna =INEP_ORIGEM_PONTO= (com
+  uma fonte só, teria um valor único), o script
+  =ipea_geobr_escolas__baixar_dados.py= e =data/ipea_geobr_escolas/=.
+- Resultado (AM, PA, SP; 51.892 escolas), comparado com a saída anterior:
+  - As 1.007 escolas da reserva (SP 726, PA 246, AM 35) perderam o ponto do
+    INEP. Escolas com ponto do INEP: 42.508 -> 41.501.
+  - Dessas, 583 ficaram sem coordenada (=inep_sem_cnefe= ->
+    =sem_correspondencia=) e 424 passaram para o ponto do CNEFE (323 já
+    estavam nos níveis 1-2 e não mudaram de ponto; 101 mudaram para
+    =cep_numero=, =nome_exato= ou =nome_ajustado=). Sem coordenada final:
+    6.320 -> 6.903.
+  - Das 201 em funcionamento em 2024, 92 ficaram sem coordenada.
+  - Fora delas, só 3 escolas mudaram, e só em =INEP_ESCOLAS_NO_PONTO= (2 ->
+    1): dividiam o ponto com uma escola que só estava no geobr.
+
+** 19/11/2026: ponto do INEP vindo da exportação do painel do INEP Data
+
+- O Catálogo de Escolas foi exportado à mão do painel do INEP Data, por
+  grande região (o painel corta a exportação em 100.000 linhas), em
+  =data/cadastroescolar_inep/=. O script
+  =scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py= junta as
+  partes em =data/inep_catalogo_escolas.csv= (210.320 escolas, 27 UFs,
+  155.771 com ponto). Detalhes em
+  =docs/features/juntar-exportacoes-catalogo-inep.md=.
+- É o mesmo ponto do geobr 2023: as 155.232 escolas com ponto nas duas
+  bases têm o mesmo ponto (menos de 1 m de diferença).
+- O ETL passou a usar essa exportação como fonte do ponto do INEP, com o
+  geobr 2023 como *reserva* para as escolas que não estão nela. Sem a
+  reserva, 1.007 escolas do Censo 2024 (AM, PA, SP; 201 em funcionamento
+  em 2024) perderiam o ponto: são escolas que saíram do cadastro atual.
+- Nova coluna =INEP_ORIGEM_PONTO= (=catalogo_inep_data= ou =geobr_2023=)
+  no CSV principal e na auditoria. A cópia marcada do Catálogo passou a
+  ser =data/inep_catalogo_escolas_marcado.csv= (base: a exportação) e
+  substitui =data/inep_catalogo_escolas_2023_marcado.csv=.
+- Resultado (AM, PA, SP; 51.892 escolas): origem do ponto do INEP
+  =catalogo_inep_data= 41.501, =geobr_2023= 1.007, sem ponto 9.384. Escolas
+  com ponto do INEP: 42.478 -> 42.508. Sem coordenada final: 6.336 ->
+  6.320. Mudaram de status 19 escolas (16 =sem_correspondencia= ->
+  =inep_sem_cnefe=; 3 de casamento por nome -> ponto do INEP); 5 só
+  mudaram na 6ª casa decimal (arredondamento).
 
 ** 09/11/2026
 

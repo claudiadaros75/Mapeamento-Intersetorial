@@ -3,38 +3,53 @@
   "ufs": {
     "AM": {
       "arquivo": "data/escolas/escolas_AM_2024.json",
-      "tamanho_bytes": 430887,
+      "tamanho_bytes": 934939,
       "total_escolas": 6181,
-      "no_mapa": 2103,
+      "no_mapa": 4498,
       "por_status": {
-        "nome_ajustado": 1199,
-        "sem_correspondencia": 4078,
-        "nome_exato": 604,
-        "cep_numero": 300
+        "inep_confirmado": 1202,
+        "inep_sem_cnefe": 2382,
+        "sem_correspondencia": 1683,
+        "inep_divergente": 146,
+        "inep_proximo": 36,
+        "endereco_exato": 177,
+        "nome_ajustado": 352,
+        "nome_exato": 133,
+        "cep_numero": 70
       }
     },
     "PA": {
       "arquivo": "data/escolas/escolas_PA_2024.json",
-      "tamanho_bytes": 834020,
+      "tamanho_bytes": 1974284,
       "total_escolas": 11848,
-      "no_mapa": 4136,
+      "no_mapa": 9810,
       "por_status": {
-        "cep_numero": 809,
-        "sem_correspondencia": 7712,
-        "nome_ajustado": 2986,
-        "nome_exato": 341
+        "inep_confirmado": 2781,
+        "endereco_exato": 486,
+        "inep_sem_cnefe": 5658,
+        "inep_divergente": 237,
+        "nome_ajustado": 368,
+        "sem_correspondencia": 2038,
+        "inep_proximo": 82,
+        "cep_numero": 147,
+        "nome_exato": 51
       }
     },
     "SP": {
       "arquivo": "data/escolas/escolas_SP_2024.json",
-      "tamanho_bytes": 3776151,
+      "tamanho_bytes": 6469350,
       "total_escolas": 33863,
-      "no_mapa": 18549,
+      "no_mapa": 30681,
       "por_status": {
-        "nome_ajustado": 2951,
-        "sem_correspondencia": 15314,
-        "cep_numero": 15218,
-        "nome_exato": 380
+        "inep_confirmado": 3572,
+        "inep_sem_cnefe": 12069,
+        "endereco_exato": 13453,
+        "sem_correspondencia": 3182,
+        "cep_numero": 1159,
+        "inep_proximo": 74,
+        "inep_divergente": 114,
+        "nome_exato": 75,
+        "nome_ajustado": 165
       }
     }
   }
