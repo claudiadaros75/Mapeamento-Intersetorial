@@ -65,7 +65,7 @@
 ** 2026-11-08 — Mapa e documentos
 - *Criados:* ~scripts/commands/escolas__gerar_dados_mapa_nacional.py~, ~web/escolas_brasil_censo_cnefe.html~, ~web/js/escolas_brasil_censo_cnefe.js~, ~web/data/escolas_brasil/pontos.json~, ~docs/10-mapa-nacional-censo-cnefe.org~ e ~docs/11-censo-escolar-x-cnefe.org~.
 - *Verificação do gerador:* ~{'escolas_censo': 212386, 'censo': 158182, 'censo_par': 22744, 'sem_coordenada': 31460, 'cnefe': 264445}~.
-- *Alterados:* ~scripts/commands/exportar_docs_org_para_html.sh~, ~web/index.html~ e os docs 05, 06 e 07.
+- *Alterados:* ~scripts/utils/exportar_docs_org_para_html.sh~, ~web/index.html~ e os docs 05, 06 e 07.
 
 ** 2026-11-08 — Exportador e estilo
 - *Causa:* ~emacs --eval~ lê uma só expressão, e a configuração tinha várias. A correção foi envolvê-las em ~progn~.

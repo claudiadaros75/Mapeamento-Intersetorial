@@ -6,7 +6,7 @@
 # HTML estáticas na pasta web/docs/, prontas para publicação web (GitHub Pages).
 #
 # Uso:
-#   ./scripts/commands/exportar_docs_org_para_html.sh
+#   ./scripts/utils/exportar_docs_org_para_html.sh
 # ==============================================================================
 
 set -euo pipefail

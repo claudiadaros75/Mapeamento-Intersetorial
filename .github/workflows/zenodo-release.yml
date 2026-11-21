@@ -80,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          python3 scripts/commands/github_auditoria__exportar_markdown.py \
+          python3 scripts/utils/github_auditoria__exportar_markdown.py \
             --tag "$TAG" --saida build/auditoria
 
       - name: Empacotar código e auditoria
@@ -112,7 +112,7 @@ jobs:
             export ZENODO_TOKEN="$TOKEN_REAL" ZENODO_CONCEPT_RECID="$RECID_REAL"
             flag=
           fi
-          python3 scripts/commands/zenodo__publicar_release.py $flag \
+          python3 scripts/utils/zenodo__publicar_release.py $flag \
             --versao "$TAG" --notas build/notas.md \
             --arquivo "build/$NOME-codigo.zip" \
             --arquivo "build/$NOME-auditoria.zip"

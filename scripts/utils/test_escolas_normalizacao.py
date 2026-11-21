@@ -1,6 +1,6 @@
 """Testes dos normalizadores (casos reais do Catalogo de Escolas e do CNEFE).
 
-Rodar: python3 -m unittest scripts/commands/test_escolas_normalizacao.py
+Rodar: python3 -m unittest scripts/utils/test_escolas_normalizacao.py
 """
 
 import sys

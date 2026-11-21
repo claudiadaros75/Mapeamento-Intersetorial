@@ -91,7 +91,7 @@ As 1.007 escolas da reserva (SP 726, PA 246, AM 35):
 ### Tarefa 5: textos atualizados
 
 - `.gitignore`: removida a entrada de `data/ipea_geobr_escolas/`.
-- `scripts/commands/previsualizar_dados.py`: removido o exemplo com o GeoPackage.
+- `scripts/utils/previsualizar_dados.py`: removido o exemplo com o GeoPackage.
 - `scripts/commands/inep_cadastro_escolar__juntar_exportacoes.py`: docstring sem o geobr.
 - `web/escolas_auditoria.html`, `web/js/escolas_auditoria.js`: a origem do
   ponto do INEP passa a ser "exportação do painel do INEP Data".
@@ -101,7 +101,7 @@ As 1.007 escolas da reserva (SP 726, PA 246, AM 35):
   de reprodução sem o download do geobr, próximo passo 0b marcado como superado.
 - Doc 09: seção do geobr 2.x e tarefas propostas marcadas como não
   adotadas; nova entrada "19/11/2026: geobr removido do projeto" com os números.
-- `web/docs/*.html` regenerados com `scripts/commands/exportar_docs_org_para_html.sh`.
+- `web/docs/*.html` regenerados com `scripts/utils/exportar_docs_org_para_html.sh`.
 - `docs/features/juntar-exportacoes-catalogo-inep.md` não foi alterado: é o
   registro do que foi feito naquela data.
 

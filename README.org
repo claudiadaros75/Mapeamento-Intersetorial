@@ -188,7 +188,7 @@ O workflow =.github/workflows/zenodo-release.yml= operacionaliza este
 fluxo.  Sempre que uma release é publicada no GitHub, ele:
 
 1. exporta toda a trilha de auditoria do repositório para Markdown
-   (script =scripts/commands/github_auditoria__exportar_markdown.py=):
+   (script =scripts/utils/github_auditoria__exportar_markdown.py=):
    - cada issue e cada pull request, com descrição e linha do tempo
      completa (comentários, revisões, comentários em linhas de código,
      commits, rótulos, milestones, referências cruzadas, integração);
@@ -198,7 +198,7 @@ fluxo.  Sempre que uma release é publicada no GitHub, ele:
 2. empacota o código da tag (=...-codigo.zip=) e a auditoria
    (=...-auditoria.zip=);
 3. deposita os dois no Zenodo pela API (script
-   =scripts/commands/zenodo__publicar_release.py=), com os metadados de
+   =scripts/utils/zenodo__publicar_release.py=), com os metadados de
    =.zenodo.json=, e obtém o DOI da versão;
 4. escreve o DOI nas notas da release e anexa o zip da auditoria a ela.
 
@@ -433,7 +433,7 @@ Detalhes, decisões e números de cada etapa ficam em =docs/= e em
 * comandos do orgmode
 Exportar a documentação Org para HTML estático em =web/docs/=:
    #+begin_src sh
-   ./scripts/commands/exportar_docs_org_para_html.sh
+   ./scripts/utils/exportar_docs_org_para_html.sh
    #+end_src
 
 * Referências

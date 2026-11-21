@@ -23,7 +23,7 @@ Variaveis de ambiente:
                            e url, para os passos seguintes do workflow
 
 Uso:
-    python3 scripts/commands/zenodo__publicar_release.py --sandbox \\
+    python3 scripts/utils/zenodo__publicar_release.py --sandbox \\
         --versao v0.1.0 --notas notas.md --arquivo codigo.zip --arquivo auditoria.zip
 
 Use --sandbox (sandbox.zenodo.org, com token proprio) para testar: os DOIs

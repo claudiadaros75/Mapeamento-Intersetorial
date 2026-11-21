@@ -211,7 +211,7 @@ Cada registro do CNEFE só pode ser usado uma vez, ou seja, o pareamento é 1:1.
 - ~.gitignore~ também passou a ignorar ~data/ibge_cnefe/escolas/~ e ~data/escolas_pareamento/~, ambos derivados e reproduzíveis.
 
 ** 2026-11-07 — T3 + T5 ✅
-- *Criado:* ~scripts/commands/escolas_normalizacao.py~ (módulo).
+- *Criado:* ~scripts/utils/escolas_normalizacao.py~ (módulo).
   - ~parse_endereco_inep~
   - ~normalizar_cep~ e ~cep_generico~
   - ~normalizar_numero~, em que ~S/N~, ~SN~ e ~0~ viram vazio
@@ -219,7 +219,7 @@ Cada registro do CNEFE só pode ser usado uma vez, ou seja, o pareamento é 1:1.
   - ~nome_escola_exato~ para N3
   - ~nome_escola_nucleo~ para N4: expande EE, EMEF, CMEI… e remove termos genéricos como ESCOLA, MUNICIPAL, ENSINO
   - ~haversine_m~ e ~faixa_distancia~
-- *Criado:* ~scripts/commands/test_escolas_normalizacao.py~, com 19 testes de casos reais. Resultado: ~.venv/bin/python -m unittest scripts/commands/test_escolas_normalizacao.py~ → ~Ran 19 tests ... OK~.
+- *Criado:* ~scripts/utils/test_escolas_normalizacao.py~, com 19 testes de casos reais. Resultado: ~.venv/bin/python -m unittest scripts/utils/test_escolas_normalizacao.py~ → ~Ran 19 tests ... OK~.
 - *Bugs que os testes pegaram e já foram corrigidos:*
 1. As stopwords apagavam ruas de loteamento como "RUA D" e "RUA E".
 2. As abreviações de uma letra (S→SÃO, N→NOSSA, D→DOM) desfiguravam essas mesmas ruas e foram removidas da tabela de logradouro.

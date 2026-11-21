@@ -8,7 +8,7 @@ planilhas Excel (.xlsx) e JSON/JSONL. Gera um HTML auto-contido e offline em
 temp/ e abre no navegador padrão.
 
 Exemplos (a partir da raiz do projeto):
-    PY=".venv/bin/python scripts/commands/previsualizar_dados.py"
+    PY=".venv/bin/python scripts/utils/previsualizar_dados.py"
     $PY data/auditoria/escolas_inep_x_cnefe_2024.csv -n 30
     $PY data/ibge_cnefe/zipfiles/13_AM.zip -n 20
     $PY data/inep_censo_escolar/zipfiles/microdados_censo_escolar_2025.zip --listar

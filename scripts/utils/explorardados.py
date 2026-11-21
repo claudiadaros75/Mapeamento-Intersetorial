@@ -12,7 +12,7 @@ Os valores sao lidos como texto, para que codigos como CO_ENTIDADE e as
 categorias TP_* aparecam como estao no arquivo (1, e nao 1.0).
 
 Uso (a partir da raiz do projeto):
-    PY=".venv/bin/python scripts/commands/explorardados.py"
+    PY=".venv/bin/python scripts/utils/explorardados.py"
     $PY tabelas
     $PY colunas escola --filtro INTERNET --descricao
     $PY head escola -n 3 --colunas CO_ENTIDADE,NO_ENTIDADE,SG_UF

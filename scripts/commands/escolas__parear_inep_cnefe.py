@@ -44,6 +44,7 @@ from pathlib import Path
 from rapidfuzz import fuzz, process
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "utils"))
 import escolas_normalizacao as nz  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent.parent.parent

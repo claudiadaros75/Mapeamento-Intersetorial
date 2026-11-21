@@ -13,7 +13,7 @@ Depende do ZIP ja extraido:
         municipios --extrair
 
 Uso:
-    .venv/bin/python scripts/commands/ibge_malha_municipal__explorar_shapefiles.py [caminho_do_shapefile]
+    .venv/bin/python scripts/utils/ibge_malha_municipal__explorar_shapefiles.py [caminho_do_shapefile]
 
 Caminho padrao: data/ibge_malha_municipal/zipfiles/BR_Municipios_2024/BR_Municipios_2024.shp
 """

@@ -145,7 +145,7 @@ funciona em todas as chamadas; o parâmetro é mais confiável):
 Exemplos testados neste projeto:
 
 - Malha de um município em GeoJSON (Cotia/SP, código =3513009=) — testada
-  via requisição direta à API (ver =scripts/restclient-ibge-malhas-api.http=), sem
+  via requisição direta à API (ver =scripts/utils/restclient-ibge-malhas-api.http=), sem
   script dedicado.
 
 - Malhas territoriais em GeoJSON pela API de Malhas (v4) — baixadas pelo
@@ -156,7 +156,7 @@ Exemplos testados neste projeto:
 #+end_src
 
 Para testar todos os endpoints de malha no Emacs, use o arquivo de testes
-do restclient em =scripts/restclient-ibge-malhas-api.http=.
+do restclient em =scripts/utils/restclient-ibge-malhas-api.http=.
 
 ** Diferenças entre a API e o shapefile original
 

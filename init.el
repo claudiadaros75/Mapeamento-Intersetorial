@@ -361,7 +361,7 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
 
 ;;; ---------------------------------------------------------------
 ;; 10. Restclient — testes da API de Malhas do IBGE
-;;     Abre scripts/restclient-ibge-malhas-api.http em restclient-mode;
+;;     Abre scripts/utils/restclient-ibge-malhas-api.http em restclient-mode;
 ;;     C-c C-c envia a requisição sob o cursor.
 ;;; ---------------------------------------------------------------
 
@@ -468,7 +468,7 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
 ;;; ---------------------------------------------------------------
 ;; 13. Menu "Georef" — tarefas do projeto
 ;;     - exportar a documentação Org para web/docs/
-;;     - rodar um script de scripts/commands/ com o Python do .venv
+;;     - rodar um script de scripts/commands/ ou scripts/utils/ com o Python do .venv
 ;;     - servir web/ em http://localhost:8000 (o Leaflet carrega os
 ;;       GeoJSON via fetch, que não funciona abrindo o HTML como file://)
 ;;; ---------------------------------------------------------------
@@ -480,18 +480,24 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
   "Exporta docs/*.org para web/docs/ via exportar_docs_org_para_html.sh."
   (interactive)
   (let ((default-directory georef/root-dir))
-    (compile "./scripts/commands/exportar_docs_org_para_html.sh")))
+    (compile "./scripts/utils/exportar_docs_org_para_html.sh")))
 
 (defun georef/rodar-script (script)
-  "Roda SCRIPT de scripts/commands/ com o Python do .venv, num buffer *compilation*."
+  "Roda SCRIPT (commands/x.py ou utils/x.py, relativo a scripts/) com o
+Python do .venv, num buffer *compilation*."
   (interactive
    (list (completing-read
           "Script: "
-          (directory-files (expand-file-name "scripts/commands/" georef/root-dir)
-                           nil "\\.py\\'")
+          (mapcan (lambda (pasta)
+                    (mapcar (lambda (f) (concat pasta "/" f))
+                            (directory-files
+                             (expand-file-name (concat "scripts/" pasta "/")
+                                               georef/root-dir)
+                             nil "\\.py\\'")))
+                  '("commands" "utils"))
           nil t)))
   (let ((default-directory georef/root-dir))
-    (compile (format "%s scripts/commands/%s"
+    (compile (format "%s scripts/%s"
                      (shell-quote-argument georef/venv-python)
                      (shell-quote-argument script)))))
 
@@ -518,7 +524,7 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
 (easy-menu-define georef/menu global-map "Tarefas do projeto georef-artifacts."
   '("Georef"
     ["Exportar docs Org → web/docs/" georef/exportar-docs t]
-    ["Rodar script de scripts/commands/..." georef/rodar-script t]
+    ["Rodar script de scripts/{commands,utils}/..." georef/rodar-script t]
     "--"
     ["Servidor web local (liga/desliga)" georef/servidor-web t]))
 
@@ -542,7 +548,7 @@ Com profundidade alta, para ficarem *depois* das fontes do próprio modo."
 ;;
 ;;  Projeto (menu Georef):
 ;;    C-c g e       — exportar docs/*.org para web/docs/
-;;    C-c g r       — rodar um script de scripts/commands/ com o .venv
+;;    C-c g r       — rodar um script de scripts/commands/ ou utils/ com o .venv
 ;;    C-c g s       — liga/desliga http://localhost:8000 servindo web/
 ;;
 ;;  Python (eglot + pyright):

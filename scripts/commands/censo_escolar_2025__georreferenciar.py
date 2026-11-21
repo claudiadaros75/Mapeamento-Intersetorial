@@ -33,6 +33,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "utils"))
 import escolas__parear_inep_cnefe as par  # noqa: E402
 import escolas_normalizacao as nz  # noqa: E402
 

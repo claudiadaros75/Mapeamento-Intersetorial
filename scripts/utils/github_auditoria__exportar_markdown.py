@@ -20,7 +20,7 @@ O que e exportado (para a pasta de saida):
     SHA256SUMS               hash de cada arquivo exportado
 
 Uso:
-    GITHUB_TOKEN=... python3 scripts/commands/github_auditoria__exportar_markdown.py \\
+    GITHUB_TOKEN=... python3 scripts/utils/github_auditoria__exportar_markdown.py \\
         --repo claudiadaros75/Mapeamento-Intersetorial --tag v0.1.0 --saida build/auditoria
 
 Sem GITHUB_TOKEN a API do GitHub limita a 60 requisicoes por hora, o que so

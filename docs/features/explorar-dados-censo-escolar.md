@@ -2,7 +2,7 @@
 
 ## Goal
 
-Ter um script básico, `scripts/commands/explorardados.py`, para olhar os
+Ter um script básico, `scripts/utils/explorardados.py`, para olhar os
 microdados do Censo Escolar (começando por 2025) sem abrir um notebook: ver
 as tabelas, as colunas, as primeiras e as últimas linhas, contar valores,
 filtrar e consultar o dicionário de dados do INEP.
@@ -31,7 +31,7 @@ filtrar e consultar o dicionário de dados do INEP.
 
 ### Tarefas 1 a 5 (19/11/2026)
 
-- Arquivo criado: `scripts/commands/explorardados.py` (só pandas e a
+- Arquivo criado: `scripts/utils/explorardados.py` (só pandas e a
   biblioteca padrão; nada novo no `.venv`).
 - Subcomandos: `tabelas`, `colunas`, `head`, `tail`, `amostra`, `contar`,
   `resumo`, `filtrar`, `dicionario`. Opções comuns: `--ano`, `--arquivo`,
